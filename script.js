@@ -2511,9 +2511,9 @@ async function registerUser() {
     try {
 
         const response =
-            await fetch(
-                /api/register
-                {
+    await fetch(
+        "/api/register",
+        {
                     method: "POST",
 
                     headers: {
@@ -3008,10 +3008,10 @@ async function loginUser() {
 
     try {
 
-        const response =
-            await fetch(
-                /api/login
-                {
+const response =
+    await fetch(
+        "/api/login",
+        {
                     method: "POST",
 
                     headers: {
