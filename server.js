@@ -135,6 +135,57 @@ app.post("/api/login", async (req, res) => {
     }
 });
 
+// ================================
+// RAZORPAY ORDER API
+// ================================
+
+app.post("/api/create-order", async (req, res) => {
+    try {
+        const { plan } = req.body;
+
+        let amount;
+        let planName;
+
+        if (plan === "Monthly") {
+            amount = 29900; // ₹299 in paise
+            planName = "Monthly";
+        } 
+        else if (plan === "Yearly") {
+            amount = 199900; // ₹1999 in paise
+            planName = "Yearly";
+        } 
+        else {
+            return res.status(400).json({
+                message: "Invalid plan."
+            });
+        }
+
+        const options = {
+            amount: amount,
+            currency: "INR",
+            receipt: `receipt_${Date.now()}`,
+            notes: {
+                plan: planName
+            }
+        };
+
+        const order = await razorpay.orders.create(options);
+
+        res.json({
+            success: true,
+            order: order,
+            key: process.env.RAZORPAY_KEY_ID
+        });
+
+    } catch (error) {
+        console.error("Razorpay Order Error:", error);
+
+        res.status(500).json({
+            success: false,
+            message: "Unable to create Razorpay order."
+        });
+    }
+});
 // Railway provides PORT automatically
 const PORT = process.env.PORT || 5000;
 
