@@ -2510,7 +2510,7 @@ async function registerUser() {
 
     try {
 
-        const response =
+       const response =
     await fetch(
         "/api/register",
         {
