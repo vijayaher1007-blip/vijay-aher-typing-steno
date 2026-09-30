@@ -91,10 +91,12 @@ app.post("/api/login", async (req, res) => {
 
         db.query(sql, [email], async (err, results) => {
             if (err) {
-                return res.status(500).json({
-                    message: "Database error."
-                });
-            }
+    console.error("LOGIN DATABASE ERROR:", err);
+
+    return res.status(500).json({
+        message: "Database error."
+    });
+}
 
             if (results.length === 0) {
                 return res.status(401).json({
