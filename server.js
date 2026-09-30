@@ -4,6 +4,7 @@ require("dotenv").config();
 const bcrypt = require("bcryptjs");
 const db = require("./db");
 const path = require("path");
+const Razorpay = require("razorpay");
 
 const app = express();
 
