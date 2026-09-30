@@ -6,14 +6,21 @@ const db = require("./db");
 const path = require("path");
 
 const app = express();
+
 app.use(cors());
 app.use(express.json());
+
+// Website folder
+const websitePath = path.join(__dirname, "..");
+
+app.use(express.static(websitePath));
+
 app.get("/test", (req, res) => {
     res.send("SERVER OK");
 });
-app.use(express.static("C:/Users/Dell/Documents/typing website/Website"));
+
 app.get("/", (req, res) => {
-    res.sendFile("index.html", { root: "../" });
+    res.sendFile(path.join(websitePath, "index.html"));
 });
 
 app.post("/api/register", async (req, res) => {
@@ -57,6 +64,8 @@ app.post("/api/register", async (req, res) => {
         );
 
     } catch (error) {
+        console.error(error);
+
         res.status(500).json({
             message: "Server error."
         });
@@ -113,13 +122,17 @@ app.post("/api/login", async (req, res) => {
         });
 
     } catch (error) {
+        console.error(error);
+
         res.status(500).json({
             message: "Server error."
         });
     }
 });
-const PORT = 5000;
 
-app.listen(PORT, () => {
-    console.log(`Server running at http://localhost:${PORT}`);
+// Railway provides PORT automatically
+const PORT = process.env.PORT || 5000;
+
+app.listen(PORT, "0.0.0.0", () => {
+    console.log(`Server running on port ${PORT}`);
 });
