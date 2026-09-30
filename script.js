@@ -3255,23 +3255,90 @@ document.addEventListener(
    SUBSCRIPTION PLAN
    ===================================================== */
 
-function subscribePlan(plan) {
+async function subscribePlan(plan) {
+    const userData = localStorage.getItem("loggedInUser");
 
-    if (plan === "Monthly") {
-
-        alert(
-            "⭐ Monthly Plan ₹299 selected."
-        );
-
+    if (!userData) {
+        alert("⚠️ कृपया आधी Login करा.");
+        showLogin();
+        return;
     }
 
+    try {
+        const response = await fetch("/api/create-order", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                plan: plan
+            })
+        });
 
-    if (plan === "Yearly") {
+        const data = await response.json();
+
+        if (!response.ok || !data.success) {
+            alert("❌ Order तयार करता आला नाही.");
+            return;
+        }
+
+        const user = JSON.parse(userData);
+
+        const options = {
+            key: data.key,
+            amount: data.order.amount,
+            currency: data.order.currency,
+            name: "VIJAY AHER",
+            description: plan + " Subscription",
+            order_id: data.order.id,
+
+            prefill: {
+                name: user.name || "",
+                email: user.email || ""
+            },
+
+            theme: {
+                color: "#0d6efd"
+            },
+
+            handler: function (response) {
+                alert(
+                    "✅ Payment Successful!\n\n" +
+                    "Payment ID: " +
+                    response.razorpay_payment_id
+                );
+
+                console.log(
+                    "Razorpay Payment:",
+                    response
+                );
+            },
+
+            modal: {
+                ondismiss: function () {
+                    console.log("Payment window closed.");
+                }
+            }
+        };
+
+        const rzp = new Razorpay(options);
+
+        rzp.on("payment.failed", function (response) {
+            console.error("Payment Failed:", response.error);
+
+            alert(
+                "❌ Payment Failed.\n" +
+                response.error.description
+            );
+        });
+
+        rzp.open();
+
+    } catch (error) {
+        console.error("Payment Error:", error);
 
         alert(
-            "👑 Yearly Plan ₹1999 selected."
+            "❌ Payment सुरू करता आले नाही."
         );
-
     }
-
 }
