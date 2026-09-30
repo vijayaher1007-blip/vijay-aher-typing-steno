@@ -186,6 +186,154 @@ app.post("/api/create-order", async (req, res) => {
         });
     }
 });
+// ================================
+// RAZORPAY PAYMENT VERIFICATION
+// ================================
+
+const crypto = require("crypto");
+
+app.post("/api/verify-payment", async (req, res) => {
+    try {
+        const {
+            razorpay_order_id,
+            razorpay_payment_id,
+            razorpay_signature,
+            user_id,
+            plan
+        } = req.body;
+
+        if (
+            !razorpay_order_id ||
+            !razorpay_payment_id ||
+            !razorpay_signature ||
+            !user_id ||
+            !plan
+        ) {
+            return res.status(400).json({
+                success: false,
+                message: "Payment details are incomplete."
+            });
+        }
+
+        const generatedSignature = crypto
+            .createHmac(
+                "sha256",
+                process.env.RAZORPAY_KEY_SECRET
+            )
+            .update(
+                razorpay_order_id +
+                "|" +
+                razorpay_payment_id
+            )
+            .digest("hex");
+
+        if (generatedSignature !== razorpay_signature) {
+            return res.status(400).json({
+                success: false,
+                message: "Payment verification failed."
+            });
+        }
+
+        let amount;
+        let expiryDays;
+
+        if (plan === "Monthly") {
+            amount = 299;
+            expiryDays = 30;
+        } else if (plan === "Yearly") {
+            amount = 1999;
+            expiryDays = 365;
+        } else {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid plan."
+            });
+        }
+
+        const startDate = new Date();
+        const expiryDate = new Date();
+
+        expiryDate.setDate(
+            expiryDate.getDate() + expiryDays
+        );
+
+        const paymentSql = `
+            INSERT INTO payments
+            (user_id, plan, amount, payment_id, order_id, status)
+            VALUES (?, ?, ?, ?, ?, ?)
+        `;
+
+        db.query(
+            paymentSql,
+            [
+                user_id,
+                plan,
+                amount,
+                razorpay_payment_id,
+                razorpay_order_id,
+                "paid"
+            ],
+            (paymentErr) => {
+
+                if (paymentErr) {
+                    console.error(paymentErr);
+
+                    return res.status(500).json({
+                        success: false,
+                        message: "Payment record could not be saved."
+                    });
+                }
+
+                const userSql = `
+                    UPDATE users
+                    SET plan = ?,
+                        subscription_start = ?,
+                        subscription_expiry = ?
+                    WHERE id = ?
+                `;
+
+                db.query(
+                    userSql,
+                    [
+                        plan,
+                        startDate,
+                        expiryDate,
+                        user_id
+                    ],
+                    (userErr) => {
+
+                        if (userErr) {
+                            console.error(userErr);
+
+                            return res.status(500).json({
+                                success: false,
+                                message: "Subscription could not be activated."
+                            });
+                        }
+
+                        res.json({
+                            success: true,
+                            message: "Payment verified and subscription activated.",
+                            plan: plan,
+                            expiry: expiryDate
+                        });
+                    }
+                );
+            }
+        );
+
+    } catch (error) {
+        console.error(
+            "Payment Verification Error:",
+            error
+        );
+
+        res.status(500).json({
+            success: false,
+            message: "Server error during payment verification."
+        });
+    }
+});
 // Railway provides PORT automatically
 const PORT = process.env.PORT || 5000;
 
