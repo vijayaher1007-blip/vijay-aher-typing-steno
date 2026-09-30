@@ -1,0 +1,1085 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #eef3f8;
+    color: #17202a;
+}
+
+.hidden {
+    display: none !important;
+}
+
+
+/* =====================================================
+   HEADER
+   ===================================================== */
+
+.main-header {
+    background: linear-gradient(135deg, #172554, #2563eb, #0f766e);
+    color: white;
+    text-align: center;
+    padding: 25px 15px;
+    box-shadow: 0 4px 15px rgba(0,0,0,.2);
+}
+
+.main-header h1 {
+    margin: 0;
+    font-size: 38px;
+    letter-spacing: 2px;
+}
+
+.main-header p {
+    margin: 8px 0 0;
+    font-size: 18px;
+}
+
+
+/* =====================================================
+   NAVIGATION
+   ===================================================== */
+
+.main-nav {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 15px;
+    background: #ffffff;
+    border-bottom: 1px solid #ddd;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+}
+
+.main-nav button {
+    border: none;
+    background: #1d4ed8;
+    color: white;
+    padding: 12px 18px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.main-nav button:hover {
+    background: #1e3a8a;
+}
+
+
+/* =====================================================
+   SECTIONS
+   ===================================================== */
+
+.main-section {
+    max-width: 1500px;
+    margin: auto;
+    padding: 20px;
+}
+
+.section-heading,
+.court-heading {
+    text-align: center;
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 15px;
+    color: white;
+    background: linear-gradient(135deg, #1e3a8a, #2563eb);
+}
+
+.section-heading h2,
+.court-heading h2 {
+    margin: 0;
+}
+
+.section-heading p,
+.court-heading p {
+    margin-bottom: 0;
+}
+
+
+/* =====================================================
+   CONTROLS
+   ===================================================== */
+
+.controls,
+.court-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: end;
+    padding: 15px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 3px 12px rgba(0,0,0,.08);
+    margin-bottom: 15px;
+}
+
+.controls label,
+.court-controls label {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    font-weight: bold;
+}
+
+select,
+input,
+textarea {
+    font: inherit;
+}
+
+.controls select,
+.court-controls select,
+.controls input {
+    padding: 9px;
+    border: 1px solid #bbb;
+    border-radius: 6px;
+}
+
+button {
+    border: none;
+    border-radius: 7px;
+    padding: 10px 15px;
+    cursor: pointer;
+    font-weight: bold;
+    background: #2563eb;
+    color: white;
+}
+
+button:hover {
+    opacity: .9;
+}
+
+button:disabled {
+    background: #999;
+    cursor: not-allowed;
+}
+
+
+/* =====================================================
+   STATUS
+   ===================================================== */
+
+.status,
+.court-status {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 10px;
+    margin: 15px 0;
+}
+
+.status > div,
+.court-status > div {
+    background: white;
+    padding: 14px;
+    text-align: center;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,.08);
+    font-size: 13px;
+}
+
+.status strong,
+.court-status strong {
+    display: block;
+    font-size: 24px;
+    margin-top: 5px;
+    color: #1d4ed8;
+}
+
+
+/* =====================================================
+   TEST AREA
+   ===================================================== */
+
+.test-wrapper {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+}
+
+.test-panel {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 3px 12px rgba(0,0,0,.1);
+}
+
+.panel-title {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    background: #172554;
+    color: white;
+}
+
+.panel-title h2 {
+    margin: 0;
+}
+
+.panel-title button {
+    background: white;
+    color: #172554;
+    margin-left: 4px;
+}
+
+.question-text {
+    min-height: 400px;
+    padding: 25px;
+    font-size: 20px;
+    line-height: 1.8;
+    white-space: pre-wrap;
+}
+
+.typing-container {
+    padding: 15px;
+}
+
+#typingMirror {
+    min-height: 100px;
+    margin-bottom: 10px;
+    padding: 15px;
+    background: #f8fafc;
+    border: 1px solid #ddd;
+    border-radius: 7px;
+    white-space: pre-wrap;
+    word-break: break-word;
+    line-height: 1.7;
+}
+
+#typingArea {
+    width: 100%;
+    min-height: 300px;
+    resize: vertical;
+    padding: 15px;
+    border: 2px solid #2563eb;
+    border-radius: 8px;
+    outline: none;
+    font-size: 20px;
+    line-height: 1.7;
+}
+
+.correct {
+    color: #15803d;
+}
+
+.wrong {
+    color: #dc2626;
+    background: #fee2e2;
+}
+
+
+/* =====================================================
+   FONTS
+   ===================================================== */
+
+.english-font {
+    font-family: "Times New Roman", serif;
+}
+
+.kruti-font {
+    font-family: "Kruti Dev 055", "Mangal", sans-serif;
+}
+
+
+/* =====================================================
+   RESULT
+   ===================================================== */
+
+.result {
+    margin-top: 20px;
+    background: white;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 3px 12px rgba(0,0,0,.1);
+}
+
+.result h2 {
+    text-align: center;
+}
+
+.result-grid,
+.steno-result-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 12px;
+}
+
+.result-grid > div,
+.steno-result-grid > div {
+    background: #eff6ff;
+    padding: 18px;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.result-grid span,
+.steno-result-grid span {
+    display: block;
+}
+
+.result-grid b,
+.steno-result-grid b {
+    display: block;
+    font-size: 25px;
+    margin-top: 7px;
+    color: #1d4ed8;
+}
+
+
+/* =====================================================
+   ADMIN
+   ===================================================== */
+
+.admin,
+.steno-management {
+    margin-top: 25px;
+    background: white;
+    padding: 22px;
+    border-radius: 12px;
+    box-shadow: 0 3px 12px rgba(0,0,0,.08);
+}
+
+.admin-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.admin-row label {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    font-weight: bold;
+}
+
+.admin-row input,
+.admin-row select {
+    padding: 9px;
+    border: 1px solid #aaa;
+    border-radius: 6px;
+}
+
+#passageContent {
+    width: 100%;
+    min-height: 180px;
+    margin-top: 15px;
+    padding: 12px;
+    border: 1px solid #aaa;
+    border-radius: 7px;
+}
+
+.admin-buttons {
+    margin-top: 10px;
+    display: flex;
+    gap: 8px;
+}
+
+.search {
+    width: 100%;
+    padding: 11px;
+    margin: 10px 0;
+    border: 1px solid #aaa;
+    border-radius: 7px;
+}
+
+#passageList,
+#stenoPassageList {
+    display: grid;
+    gap: 10px;
+}
+
+.passage-item,
+.steno-item {
+    background: #f8fafc;
+    padding: 14px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+}
+
+.passage-item strong,
+.steno-item strong {
+    font-size: 17px;
+}
+
+.passage-item small,
+.steno-item small {
+    display: block;
+    margin: 5px 0;
+    color: #555;
+}
+
+.passage-item button,
+.steno-item button {
+    margin-right: 5px;
+    margin-top: 5px;
+}
+
+
+/* =====================================================
+   STENO
+   ===================================================== */
+
+.steno-settings {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    background: white;
+    padding: 15px;
+    border-radius: 10px;
+}
+
+.steno-control {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.steno-control select {
+    padding: 10px;
+    border-radius: 6px;
+}
+
+.steno-time {
+    background: #172554;
+    color: white;
+    padding: 10px 25px;
+    border-radius: 6px;
+    font-weight: bold;
+}
+
+.audio-box {
+    background: white;
+    margin-top: 15px;
+    padding: 20px;
+    border-radius: 10px;
+}
+
+.audio-box audio,
+.court-audio audio {
+    width: 100%;
+}
+
+.transcription-section,
+.court-transcription {
+    margin-top: 15px;
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+}
+
+.transcription-header,
+.court-trans-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.steno-timer,
+.court-trans-header strong {
+    background: #fee2e2;
+    color: #b91c1c;
+    padding: 10px 15px;
+    border-radius: 7px;
+}
+
+#stenoTranscription,
+.court-transcription textarea {
+    width: 100%;
+    min-height: 250px;
+    margin-top: 15px;
+    padding: 15px;
+    resize: vertical;
+    border: 2px solid #2563eb;
+    border-radius: 8px;
+    line-height: 1.7;
+}
+
+.steno-buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.steno-result {
+    margin-top: 15px;
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+}
+
+.steno-error-display {
+    padding: 15px;
+    line-height: 2;
+    background: #f8fafc;
+    border-radius: 8px;
+}
+
+.steno-correct,
+.court-correct {
+    color: #15803d;
+    background: #dcfce7;
+    padding: 3px 6px;
+    margin: 2px;
+    display: inline-block;
+}
+
+.steno-wrong,
+.court-wrong {
+    color: #dc2626;
+    background: #fee2e2;
+    padding: 3px 6px;
+    margin: 2px;
+    display: inline-block;
+}
+
+
+/* =====================================================
+   COURT SECTIONS
+   ===================================================== */
+
+.court-heading {
+    background: linear-gradient(135deg, #581c87, #7e22ce);
+}
+
+.district-heading {
+    background: linear-gradient(135deg, #14532d, #15803d);
+}
+
+.high-heading {
+    background: linear-gradient(135deg, #7c2d12, #c2410c);
+}
+
+.court-module {
+    background: white;
+    margin-bottom: 25px;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 3px 12px rgba(0,0,0,.1);
+}
+
+.court-module > h3 {
+    margin-top: 0;
+    color: #172554;
+    border-bottom: 2px solid #ddd;
+    padding-bottom: 10px;
+}
+
+.court-test-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+
+.court-question {
+    min-height: 300px;
+    background: #f8fafc;
+    padding: 18px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    white-space: pre-wrap;
+    line-height: 1.7;
+}
+
+.court-test-grid textarea {
+    width: 100%;
+    min-height: 300px;
+    resize: vertical;
+    padding: 15px;
+    border: 2px solid #2563eb;
+    border-radius: 8px;
+    line-height: 1.7;
+    font-size: 18px;
+}
+
+.court-mirror {
+    margin-top: 8px;
+    padding: 10px;
+    min-height: 50px;
+    background: #f8fafc;
+    border-radius: 6px;
+    white-space: pre-wrap;
+}
+
+.court-audio {
+    background: #f8fafc;
+    padding: 15px;
+    border-radius: 8px;
+    margin-top: 10px;
+}
+
+.court-result {
+    margin-top: 15px;
+    padding: 20px;
+    background: #eff6ff;
+    border-radius: 8px;
+}
+
+.court-result-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+}
+
+.court-result-card {
+    background: white;
+    padding: 15px;
+    text-align: center;
+    border-radius: 7px;
+}
+
+.court-result-card b {
+    display: block;
+    font-size: 23px;
+    color: #1d4ed8;
+}
+
+
+/* =====================================================
+   FOOTER
+   ===================================================== */
+
+footer {
+    text-align: center;
+    background: #172554;
+    color: white;
+    padding: 25px;
+    margin-top: 30px;
+}
+
+
+/* =====================================================
+   RESPONSIVE
+   ===================================================== */
+
+@media(max-width: 900px) {
+
+    .test-wrapper,
+    .court-test-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .status,
+    .court-status {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .result-grid,
+    .steno-result-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+}
+
+@media(max-width: 600px) {
+
+    .main-header h1 {
+        font-size: 28px;
+    }
+
+    .main-nav {
+        position: static;
+    }
+
+    .status,
+    .court-status,
+    .result-grid,
+    .steno-result-grid,
+    .court-result-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .main-section {
+        padding: 10px;
+    }
+
+}
+
+
+/* =====================================================
+   PRINT
+   ===================================================== */
+
+@media print {
+
+    .main-nav,
+    .controls,
+    .admin,
+    .steno-management,
+    footer {
+        display: none !important;
+    }
+
+}
+/* =====================================================
+   ANSWER KEY / MISTAKE COMPARISON
+   ===================================================== */
+
+.answer-section {
+    margin-top: 25px;
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 3px 12px rgba(0,0,0,.10);
+}
+
+.answer-comparison {
+    padding: 20px;
+}
+
+.answer-question {
+    padding: 18px;
+    background: #f8fafc;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 20px;
+    line-height: 1.8;
+    white-space: pre-wrap;
+    margin-bottom: 20px;
+}
+
+.answer-key-text {
+    padding: 20px;
+    background: #f8fafc;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 20px;
+    line-height: 2;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+/* Correct character */
+.answer-correct {
+    color: #15803d;
+    font-weight: normal;
+}
+
+/* Wrong character */
+.answer-wrong {
+    color: #dc2626;
+    background: #fee2e2;
+    font-weight: bold;
+    padding: 2px 4px;
+    border-radius: 3px;
+    cursor: help;
+}
+
+.answer-instruction {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 12px;
+}
+
+.answer-instruction .answer-correct,
+.answer-instruction .answer-wrong {
+    padding: 5px 10px;
+}
+
+
+/* =====================================================
+   IMPORTANT:
+   TYPING करताना GREEN / RED COLOR नाही
+   ===================================================== */
+
+#typingMirror,
+.court-mirror {
+    color: #17202a;
+    background: #f8fafc;
+}
+
+#typingMirror .correct,
+#typingMirror .wrong,
+.court-mirror .correct,
+.court-mirror .wrong {
+    color: inherit;
+    background: transparent;
+    font-weight: normal;
+}
+/* ==============================
+   ANSWER KEY COMPARISON
+   ============================== */
+
+.answer-compare {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    width: 100%;
+    margin-top: 20px;
+}
+
+.answer-column {
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    overflow: hidden;
+    background: #fff;
+}
+
+.answer-column-title {
+    padding: 12px 15px;
+    font-size: 18px;
+    font-weight: 700;
+    background: #f1f1f1;
+    border-bottom: 1px solid #ccc;
+}
+
+.answer-content {
+    padding: 20px;
+    min-height: 250px;
+
+    font-size: 20px;
+    line-height: 1.8;
+
+    white-space: pre-wrap;
+    word-wrap: break-word;
+
+    font-family: inherit;
+}
+
+/* फक्त Submit नंतर चुकीचे अक्षर */
+.answer-wrong {
+    color: #d00000;
+    background: #ffd6d6;
+    font-weight: 700;
+    text-decoration: underline;
+}
+
+
+/* Mobile */
+@media (max-width: 768px) {
+    .answer-compare {
+        grid-template-columns: 1fr;
+    }
+
+    .answer-content {
+        font-size: 18px;
+    }
+}
+/* =====================================================
+   LOGIN / REGISTER / DASHBOARD
+   ===================================================== */
+
+.auth-panel {
+    max-width: 1200px;
+    margin: 25px auto;
+    padding: 15px;
+}
+
+.auth-box,
+.dashboard-box {
+    background: white;
+    padding: 25px;
+    border-radius: 15px;
+    box-shadow: 0 4px 18px rgba(0,0,0,.10);
+}
+
+.auth-box {
+    max-width: 450px;
+    margin: auto;
+}
+
+.auth-box h2 {
+    text-align: center;
+    margin-top: 0;
+    color: #172554;
+}
+
+.auth-box input {
+    width: 100%;
+    padding: 13px;
+    margin-bottom: 12px;
+    border: 1px solid #bbb;
+    border-radius: 7px;
+}
+
+.auth-box button {
+    width: 100%;
+    margin-top: 5px;
+}
+
+.auth-box p {
+    text-align: center;
+}
+
+.link-btn {
+    background: transparent !important;
+    color: #2563eb !important;
+    padding: 0 !important;
+    width: auto !important;
+    display: inline !important;
+}
+
+.dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #ddd;
+}
+
+.dashboard-header button {
+    width: auto;
+    background: #dc2626;
+}
+
+.dashboard-header h2 {
+    margin: 0;
+}
+
+.dashboard-header p {
+    margin-bottom: 0;
+    color: #666;
+}
+
+.subscription-status {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+    margin: 20px 0;
+}
+
+.subscription-status > div {
+    background: #eff6ff;
+    padding: 18px;
+    border-radius: 10px;
+    text-align: center;
+}
+
+.subscription-status span {
+    display: block;
+    color: #555;
+}
+
+.subscription-status strong {
+    display: block;
+    font-size: 22px;
+    color: #1d4ed8;
+    margin-top: 5px;
+}
+
+.plans {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+}
+
+.plan-card {
+    position: relative;
+    border: 1px solid #ddd;
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+    background: #f8fafc;
+}
+
+.plan-card h3 {
+    color: #172554;
+}
+
+.plan-price {
+    font-size: 30px;
+    font-weight: bold;
+    color: #2563eb;
+}
+
+.plan-card ul {
+    text-align: left;
+    line-height: 1.9;
+    padding-left: 20px;
+}
+
+.plan-card button {
+    width: 100%;
+}
+
+.premium-plan {
+    border: 2px solid #2563eb;
+}
+
+.premium-badge {
+    position: absolute;
+    top: -12px;
+    right: 15px;
+    background: #2563eb;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+}
+
+.payment-message {
+    margin-top: 20px;
+    padding: 15px;
+    border-radius: 8px;
+    background: #fff7ed;
+    color: #9a3412;
+    text-align: center;
+}
+
+.premium-lock {
+    background: #fff7ed;
+    border: 2px solid #f59e0b;
+    padding: 30px;
+    margin: 20px 0;
+    text-align: center;
+    border-radius: 12px;
+}
+
+.premium-lock h2 {
+    color: #92400e;
+}
+
+.premium-lock button {
+    background: #2563eb;
+}
+
+
+/* MOBILE */
+
+@media(max-width: 900px) {
+
+    .plans {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+}
+
+@media(max-width: 600px) {
+
+    .auth-panel {
+        padding: 10px;
+    }
+
+    .auth-box,
+    .dashboard-box {
+        padding: 18px;
+    }
+
+    .dashboard-header {
+        flex-direction: column;
+        align-items: stretch;
+        text-align: center;
+    }
+
+    .dashboard-header button {
+        width: 100%;
+    }
+
+    .subscription-status {
+        grid-template-columns: 1fr;
+    }
+
+    .plans {
+        grid-template-columns: 1fr;
+    }
+
+    .plan-card {
+        padding: 18px;
+    }
+
+}

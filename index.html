@@ -1,0 +1,1150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>VIJAY AHER</title>
+
+<link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+<!-- =====================================================
+     HEADER
+     ===================================================== -->
+
+<header class="main-header">
+    <h1>VIJAY AHER</h1>
+    <p>Advanced Typing & Steno Test</p>
+</header>
+
+<!-- =====================================================
+     LOGIN / REGISTER / USER DASHBOARD
+     ===================================================== -->
+
+<div id="authPanel" class="auth-panel">
+
+    <!-- LOGIN -->
+    <div id="loginBox" class="auth-box">
+        <h2>🔐 Login</h2>
+
+        <input type="text" id="loginEmail"
+               placeholder="Email / Mobile">
+
+        <input type="password" id="loginPassword"
+               placeholder="Password">
+
+        <button onclick="loginUser()">Login</button>
+
+        <p>
+            Account नाही?
+            <button class="link-btn" onclick="showRegister()">
+                Register
+            </button>
+        </p>
+
+        <div id="loginMessage"></div>
+    </div>
+
+
+    <!-- REGISTER -->
+    <div id="registerBox" class="auth-box hidden">
+        <h2>📝 Create Account</h2>
+
+        <input type="text" id="registerName"
+               placeholder="Full Name">
+
+        <input type="text" id="registerEmail"
+               placeholder="Email / Mobile">
+
+        <input type="password" id="registerPassword"
+               placeholder="Create Password">
+
+        <input type="password" id="registerConfirmPassword"
+               placeholder="Confirm Password">
+
+        <button onclick="registerUser()">Register</button>
+
+        <p>
+            आधीपासून account आहे?
+            <button class="link-btn" onclick="showLogin()">
+                Login
+            </button>
+        </p>
+
+        <div id="registerMessage"></div>
+    </div>
+
+<div id="dashboardSection" class="auth-section" style="display:none;">
+    <h2>👤 User Dashboard</h2>
+
+    <p><strong>Name:</strong> <span id="dashboardName"></span></p>
+    <p><strong>Email:</strong> <span id="dashboardEmail"></span></p>
+    <p><strong>Plan:</strong> <span id="dashboardPlan"></span></p>
+<div class="subscription-plans">
+
+    <h3>Choose Your Plan</h3>
+
+    <div class="plan-box">
+        <h4>🆓 Free Plan</h4>
+        <p>Basic typing practice</p>
+        <button disabled>Current Plan</button>
+    </div>
+
+    <div class="plan-box">
+        <h4>⭐ Monthly Plan</h4>
+        <p>₹299 / Month</p>
+        <button onclick="subscribePlan('Monthly')">
+            Subscribe
+        </button>
+    </div>
+
+    <div class="plan-box">
+        <h4>👑 Yearly Plan</h4>
+        <p>₹1999 / Year</p>
+        <button onclick="subscribePlan('Yearly')">
+            Subscribe
+        </button>
+    </div>
+
+</div>
+
+    <button onclick="logoutUser()">Logout</button>
+</div>
+
+    <!-- DASHBOARD -->
+    <div id="dashboardBox" class="dashboard-box hidden">
+
+        <div class="dashboard-header">
+            <div>
+                <h2>👤 Welcome, <span id="dashboardName"></span></h2>
+                <p id="dashboardEmail"></p>
+            </div>
+
+            <button onclick="logoutUser()">
+                Logout
+            </button>
+        </div>
+
+
+        <div class="subscription-status">
+
+            <div>
+                <span>Current Plan</span>
+                <strong id="currentPlan">Free</strong>
+            </div>
+
+            <div>
+                <span>Status</span>
+                <strong id="subscriptionStatus">Active</strong>
+            </div>
+
+            <div>
+                <span>Expiry</span>
+                <strong id="subscriptionExpiry">-</strong>
+            </div>
+
+        </div>
+
+
+        <h3>💳 Subscription Plans</h3>
+
+        <div class="plans">
+
+            <div class="plan-card">
+                <h3>FREE</h3>
+                <div class="plan-price">₹0</div>
+                <p>7 Days</p>
+
+                <ul>
+                    <li>Limited Typing Tests</li>
+                    <li>Basic Practice</li>
+                    <li>Limited Steno</li>
+                </ul>
+
+                <button onclick="selectPlan('Free', 0)">
+                    Current Plan
+                </button>
+            </div>
+
+
+            <div class="plan-card premium-plan">
+                <div class="premium-badge">POPULAR</div>
+
+                <h3>BASIC</h3>
+                <div class="plan-price">₹299</div>
+                <p>1 Month</p>
+
+                <ul>
+                    <li>Typing Test</li>
+                    <li>Steno Dictation</li>
+                    <li>Question Papers</li>
+                    <li>Answer Key</li>
+                </ul>
+
+                <button onclick="selectPlan('Basic', 30)">
+                    Subscribe
+                </button>
+            </div>
+
+
+            <div class="plan-card premium-plan">
+                <h3>STANDARD</h3>
+                <div class="plan-price">₹699</div>
+                <p>3 Months</p>
+
+                <ul>
+                    <li>All Typing Tests</li>
+                    <li>All Steno Tests</li>
+                    <li>District Court</li>
+                    <li>High Court</li>
+                </ul>
+
+                <button onclick="selectPlan('Standard', 90)">
+                    Subscribe
+                </button>
+            </div>
+
+
+            <div class="plan-card premium-plan">
+                <h3>PREMIUM</h3>
+                <div class="plan-price">₹1,999</div>
+                <p>1 Year</p>
+
+                <ul>
+                    <li>All Features</li>
+                    <li>All Court Tests</li>
+                    <li>Unlimited Practice</li>
+                    <li>Premium Content</li>
+                </ul>
+
+                <button onclick="selectPlan('Premium', 365)">
+                    Subscribe
+                </button>
+            </div>
+
+        </div>
+
+        <div id="paymentMessage" class="payment-message"></div>
+
+    </div>
+
+</div>
+<!-- =====================================================
+     NAVIGATION
+     ===================================================== -->
+
+<nav class="main-nav">
+
+    <button onclick="showSection('typingSection')">
+        ⌨ Typing Test
+    </button>
+
+    <button onclick="showSection('stenoSection')">
+        🎙 Steno Dictation
+    </button>
+
+ <button onclick="openPremiumSection('districtSection')">
+    District Court
+</button>
+
+<button onclick="openPremiumSection('highSection')">
+    High Court
+</button>
+</nav>
+
+
+<!-- =====================================================
+     MAIN TYPING TEST
+     ===================================================== -->
+
+<section id="typingSection" class="main-section">
+
+    <div class="section-heading">
+        <h2>⌨ VIJAY AHER - Typing Test</h2>
+        <p>English | Marathi | Hindi</p>
+    </div>
+
+    <div class="controls">
+
+        <label>
+            Language
+            <select id="language">
+                <option value="English">English</option>
+                <option value="Marathi">Marathi</option>
+                <option value="Hindi">Hindi</option>
+            </select>
+        </label>
+
+        <label>
+            Test Time
+            <select id="duration">
+                <option value="3">3 Minutes</option>
+                <option value="5">5 Minutes</option>
+                <option value="7">7 Minutes</option>
+                <option value="10">10 Minutes</option>
+                <option value="15">15 Minutes</option>
+            </select>
+        </label>
+
+        <label>
+            Passage
+            <select id="passageSelect"></select>
+        </label>
+
+        <label>
+            Backspace
+            <select id="backspaceMode">
+                <option value="on">ON</option>
+                <option value="off">OFF</option>
+            </select>
+        </label>
+
+        <label>
+            Arrow Keys
+            <select id="arrowMode">
+                <option value="on">ON</option>
+                <option value="off">OFF</option>
+            </select>
+        </label>
+
+        <button id="startBtn">▶ Start</button>
+        <button id="submitBtn" disabled>✓ Submit</button>
+
+    </div>
+
+
+    <div class="status">
+
+        <div>
+            TIME
+            <strong id="timer">00:00</strong>
+        </div>
+
+        <div>
+            GROSS WPM
+            <strong id="grossWpm">0</strong>
+        </div>
+
+        <div>
+            NET WPM
+            <strong id="netWpm">0</strong>
+        </div>
+
+        <div>
+            ACCURACY
+            <strong id="accuracy">100%</strong>
+        </div>
+
+        <div>
+            ERRORS
+            <strong id="errors">0</strong>
+        </div>
+
+    </div>
+
+
+    <div class="test-wrapper">
+
+        <section class="test-panel">
+
+            <div class="panel-title">
+                <h2>Question Paper</h2>
+
+                <div>
+                    <button onclick="zoomQuestion(1)">A+</button>
+                    <button onclick="zoomQuestion(-1)">A-</button>
+                </div>
+            </div>
+
+            <div id="questionText"
+                 class="question-text english-font"></div>
+
+        </section>
+
+
+        <section class="test-panel">
+
+            <div class="panel-title">
+
+                <h2>Typing Area</h2>
+
+                <div>
+                    <button onclick="zoomTyping(1)">A+</button>
+                    <button onclick="zoomTyping(-1)">A-</button>
+                </div>
+
+            </div>
+
+            <div class="typing-container">
+
+                <div id="typingMirror"></div>
+
+                <textarea
+                    id="typingArea"
+                    spellcheck="false"
+                    disabled
+                    placeholder="Start Test करून येथे typing करा...">
+                </textarea>
+
+            </div>
+
+        </section>
+
+    </div>
+
+
+    <section id="resultBox" class="result hidden">
+
+        <h2>📊 Typing Test Result</h2>
+
+        <div class="result-grid">
+
+            <div>
+                <span>Total Characters</span>
+                <b id="rTotal">0</b>
+            </div>
+
+            <div>
+                <span>Correct</span>
+                <b id="rCorrect">0</b>
+            </div>
+
+            <div>
+                <span>Errors</span>
+                <b id="rErrors">0</b>
+            </div>
+
+            <div>
+                <span>Accuracy</span>
+                <b id="rAccuracy">0%</b>
+            </div>
+
+            <div>
+                <span>Gross WPM</span>
+                <b id="rGross">0</b>
+            </div>
+
+            <div>
+                <span>Net WPM</span>
+                <b id="rNet">0</b>
+            </div>
+
+        </div>
+
+        <button onclick="window.print()">🖨 Print Result</button>
+
+    </section>
+
+
+    <!-- MAIN PASSAGE MANAGEMENT -->
+
+    <section class="admin">
+
+        <h2>📚 Typing Passage Management</h2>
+
+        <div class="admin-row">
+
+            <label>
+                Language
+                <select id="adminLanguage">
+                    <option value="English">English</option>
+                    <option value="Marathi">Marathi</option>
+                    <option value="Hindi">Hindi</option>
+                </select>
+            </label>
+
+            <label>
+                Passage Title
+                <input id="passageTitle"
+                       placeholder="Passage Title">
+            </label>
+
+        </div>
+
+        <textarea
+            id="passageContent"
+            placeholder="तुमचा passage येथे Paste / Type करा...">
+        </textarea>
+
+        <div class="admin-buttons">
+
+            <button id="savePassageBtn">
+                💾 Save Passage
+            </button>
+
+            <button id="updatePassageBtn" class="hidden">
+                ✏ Update
+            </button>
+
+            <button id="cancelEditBtn" class="hidden">
+                Cancel
+            </button>
+
+        </div>
+
+        <h3>Saved Passages</h3>
+
+        <input
+            id="searchPassage"
+            class="search"
+            placeholder="🔎 Search Passage...">
+
+        <div id="passageList"></div>
+
+    </section>
+
+</section>
+
+
+
+<!-- =====================================================
+     MAIN STENO
+     ===================================================== -->
+
+<section id="stenoSection" class="main-section hidden">
+
+    <div class="section-heading">
+        <h2>🎙 VIJAY AHER - Steno Dictation Test</h2>
+        <p>Dictation Audio → Transcription → Result</p>
+    </div>
+
+    <div class="steno-settings">
+
+        <div class="steno-control">
+            <label>Dictation Speed</label>
+
+            <select id="stenoSpeed">
+                <option value="60">60 WPM</option>
+                <option value="80">80 WPM</option>
+                <option value="100">100 WPM</option>
+                <option value="120">120 WPM</option>
+            </select>
+        </div>
+
+        <div class="steno-control">
+            <label>Steno Passage</label>
+
+            <select id="stenoPassageSelect">
+                <option value="">Select Passage</option>
+            </select>
+        </div>
+
+        <div class="steno-control">
+            <label>Transcription Time</label>
+            <div class="steno-time">55:00</div>
+        </div>
+
+    </div>
+
+
+    <div class="audio-box">
+
+        <h3>🎧 Dictation Audio</h3>
+
+        <audio id="stenoAudio" controls></audio>
+
+        <p id="audioStatus">
+            Select a steno passage.
+        </p>
+
+    </div>
+
+
+    <div id="transcriptionSection"
+         class="transcription-section hidden">
+
+        <div class="transcription-header">
+
+            <h3>⌨ Transcription</h3>
+
+            <div class="steno-timer">
+                Time Remaining:
+                <strong id="stenoTimer">55:00</strong>
+            </div>
+
+        </div>
+
+        <textarea
+            id="stenoTranscription"
+            spellcheck="false"
+            placeholder="येथे transcription type करा...">
+        </textarea>
+
+        <div class="steno-buttons">
+
+            <button id="startTranscriptionBtn">
+                ▶ Start Transcription
+            </button>
+
+            <button id="submitTranscriptionBtn"
+                    disabled>
+                ✓ Submit Transcription
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <div id="stenoResult"
+         class="steno-result hidden">
+
+        <h3>📊 Steno Result</h3>
+
+        <div class="steno-result-grid">
+
+            <div>
+                <span>Total Words</span>
+                <b id="stenoTotalWords">0</b>
+            </div>
+
+            <div>
+                <span>Correct Words</span>
+                <b id="stenoCorrectWords">0</b>
+            </div>
+
+            <div>
+                <span>Errors</span>
+                <b id="stenoErrors">0</b>
+            </div>
+
+            <div>
+                <span>Accuracy</span>
+                <b id="stenoAccuracy">0%</b>
+            </div>
+
+        </div>
+
+        <h4>🔍 Error Checking</h4>
+
+        <div id="stenoErrorDisplay"
+             class="steno-error-display">
+        </div>
+
+    </div>
+
+
+    <div class="steno-management">
+
+        <h3>📚 Add Steno Dictation</h3>
+
+        <div class="steno-form">
+
+            <label>
+                Passage Title
+
+                <input id="stenoTitle"
+                       placeholder="Example: Steno Passage 1">
+            </label>
+
+            <label>
+                Speed
+
+                <select id="stenoAdminSpeed">
+                    <option value="60">60 WPM</option>
+                    <option value="80">80 WPM</option>
+                    <option value="100">100 WPM</option>
+                    <option value="120">120 WPM</option>
+                </select>
+            </label>
+
+            <label>
+                Dictation Audio
+
+                <input type="file"
+                       id="stenoAudioFile"
+                       accept="audio/*">
+            </label>
+
+            <label>
+                Correct / Reference Transcription
+
+                <textarea id="stenoReferenceText"
+                          placeholder="Correct transcription येथे टाका...">
+                </textarea>
+            </label>
+
+            <button id="saveStenoPassageBtn">
+                💾 Save Steno Passage
+            </button>
+
+        </div>
+
+        <h4>Saved Steno Passages</h4>
+
+        <div id="stenoPassageList"></div>
+
+    </div>
+
+</section>
+
+
+
+<!-- =====================================================
+     DISTRICT COURT
+     ===================================================== -->
+
+<section id="districtSection" class="main-section hidden">
+
+    <div class="court-heading district-heading">
+
+        <h2>⚖ DISTRICT COURT</h2>
+
+        <p>District Court Typing + Steno Test</p>
+
+    </div>
+
+
+    <!-- DISTRICT TYPING -->
+
+    <div class="court-module">
+
+        <h3>⌨ District Court Typing Test</h3>
+
+        <div class="court-controls">
+
+            <label>
+                Language
+
+                <select id="districtLanguage">
+                    <option value="English">English</option>
+                    <option value="Marathi">Marathi</option>
+                    <option value="Hindi">Hindi</option>
+                </select>
+            </label>
+
+            <label>
+                Time
+
+                <select id="districtDuration">
+                    <option value="3">3 Minutes</option>
+                    <option value="5">5 Minutes</option>
+                    <option value="7">7 Minutes</option>
+                    <option value="10">10 Minutes</option>
+                    <option value="15">15 Minutes</option>
+                </select>
+            </label>
+
+            <label>
+                Passage
+
+                <select id="districtPassage"></select>
+            </label>
+
+            <button onclick="startCourtTyping('district')">
+                ▶ Start
+            </button>
+
+            <button id="districtSubmit"
+                    onclick="submitCourtTyping('district')"
+                    disabled>
+                ✓ Submit
+            </button>
+
+        </div>
+
+
+        <div class="court-status">
+
+            <div>
+                TIME
+                <strong id="districtTimer">00:00</strong>
+            </div>
+
+            <div>
+                GROSS WPM
+                <strong id="districtGross">0</strong>
+            </div>
+
+            <div>
+                NET WPM
+                <strong id="districtNet">0</strong>
+            </div>
+
+            <div>
+                ACCURACY
+                <strong id="districtAccuracy">100%</strong>
+            </div>
+
+            <div>
+                ERRORS
+                <strong id="districtErrors">0</strong>
+            </div>
+
+        </div>
+
+
+        <div class="court-test-grid">
+
+            <div>
+
+                <h4>Question Paper</h4>
+
+                <div id="districtQuestion"
+                     class="court-question"></div>
+
+            </div>
+
+            <div>
+
+                <h4>Typing Area</h4>
+
+                <textarea id="districtTyping"
+                          disabled
+                          spellcheck="false"
+                          placeholder="Start typing...">
+                </textarea>
+
+                <div id="districtMirror"
+                     class="court-mirror"></div>
+
+            </div>
+
+        </div>
+
+
+        <div id="districtTypingResult"
+             class="court-result hidden">
+        </div>
+
+    </div>
+
+
+
+    <!-- DISTRICT STENO -->
+
+    <div class="court-module">
+
+        <h3>🎙 District Court Steno Test</h3>
+
+        <div class="court-controls">
+
+            <label>
+                Speed
+
+                <select id="districtStenoSpeed">
+                    <option value="60">60 WPM</option>
+                    <option value="80">80 WPM</option>
+                    <option value="100">100 WPM</option>
+                    <option value="120">120 WPM</option>
+                </select>
+            </label>
+
+            <label>
+                Steno Passage
+
+                <select id="districtStenoPassage">
+                    <option value="">Select Passage</option>
+                </select>
+            </label>
+
+        </div>
+
+
+        <div class="court-audio">
+
+            <h4>🎧 District Court Dictation</h4>
+
+            <audio id="districtStenoAudio"
+                   controls></audio>
+
+            <p id="districtStenoStatus">
+                Select passage.
+            </p>
+
+        </div>
+
+
+        <div id="districtStenoTransSection"
+             class="court-transcription hidden">
+
+            <div class="court-trans-header">
+
+                <h4>⌨ Transcription</h4>
+
+                <strong id="districtStenoTimer">
+                    55:00
+                </strong>
+
+            </div>
+
+            <textarea id="districtStenoText"
+                      spellcheck="false"
+                      placeholder="Transcription येथे करा...">
+            </textarea>
+
+            <button onclick="startCourtSteno('district')">
+                ▶ Start Transcription
+            </button>
+
+            <button id="districtStenoSubmit"
+                    onclick="submitCourtSteno('district')"
+                    disabled>
+                ✓ Submit
+            </button>
+
+        </div>
+
+
+        <div id="districtStenoResult"
+             class="court-result hidden">
+        </div>
+
+    </div>
+
+</section>
+
+
+
+<!-- =====================================================
+     HIGH COURT
+     ===================================================== -->
+
+<section id="highCourtSection" class="main-section hidden">
+
+    <div class="court-heading high-heading">
+
+        <h2>🏛 HIGH COURT</h2>
+
+        <p>High Court Typing + Steno Test</p>
+
+    </div>
+
+
+    <!-- HIGH COURT TYPING -->
+
+    <div class="court-module">
+
+        <h3>⌨ High Court Typing Test</h3>
+
+        <div class="court-controls">
+
+            <label>
+                Language
+
+                <select id="highLanguage">
+                    <option value="English">English</option>
+                    <option value="Marathi">Marathi</option>
+                    <option value="Hindi">Hindi</option>
+                </select>
+            </label>
+
+            <label>
+                Time
+
+                <select id="highDuration">
+                    <option value="3">3 Minutes</option>
+                    <option value="5">5 Minutes</option>
+                    <option value="7">7 Minutes</option>
+                    <option value="10">10 Minutes</option>
+                    <option value="15">15 Minutes</option>
+                </select>
+            </label>
+
+            <label>
+                Passage
+
+                <select id="highPassage"></select>
+            </label>
+
+            <button onclick="startCourtTyping('high')">
+                ▶ Start
+            </button>
+
+            <button id="highSubmit"
+                    onclick="submitCourtTyping('high')"
+                    disabled>
+                ✓ Submit
+            </button>
+
+        </div>
+
+
+        <div class="court-status">
+
+            <div>
+                TIME
+                <strong id="highTimer">00:00</strong>
+            </div>
+
+            <div>
+                GROSS WPM
+                <strong id="highGross">0</strong>
+            </div>
+
+            <div>
+                NET WPM
+                <strong id="highNet">0</strong>
+            </div>
+
+            <div>
+                ACCURACY
+                <strong id="highAccuracy">100%</strong>
+            </div>
+
+            <div>
+                ERRORS
+                <strong id="highErrors">0</strong>
+            </div>
+
+        </div>
+
+
+        <div class="court-test-grid">
+
+            <div>
+
+                <h4>Question Paper</h4>
+
+                <div id="highQuestion"
+                     class="court-question"></div>
+
+            </div>
+
+            <div>
+
+                <h4>Typing Area</h4>
+
+                <textarea id="highTyping"
+                          disabled
+                          spellcheck="false"
+                          placeholder="Start typing...">
+                </textarea>
+
+                <div id="highMirror"
+                     class="court-mirror"></div>
+
+            </div>
+
+        </div>
+
+
+        <div id="highTypingResult"
+             class="court-result hidden">
+        </div>
+
+    </div>
+
+
+
+    <!-- HIGH COURT STENO -->
+
+    <div class="court-module">
+
+        <h3>🎙 High Court Steno Test</h3>
+
+        <div class="court-controls">
+
+            <label>
+                Speed
+
+                <select id="highStenoSpeed">
+                    <option value="60">60 WPM</option>
+                    <option value="80">80 WPM</option>
+                    <option value="100">100 WPM</option>
+                    <option value="120">120 WPM</option>
+                </select>
+            </label>
+
+            <label>
+                Steno Passage
+
+                <select id="highStenoPassage">
+                    <option value="">Select Passage</option>
+                </select>
+            </label>
+
+        </div>
+
+
+        <div class="court-audio">
+
+            <h4>🎧 High Court Dictation</h4>
+
+            <audio id="highStenoAudio"
+                   controls></audio>
+
+            <p id="highStenoStatus">
+                Select passage.
+            </p>
+
+        </div>
+
+
+        <div id="highStenoTransSection"
+             class="court-transcription hidden">
+
+            <div class="court-trans-header">
+
+                <h4>⌨ Transcription</h4>
+
+                <strong id="highStenoTimer">
+                    55:00
+                </strong>
+
+            </div>
+
+            <textarea id="highStenoText"
+                      spellcheck="false"
+                      placeholder="Transcription येथे करा...">
+            </textarea>
+
+            <button onclick="startCourtSteno('high')">
+                ▶ Start Transcription
+            </button>
+
+            <button id="highStenoSubmit"
+                    onclick="submitCourtSteno('high')"
+                    disabled>
+                ✓ Submit
+            </button>
+
+        </div>
+
+
+        <div id="highStenoResult"
+             class="court-result hidden">
+        </div>
+
+    </div>
+
+</section>
+<!-- =====================================================
+     ANSWER KEY
+     ===================================================== -->
+
+<section id="answerSection" class="answer-section hidden">
+
+    <div class="panel-title">
+
+        <h2>🔍 Question Paper & Answer Key</h2>
+
+        <div>
+            <button onclick="zoomAnswer(1)">A+</button>
+            <button onclick="zoomAnswer(-1)">A-</button>
+        </div>
+
+    </div>
+
+    <div id="answerKey"></div>
+
+</section>
+
+
+<footer>
+
+    <strong>VIJAY AHER</strong>
+
+    <br>
+
+    Advanced Typing & Steno Test © 2026
+
+</footer>
+
+
+<script src="script.js"></script>
+
+</body>
+</html>
