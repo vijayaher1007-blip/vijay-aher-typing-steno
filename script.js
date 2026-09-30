@@ -3301,19 +3301,78 @@ async function subscribePlan(plan) {
                 color: "#0d6efd"
             },
 
-            handler: function (response) {
-                alert(
-                    "✅ Payment Successful!\n\n" +
-                    "Payment ID: " +
-                    response.razorpay_payment_id
-                );
+           handler: async function (response) {
+    try {
+        const userData =
+            localStorage.getItem("loggedInUser");
 
-                console.log(
-                    "Razorpay Payment:",
-                    response
-                );
-            },
+        const user =
+            JSON.parse(userData);
 
+        const verifyResponse =
+            await fetch("/api/verify-payment", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    razorpay_order_id:
+                        response.razorpay_order_id,
+
+                    razorpay_payment_id:
+                        response.razorpay_payment_id,
+
+                    razorpay_signature:
+                        response.razorpay_signature,
+
+                    user_id: user.id,
+
+                    plan: plan
+                })
+            });
+
+        const verifyData =
+            await verifyResponse.json();
+
+        if (!verifyResponse.ok ||
+            !verifyData.success) {
+
+            alert(
+                "❌ Payment verification failed.\n" +
+                verifyData.message
+            );
+
+            return;
+        }
+
+        alert(
+            "🎉 Payment Successful!\n\n" +
+            "Plan: " + verifyData.plan +
+            "\nSubscription Activated!"
+        );
+
+        user.plan =
+            verifyData.plan;
+
+        localStorage.setItem(
+            "loggedInUser",
+            JSON.stringify(user)
+        );
+
+        showDashboard();
+
+    } catch (error) {
+
+        console.error(
+            "Verification Error:",
+            error
+        );
+
+        alert(
+            "❌ Payment verification error."
+        );
+    }
+},
             modal: {
                 ondismiss: function () {
                     console.log("Payment window closed.");
