@@ -11,7 +11,7 @@ app.use(cors());
 app.use(express.json());
 
 // Website folder
-const websitePath = path.join(__dirname, "..");
+const websitePath = __dirname;
 
 app.use(express.static(websitePath));
 
