@@ -2511,8 +2511,7 @@ async function registerUser() {
     try {
 
         const response =
-            await fetch(
-                "http://localhost:5000/api/register",
+            await fetch("/api/register", {
                 {
                     method: "POST",
 
@@ -3009,8 +3008,7 @@ async function loginUser() {
     try {
 
         const response =
-            await fetch(
-                "http://localhost:5000/api/login",
+            await fetch("/api/login", {
                 {
                     method: "POST",
 
