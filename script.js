@@ -2512,8 +2512,9 @@ async function registerUser() {
 
         const response =
             await fetch("/api/register", {
-                {
-                    method: "POST",
+const response =
+    await fetch("/api/register", {
+        method: "POST",
 
                     headers: {
                         "Content-Type": "application/json"
@@ -3009,7 +3010,10 @@ async function loginUser() {
 
         const response =
             await fetch("/api/login", {
+<<<<<<< HEAD
                 {
+=======
+>>>>>>> f4be145 (Fix online registration API)
                     method: "POST",
 
                     headers: {
