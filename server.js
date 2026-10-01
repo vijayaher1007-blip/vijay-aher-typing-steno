@@ -93,9 +93,13 @@ app.post("/api/login", async (req, res) => {
             if (err) {
     console.error("LOGIN DATABASE ERROR:", err);
 
-    return res.status(500).json({
-        message: "Database error."
-    });
+   console.error("REGISTER DATABASE ERROR:", err);
+
+return res.status(500).json({
+    message: "Database error.",
+    error: err.message,
+    code: err.code
+});
 }
 
             if (results.length === 0) {
