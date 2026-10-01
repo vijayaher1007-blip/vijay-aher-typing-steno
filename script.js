@@ -2476,87 +2476,56 @@ async function registerUser() {
     const message =
         document.getElementById("registerMessage");
 
-
     if (!name || !email || !password || !confirmPassword) {
-
         message.textContent =
             "⚠️ सर्व माहिती भरा.";
-
         return;
     }
-
 
     if (password !== confirmPassword) {
-
         message.textContent =
             "❌ Password आणि Confirm Password समान नाहीत.";
-
         return;
     }
-
 
     if (password.length < 6) {
-
         message.textContent =
             "⚠️ Password कमीत कमी 6 characters असावा.";
-
         return;
     }
-
 
     message.textContent =
         "⏳ Registration होत आहे...";
 
-
     try {
 
-        const response =
-            await fetch("/api/register", {
-const response =
-    await fetch("/api/register", {
-        method: "POST",
+        const response = await fetch("/api/register", {
+            method: "POST",
 
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
+            headers: {
+                "Content-Type": "application/json"
+            },
 
-                    body: JSON.stringify({
-                        name: name,
-                        email: email,
-                        password: password
-                    })
-                }
-            );
+            body: JSON.stringify({
+                name: name,
+                email: email,
+                password: password
+            })
+        });
 
+        const data = await response.json();
 
-        const data =
-            await response.json();
-
-
-        message.textContent =
-            data.message;
-
+        message.textContent = data.message;
 
         if (response.ok) {
 
-            document.getElementById(
-                "registerName"
-            ).value = "";
+            document.getElementById("registerName").value = "";
+            document.getElementById("registerEmail").value = "";
+            document.getElementById("registerPassword").value = "";
+            document.getElementById("registerConfirmPassword").value = "";
 
-            document.getElementById(
-                "registerEmail"
-            ).value = "";
-
-            document.getElementById(
-                "registerPassword"
-            ).value = "";
-
-            document.getElementById(
-                "registerConfirmPassword"
-            ).value = "";
-
+            alert("✅ Registration Successful!");
         }
-
 
     } catch (error) {
 
@@ -2564,9 +2533,7 @@ const response =
             "❌ Server connection failed.";
 
         console.error(error);
-
     }
-
 }
 /* =====================================================
    LOGIN
