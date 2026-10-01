@@ -2976,23 +2976,18 @@ async function loginUser() {
     try {
 
         const response =
-            await fetch("/api/login", {
-<<<<<<< HEAD
-                {
-=======
->>>>>>> f4be145 (Fix online registration API)
-                    method: "POST",
+    await fetch("/api/login", {
+        method: "POST",
 
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
+        headers: {
+            "Content-Type": "application/json"
+        },
 
-                    body: JSON.stringify({
-                        email: email,
-                        password: password
-                    })
-                }
-            );
+        body: JSON.stringify({
+            email: email,
+            password: password
+        })
+    });
 
 
         const data =
