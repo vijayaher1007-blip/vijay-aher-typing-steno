@@ -49,16 +49,21 @@ app.post("/api/register", async (req, res) => {
             sql,
             [name, email, hashedPassword],
             (err, result) => {
-                if (err) {
-                    if (err.code === "ER_DUP_ENTRY") {
-                        return res.status(409).json({
-                            message: "Email already registered."
-                        });
-                    }
+               if (err) {
+    console.error("REGISTER DATABASE ERROR:", err);
 
-                    return res.status(500).json({
-                        message: "Database error."
-                    });
+    if (err.code === "ER_DUP_ENTRY") {
+        return res.status(409).json({
+            message: "Email already registered."
+        });
+    }
+
+    return res.status(500).json({
+        message: "Database error.",
+        error: err.message,
+        code: err.code
+    });
+}
                 }
 
                 res.status(201).json({
