@@ -3219,23 +3219,120 @@ document.addEventListener(
    SUBSCRIPTION PLAN
    ===================================================== */
 
-function subscribePlan(plan) {
+async function subscribePlan(plan) {
 
-    if (plan === "Monthly") {
+    const userData = localStorage.getItem("loggedInUser");
 
-        alert(
-            "⭐ Monthly Plan ₹299 selected."
-        );
-
+    if (!userData) {
+        alert("⚠️ Please login first.");
+        return;
     }
 
+    const user = JSON.parse(userData);
 
-    if (plan === "Yearly") {
+    try {
 
-        alert(
-            "👑 Yearly Plan ₹1999 selected."
+        const response = await fetch("/api/create-order", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                plan: plan
+            })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            alert("❌ " + (data.message || "Unable to create order."));
+            return;
+        }
+
+        const options = {
+            key: data.key,
+            amount: data.order.amount,
+            currency: data.order.currency,
+            name: "VIJAY AHER",
+            description: plan + " Subscription",
+            order_id: data.order.id,
+
+            handler: async function (paymentResponse) {
+
+                const verifyResponse = await fetch(
+                    "/api/verify-payment",
+                    {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({
+                            razorpay_order_id:
+                                paymentResponse.razorpay_order_id,
+
+                            razorpay_payment_id:
+                                paymentResponse.razorpay_payment_id,
+
+                            razorpay_signature:
+                                paymentResponse.razorpay_signature,
+
+                            user_id: user.id,
+                            plan: plan
+                        })
+                    }
+                );
+
+                const verifyData =
+                    await verifyResponse.json();
+
+                if (!verifyResponse.ok) {
+                    alert(
+                        "❌ " +
+                        (verifyData.message ||
+                        "Payment verification failed.")
+                    );
+                    return;
+                }
+
+                alert(
+                    "✅ Payment Successful!\n" +
+                    "Plan: " + plan
+                );
+
+                user.plan = plan;
+
+                localStorage.setItem(
+                    "loggedInUser",
+                    JSON.stringify(user)
+                );
+
+                showDashboard();
+            },
+
+            prefill: {
+                name: user.name || "",
+                email: user.email || ""
+            },
+
+            theme: {
+                color: "#6c5ce7"
+            }
+        };
+
+        const razorpay =
+            new Razorpay(options);
+
+        razorpay.open();
+
+    } catch (error) {
+
+        console.error(
+            "Subscription Error:",
+            error
         );
 
+        alert(
+            "❌ Payment system connection failed."
+        );
     }
-
 }
