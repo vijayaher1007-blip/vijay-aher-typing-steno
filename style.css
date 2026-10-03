@@ -1083,3 +1083,260 @@ footer {
     }
 
 }
+
+/* ================================
+   PREMIUM LOCK
+================================ */
+
+.premium-section.premium-locked {
+    position: relative;
+}
+
+.premium-section.premium-locked::after {
+    content: "🔒 PREMIUM — Subscription Required";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(20, 20, 40, 0.95);
+    color: white;
+    padding: 18px 28px;
+    border-radius: 14px;
+    font-size: 20px;
+    font-weight: bold;
+    text-align: center;
+    z-index: 100;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
+}
+
+.premium-section.premium-locked::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: rgba(255, 255, 255, 0.55);
+    backdrop-filter: blur(3px);
+    z-index: 99;
+    border-radius: 16px;
+}
+
+.premium-section.premium-locked
+button:not(.link-btn),
+.premium-section.premium-locked
+select,
+.premium-section.premium-locked
+textarea {
+    pointer-events: none;
+}
+
+/* =====================================================
+   PREMIUM LOCK MESSAGE
+===================================================== */
+
+.premium-section.premium-locked::after {
+    content: "🔒 PREMIUM TEST\A Subscription Required\A\A Monthly ₹299  |  Yearly ₹1,999";
+    white-space: pre;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+
+    background: rgba(20, 20, 40, 0.96);
+    color: white;
+
+    padding: 25px 35px;
+    border-radius: 18px;
+
+    font-size: 20px;
+    font-weight: bold;
+    text-align: center;
+
+    line-height: 1.6;
+
+    z-index: 1000;
+
+    box-shadow:
+        0 10px 35px rgba(0, 0, 0, 0.45);
+
+    min-width: 320px;
+}
+
+/* Locked section overlay */
+
+.premium-section.premium-locked::before {
+    content: "";
+
+    position: absolute;
+    inset: 0;
+
+    background: rgba(255, 255, 255, 0.60);
+
+    backdrop-filter: blur(4px);
+
+    z-index: 999;
+
+    border-radius: 16px;
+}
+
+/* Prevent test controls while locked */
+
+.premium-section.premium-locked
+button:not(.link-btn),
+.premium-section.premium-locked
+select,
+.premium-section.premium-locked
+textarea {
+    pointer-events: none;
+}
+
+/* Premium Subscribe Button */
+
+.premium-subscribe-btn {
+    display: inline-block;
+    margin-top: 12px;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #6c5ce7, #a855f7);
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.premium-subscribe-btn:hover {
+    transform: scale(1.03);
+}
+
+/* =====================================================
+   PREMIUM LOCK BOX
+===================================================== */
+
+.premium-lock-box {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+
+    width: min(90%, 500px);
+    padding: 30px 25px;
+
+    background: rgba(255, 255, 255, 0.98);
+    border-radius: 20px;
+
+    text-align: center;
+
+    z-index: 1100;
+
+    box-shadow:
+        0 15px 45px rgba(0, 0, 0, 0.30);
+}
+
+.premium-lock-icon {
+    font-size: 45px;
+    margin-bottom: 8px;
+}
+
+.premium-lock-box h3 {
+    margin: 5px 0 10px;
+    font-size: 25px;
+}
+
+.premium-lock-box p {
+    margin-bottom: 18px;
+    font-size: 16px;
+}
+
+.premium-price {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+}
+
+.premium-price span {
+    padding: 8px 14px;
+    border-radius: 8px;
+    background: #f1f2f6;
+    font-weight: bold;
+}
+
+.premium-lock-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.premium-lock-buttons
+.premium-subscribe-btn {
+    margin-top: 0;
+}
+
+/* =====================================================
+   PAYMENT HISTORY DESIGN
+===================================================== */
+
+.payment-history-box {
+    margin-top: 25px;
+    padding: 25px;
+    background: #ffffff;
+    border-radius: 18px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.10);
+    overflow: hidden;
+}
+
+.payment-history-box h3 {
+    margin-bottom: 20px;
+    font-size: 22px;
+    color: #2d3436;
+}
+
+.payment-history-table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.payment-history-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 600px;
+    background: #ffffff;
+}
+
+.payment-history-table th {
+    padding: 14px;
+    background: #6c5ce7;
+    color: #ffffff;
+    text-align: left;
+    font-weight: bold;
+}
+
+.payment-history-table td {
+    padding: 13px 14px;
+    border-bottom: 1px solid #eeeeee;
+    color: #2d3436;
+}
+
+.payment-history-table tr:hover {
+    background: #f8f7ff;
+}
+
+.payment-status {
+    display: inline-block;
+    padding: 6px 12px;
+    border-radius: 20px;
+    background: #dff9e8;
+    color: #198754;
+    font-weight: bold;
+    text-transform: capitalize;
+}
+
+/* ADMIN PANEL BUTTON */
+#adminPanelButton {
+    display: inline-block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    position: relative;
+    z-index: 9999;
+}

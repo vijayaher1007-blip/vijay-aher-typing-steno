@@ -82,6 +82,71 @@
     <p><strong>Name:</strong> <span id="dashboardName"></span></p>
     <p><strong>Email:</strong> <span id="dashboardEmail"></span></p>
     <p><strong>Plan:</strong> <span id="dashboardPlan"></span></p>
+
+<div class="dashboard-actions">
+
+    <button
+        id="adminPanelButton"
+        class="admin-panel-btn hidden"
+        onclick="openAdminDashboard()">
+        👑 Admin Panel
+    </button>
+
+    <button
+        class="logout-btn"
+        onclick="logoutUser()">
+        🚪 Logout
+    </button>
+
+</div>
+
+<div id="subscriptionDetails" class="subscription-details">
+
+    <div id="subscriptionDetails" class="subscription-details">
+
+    <h3>💳 Subscription Details</h3>
+
+    <p>
+        <strong>Status:</strong>
+        <span id="subscriptionStatus">Checking...</span>
+    </p>
+
+    <p>
+        <strong>Plan:</strong>
+        <span id="subscriptionPlan">-</span>
+    </p>
+
+    <p>
+        <strong>Start Date:</strong>
+        <span id="subscriptionStart">-</span>
+    </p>
+
+    <p>
+        <strong>Expiry Date:</strong>
+        <span id="subscriptionExpiry">-</span>
+    </p>
+
+    <p>
+        <strong>Remaining Days:</strong>
+        <span id="subscriptionDays">-</span>
+    </p>
+
+</div>
+
+
+<!-- Payment History -->
+
+<div id="paymentHistoryBox" class="payment-history-box">
+
+    <h3>💳 Payment History</h3>
+
+    <div id="paymentHistoryContent">
+        <p>Loading payment history...</p>
+    </div>
+
+</div>
+
+
 <div class="subscription-plans">
 
     <h3>Choose Your Plan</h3>
@@ -110,127 +175,122 @@
 
 </div>
 
-    <button onclick="logoutUser()">Logout</button>
-</div>
+   
+        
+<!-- =====================================================
+     ADMIN DASHBOARD
+===================================================== -->
 
-    <!-- DASHBOARD -->
-    <div id="dashboardBox" class="dashboard-box hidden">
+<section
+    id="adminDashboardSection"
+    class="main-section hidden">
 
-        <div class="dashboard-header">
+    <div class="admin-dashboard">
+
+        <div class="admin-header">
+
             <div>
-                <h2>👤 Welcome, <span id="dashboardName"></span></h2>
-                <p id="dashboardEmail"></p>
+                <h2>👑 Admin Dashboard</h2>
+                <p>VIJAY AHER – Website Administration</p>
             </div>
 
-            <button onclick="logoutUser()">
-                Logout
+            <button
+                class="admin-refresh-btn"
+                onclick="loadAdminDashboard()">
+                🔄 Refresh
             </button>
-        </div>
-
-
-        <div class="subscription-status">
-
-            <div>
-                <span>Current Plan</span>
-                <strong id="currentPlan">Free</strong>
-            </div>
-
-            <div>
-                <span>Status</span>
-                <strong id="subscriptionStatus">Active</strong>
-            </div>
-
-            <div>
-                <span>Expiry</span>
-                <strong id="subscriptionExpiry">-</strong>
-            </div>
 
         </div>
 
 
-        <h3>💳 Subscription Plans</h3>
+        <!-- ADMIN STATISTICS -->
 
-        <div class="plans">
+        <div class="admin-stats">
 
-            <div class="plan-card">
-                <h3>FREE</h3>
-                <div class="plan-price">₹0</div>
-                <p>7 Days</p>
-
-                <ul>
-                    <li>Limited Typing Tests</li>
-                    <li>Basic Practice</li>
-                    <li>Limited Steno</li>
-                </ul>
-
-                <button onclick="selectPlan('Free', 0)">
-                    Current Plan
-                </button>
+            <div class="admin-stat-card">
+                <div class="admin-stat-icon">👥</div>
+                <h3>Total Users</h3>
+                <strong id="adminTotalUsers">0</strong>
             </div>
 
-
-            <div class="plan-card premium-plan">
-                <div class="premium-badge">POPULAR</div>
-
-                <h3>BASIC</h3>
-                <div class="plan-price">₹299</div>
-                <p>1 Month</p>
-
-                <ul>
-                    <li>Typing Test</li>
-                    <li>Steno Dictation</li>
-                    <li>Question Papers</li>
-                    <li>Answer Key</li>
-                </ul>
-
-                <button onclick="selectPlan('Basic', 30)">
-                    Subscribe
-                </button>
+            <div class="admin-stat-card">
+                <div class="admin-stat-icon">🟢</div>
+                <h3>Active Subscriptions</h3>
+                <strong id="adminActiveUsers">0</strong>
             </div>
 
-
-            <div class="plan-card premium-plan">
-                <h3>STANDARD</h3>
-                <div class="plan-price">₹699</div>
-                <p>3 Months</p>
-
-                <ul>
-                    <li>All Typing Tests</li>
-                    <li>All Steno Tests</li>
-                    <li>District Court</li>
-                    <li>High Court</li>
-                </ul>
-
-                <button onclick="selectPlan('Standard', 90)">
-                    Subscribe
-                </button>
+            <div class="admin-stat-card">
+                <div class="admin-stat-icon">🔴</div>
+                <h3>Expired / Free</h3>
+                <strong id="adminExpiredUsers">0</strong>
             </div>
 
-
-            <div class="plan-card premium-plan">
-                <h3>PREMIUM</h3>
-                <div class="plan-price">₹1,999</div>
-                <p>1 Year</p>
-
-                <ul>
-                    <li>All Features</li>
-                    <li>All Court Tests</li>
-                    <li>Unlimited Practice</li>
-                    <li>Premium Content</li>
-                </ul>
-
-                <button onclick="selectPlan('Premium', 365)">
-                    Subscribe
-                </button>
+            <div class="admin-stat-card">
+                <div class="admin-stat-icon">💰</div>
+                <h3>Total Revenue</h3>
+                <strong id="adminTotalRevenue">₹0</strong>
             </div>
 
         </div>
 
-        <div id="paymentMessage" class="payment-message"></div>
+
+        <!-- USER SEARCH -->
+
+        <div class="admin-user-box">
+
+            <h3>🔎 User Management</h3>
+
+            <input
+                type="text"
+                id="adminUserSearch"
+                placeholder="Search by name or email..."
+                oninput="filterAdminUsers()">
+
+        </div>
+
+
+        <!-- USERS TABLE -->
+
+        <div class="admin-table-box">
+
+            <div class="admin-table-wrapper">
+
+                <table class="admin-users-table">
+
+                    <thead>
+
+                        <tr>
+                            <th>ID</th>
+<th>Name</th>
+<th>Email</th>
+<th>Plan</th>
+<th>Start Date</th>
+<th>Expiry Date</th>
+<th>Admin</th>
+<th>Actions</th>
+                        </tr>
+
+                    </thead>
+
+                    <tbody id="adminUsersTableBody">
+
+                        <tr>
+                            <td colspan="8">
+    Loading users...
+</td>
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
 
     </div>
 
-</div>
+</section>
 <!-- =====================================================
      NAVIGATION
      ===================================================== -->
@@ -249,7 +309,7 @@
     District Court
 </button>
 
-<button onclick="openPremiumSection('highSection')">
+<button onclick="openPremiumSection('highCourtSection')">
     High Court
 </button>
 </nav>
@@ -686,7 +746,7 @@
      DISTRICT COURT
      ===================================================== -->
 
-<section id="districtSection" class="main-section hidden">
+<section id="districtSection" class="main-section hidden premium-section">
 
     <div class="court-heading district-heading">
 
@@ -842,6 +902,54 @@
 
         </div>
 
+<div class="court-steno-admin-box">
+
+    <h4>📤 Add District Court Steno Passage</h4>
+
+<div id="districtStenoAdminList"
+     class="court-steno-admin-list">
+</div>
+
+    <label>
+        Passage Title
+        <input
+            type="text"
+            id="districtStenoTitle"
+            placeholder="Example: District Court 60 WPM">
+    </label>
+
+    <label>
+        Speed
+        <select id="districtStenoAdminSpeed">
+            <option value="60">60 WPM</option>
+            <option value="80">80 WPM</option>
+            <option value="100">100 WPM</option>
+            <option value="120">120 WPM</option>
+        </select>
+    </label>
+
+    <label>
+        Dictation Audio
+        <input
+            type="file"
+            id="districtStenoAudioFile"
+            accept="audio/*">
+    </label>
+
+    <label>
+        Reference Dictation Text
+        <textarea
+            id="districtStenoReferenceText"
+            placeholder="Reference dictation text येथे टाका..."></textarea>
+    </label>
+
+    <button
+        type="button"
+        onclick="saveCourtStenoPassage('district')">
+        💾 Save District Steno Passage
+    </button>
+
+</div>
 
         <div class="court-audio">
 
@@ -902,7 +1010,7 @@
      HIGH COURT
      ===================================================== -->
 
-<section id="highCourtSection" class="main-section hidden">
+<section id="highCourtSection" class="main-section hidden premium-section">
 
     <div class="court-heading high-heading">
 
@@ -1058,6 +1166,54 @@
 
         </div>
 
+<div class="court-steno-admin-box">
+
+    <h4>📤 Add High Court Steno Passage</h4>
+
+<div id="highStenoAdminList"
+     class="court-steno-admin-list">
+</div>
+
+    <label>
+        Passage Title
+        <input
+            type="text"
+            id="highStenoTitle"
+            placeholder="Example: High Court 60 WPM">
+    </label>
+
+    <label>
+        Speed
+        <select id="highStenoAdminSpeed">
+            <option value="60">60 WPM</option>
+            <option value="80">80 WPM</option>
+            <option value="100">100 WPM</option>
+            <option value="120">120 WPM</option>
+        </select>
+    </label>
+
+    <label>
+        Dictation Audio
+        <input
+            type="file"
+            id="highStenoAudioFile"
+            accept="audio/*">
+    </label>
+
+    <label>
+        Reference Dictation Text
+        <textarea
+            id="highStenoReferenceText"
+            placeholder="Reference dictation text येथे टाका..."></textarea>
+    </label>
+
+    <button
+        type="button"
+        onclick="saveCourtStenoPassage('high')">
+        💾 Save High Court Steno Passage
+    </button>
+
+</div>
 
         <div class="court-audio">
 
