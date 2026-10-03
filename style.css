@@ -1340,3 +1340,370 @@ textarea {
     position: relative;
     z-index: 9999;
 }
+
+.court-correct {
+    color: #198754;
+    font-weight: 700;
+    margin-right: 6px;
+}
+
+.court-wrong {
+    color: #dc3545;
+    font-weight: 700;
+    background: #ffe5e5;
+    padding: 2px 5px;
+    border-radius: 4px;
+    margin-right: 6px;
+    cursor: help;
+}
+
+.court-missing {
+    color: #d63384;
+    font-weight: 700;
+    background: #fff0f6;
+    padding: 2px 5px;
+    border-radius: 4px;
+    margin-right: 6px;
+}
+
+.court-extra {
+    color: #fd7e14;
+    font-weight: 700;
+    background: #fff3e6;
+    padding: 2px 5px;
+    border-radius: 4px;
+    margin-right: 6px;
+}
+
+/* =====================================================
+   MOBILE RESPONSIVE DESIGN
+   ===================================================== */
+
+@media (max-width: 768px) {
+
+    * {
+        box-sizing: border-box;
+    }
+
+    html,
+    body {
+        width: 100%;
+        max-width: 100%;
+        overflow-x: hidden;
+    }
+
+    body {
+        margin: 0;
+        padding: 0;
+    }
+
+    /* HEADER */
+
+    header,
+    .header,
+    .top-header {
+        width: 100%;
+        padding: 15px 12px !important;
+    }
+
+    header h1,
+    .header h1 {
+        font-size: 24px !important;
+        line-height: 1.2;
+        text-align: center;
+    }
+
+    header h2,
+    .header h2 {
+        font-size: 16px !important;
+        text-align: center;
+    }
+
+
+    /* MAIN CONTAINER */
+
+    .container,
+    .main-container,
+    .dashboard-container {
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 0 auto !important;
+        padding: 12px !important;
+    }
+
+
+    /* NAVIGATION / BUTTONS */
+
+    nav,
+    .nav,
+    .menu,
+    .navbar {
+        width: 100%;
+        max-width: 100%;
+        overflow-x: auto;
+    }
+
+    button {
+        max-width: 100%;
+        min-height: 44px;
+        touch-action: manipulation;
+    }
+
+
+    /* DASHBOARD CARDS */
+
+    .dashboard-grid,
+    .stats-grid,
+    .result-grid,
+    .court-result-grid {
+        grid-template-columns: 1fr !important;
+        width: 100% !important;
+    }
+
+    .dashboard-card,
+    .stat-card,
+    .result-card,
+    .court-result-card {
+        width: 100% !important;
+    }
+
+
+    /* TWO COLUMN TYPING AREA */
+
+    .test-area,
+    .typing-area,
+    .two-column,
+    .test-container {
+        grid-template-columns: 1fr !important;
+        display: grid !important;
+        width: 100% !important;
+    }
+
+
+    /* TYPING BOXES */
+
+    textarea,
+    input,
+    select {
+        max-width: 100%;
+    }
+
+    textarea {
+        width: 100% !important;
+        min-height: 180px;
+        font-size: 18px;
+    }
+
+    input,
+    select {
+        width: 100% !important;
+        min-height: 44px;
+        font-size: 16px;
+    }
+
+
+    /* TYPING QUESTION */
+
+    .question-paper,
+    .question-box,
+    .passage-box,
+    .typing-question {
+        width: 100% !important;
+        max-width: 100% !important;
+        overflow-wrap: anywhere;
+        word-break: normal;
+    }
+
+
+    /* ANSWER KEY */
+
+    .answer-key {
+        width: 100% !important;
+        max-width: 100% !important;
+        overflow-x: auto;
+    }
+
+
+    /* COURT MODULE */
+
+    .court-module {
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 10px 0 !important;
+        padding: 12px !important;
+    }
+
+    .court-controls {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 10px !important;
+    }
+
+    .court-controls label {
+        width: 100% !important;
+    }
+
+
+    /* COURT STENO */
+
+    .court-steno-admin-box,
+    .court-audio,
+    .court-transcription,
+    .court-result {
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+
+    .court-audio audio {
+        width: 100% !important;
+        max-width: 100%;
+    }
+
+    .court-trans-header {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 8px;
+    }
+
+    .court-steno-checked-text {
+        width: 100%;
+        overflow-wrap: anywhere;
+        line-height: 1.8;
+    }
+
+
+    /* ADMIN STENO LIST */
+
+    .court-steno-admin-item {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 10px !important;
+        width: 100% !important;
+    }
+
+    .steno-admin-info,
+    .steno-admin-actions {
+        width: 100% !important;
+    }
+
+    .steno-admin-actions {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        gap: 8px !important;
+    }
+
+    .steno-admin-actions button {
+        flex: 1 1 100%;
+        width: 100%;
+    }
+
+
+    /* RESULT */
+
+    .result-section,
+    .court-result {
+        width: 100% !important;
+        overflow-wrap: anywhere;
+    }
+
+
+    /* TABLES */
+
+    table {
+        width: 100%;
+        min-width: 650px;
+    }
+
+    .table-container,
+    .table-responsive,
+    .admin-table-container {
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+
+    /* ADMIN PANEL */
+
+    .admin-panel,
+    .admin-section {
+        width: 100% !important;
+        max-width: 100% !important;
+        overflow-x: auto;
+    }
+
+
+    /* LOGIN / REGISTER */
+
+    .login-container,
+    .register-container,
+    .auth-container,
+    .auth-box {
+        width: calc(100% - 24px) !important;
+        max-width: 500px !important;
+        margin: 15px auto !important;
+        padding: 18px !important;
+    }
+
+
+    /* MODAL */
+
+    .modal {
+        width: 94% !important;
+        max-width: 94% !important;
+        margin: auto;
+    }
+
+
+    /* STENO SETTINGS */
+
+    .steno-settings,
+    .steno-control,
+    .steno-header {
+        width: 100% !important;
+    }
+
+
+    /* FONT SIZE */
+
+    .mobile-small {
+        font-size: 14px !important;
+    }
+
+}
+
+
+/* =====================================================
+   SMALL MOBILE
+   ===================================================== */
+
+@media (max-width: 480px) {
+
+    header h1,
+    .header h1 {
+        font-size: 20px !important;
+    }
+
+    header h2,
+    .header h2 {
+        font-size: 14px !important;
+    }
+
+    body {
+        font-size: 14px;
+    }
+
+    button {
+        width: 100%;
+    }
+
+    .court-steno-admin-box,
+    .court-module {
+        padding: 10px !important;
+    }
+
+    textarea {
+        font-size: 16px;
+    }
+
+}
