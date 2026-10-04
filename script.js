@@ -26,49 +26,11 @@ function showSection(id) {
 
 
 /* =====================================================
-   DEFAULT PASSAGES
+   TYPING PASSAGES
+   CLOUD / MYSQL DATA
    ===================================================== */
 
-let passages = JSON.parse(
-    localStorage.getItem("gccAdvancedPassages") || "null"
-);
-
-if (!passages) {
-
-    passages = [
-
-        {
-            id: Date.now() + 1,
-            title: "English General Passage",
-            language: "English",
-            content:
-            "India is a democratic country. The Constitution provides fundamental rights and duties to every citizen. The rule of law is an important principle of democratic administration. Courts protect the rights of citizens and ensure justice according to law."
-        },
-
-        {
-            id: Date.now() + 2,
-            title: "Marathi General Passage",
-            language: "Marathi",
-            content:
-            "भारत हा लोकशाही देश आहे. भारतीय संविधान प्रत्येक नागरिकाला मूलभूत अधिकार आणि कर्तव्ये प्रदान करते. कायद्याचे राज्य हे लोकशाही व्यवस्थेचे महत्त्वाचे तत्त्व आहे. न्यायालये नागरिकांच्या अधिकारांचे संरक्षण करून कायद्यानुसार न्याय देण्याचे कार्य करतात."
-        },
-
-        {
-            id: Date.now() + 3,
-            title: "Hindi General Passage",
-            language: "Hindi",
-            content:
-            "भारत एक लोकतांत्रिक देश है। भारतीय संविधान प्रत्येक नागरिक को मौलिक अधिकार और कर्तव्य प्रदान करता है। कानून का शासन लोकतांत्रिक व्यवस्था का महत्वपूर्ण सिद्धांत है। न्यायालय नागरिकों के अधिकारों की रक्षा करते हैं और कानून के अनुसार न्याय प्रदान करते हैं।"
-        }
-
-    ];
-
-    localStorage.setItem(
-        "gccAdvancedPassages",
-        JSON.stringify(passages)
-    );
-}
-
+let passages = [];
 
 /* =====================================================
    MAIN TYPING VARIABLES
@@ -114,30 +76,63 @@ const arrowMode = document.getElementById("arrowMode");
    LOAD PASSAGES
    ===================================================== */
 
-function loadPassages() {
+/* =====================================================
+   CLOUD TYPING PASSAGES
+   ===================================================== */
 
-    passages = JSON.parse(
-        localStorage.getItem("gccAdvancedPassages") || "[]"
-    );
+async function loadPassages() {
 
-    populatePassageSelect();
-    displayPassages();
+    try {
 
-    loadCourtTypingPassages();
+        const response =
+            await fetch("/api/typing-passages");
+
+        const data =
+            await response.json();
+
+        if (!data.success) {
+
+            throw new Error(
+                data.message || "Passages load failed."
+            );
+
+        }
+
+        passages =
+            data.passages || [];
+
+        populatePassageSelect();
+        displayPassages();
+
+        loadCourtTypingPassages();
+
+    } catch (error) {
+
+        console.error(
+            "CLOUD TYPING PASSAGES LOAD ERROR:",
+            error
+        );
+
+        alert(
+            "Typing passages cloud मधून load झाले नाहीत."
+        );
+
+    }
+
 }
+
 
 /* =====================================================
    SAVE PASSAGES
    ===================================================== */
 
-function savePassages() {
+async function savePassages() {
 
-    localStorage.setItem(
-        "gccAdvancedPassages",
-        JSON.stringify(passages)
+    console.log(
+        "Cloud passage save is handled by API."
     );
-}
 
+}
 
 /* =====================================================
    PASSAGE DROPDOWN
@@ -767,7 +762,7 @@ document.getElementById(
 );
 
 
-function saveNewPassage() {
+async function saveNewPassage() {
 
     const lang =
         document.getElementById(
@@ -795,64 +790,88 @@ function saveNewPassage() {
     }
 
 
-    const newPassage = {
+    try {
 
-        id:
-            Date.now(),
+        const response =
+            await fetch(
+                "/api/typing-passages",
+                {
+                    method: "POST",
 
-        title:
-            title,
+                   headers: {
+    "Content-Type": "application/json",
+    "Authorization":
+        "Bearer " +
+        localStorage.getItem("authToken")
+},
 
-        language:
-            lang,
+                    body: JSON.stringify({
 
-        content:
-            content
+                        title:
+                            title,
 
-    };
+                        language:
+                            lang,
 
+                        content:
+                            content
 
-    passages.push(
-        newPassage
-    );
-
-
-    savePassages();
-
-
-    document.getElementById(
-        "passageTitle"
-    ).value = "";
-
-    document.getElementById(
-        "passageContent"
-    ).value = "";
+                    })
+                }
+            );
 
 
-    loadPassages();
+        const data =
+            await response.json();
 
 
-    /*
-       Saved passage लगेच dropdown मध्ये
-       available राहील.
-    */
+        if (!response.ok || !data.success) {
 
-    language.value =
-        lang;
+            throw new Error(
+                data.message ||
+                "Passage save failed."
+            );
 
-    populatePassageSelect();
-
-    passageSelect.value =
-        String(newPassage.id);
-
-    loadSelectedPassage();
+        }
 
 
-    alert(
-        "✅ Passage successfully saved."
-    );
+        alert(
+            "✅ Passage Cloud मध्ये successfully saved."
+        );
+
+
+        document.getElementById(
+            "passageTitle"
+        ).value = "";
+
+
+        document.getElementById(
+            "passageContent"
+        ).value = "";
+
+
+        await loadPassages();
+
+
+        populatePassageSelect();
+
+
+    } catch (error) {
+
+        console.error(
+            "CLOUD PASSAGE SAVE ERROR:",
+            error
+        );
+
+
+        alert(
+            "❌ Passage save झाला नाही.\n\n" +
+            error.message
+        );
+
+    }
+
 }
-
 
 /* =====================================================
    DISPLAY PASSAGES
@@ -967,9 +986,9 @@ document.getElementById(
 function usePassage(id) {
 
     const p =
-        passages.find(
-            x => x.id === id
-        );
+    passages.find(
+        x => Number(x.id) === Number(id)
+    );
 
     if (!p) return;
 
@@ -1001,10 +1020,10 @@ function usePassage(id) {
 
 function editPassage(id) {
 
-    const p =
-        passages.find(
-            x => x.id === id
-        );
+   const p =
+    passages.find(
+        x => Number(x.id) === Number(id)
+    );
 
     if (!p) return;
 
@@ -1054,22 +1073,14 @@ function editPassage(id) {
 
 
 /* =====================================================
-   UPDATE PASSAGE
+   UPDATE PASSAGE - CLOUD
    ===================================================== */
 
 document.getElementById(
     "updatePassageBtn"
 ).addEventListener(
     "click",
-    function() {
-
-        const p =
-            passages.find(
-                x => x.id === editingId
-            );
-
-        if (!p) return;
-
+    async function() {
 
         const title =
             document.getElementById(
@@ -1080,6 +1091,11 @@ document.getElementById(
             document.getElementById(
                 "passageContent"
             ).value.trim();
+
+        const language =
+            document.getElementById(
+                "adminLanguage"
+            ).value;
 
 
         if (!title || !content) {
@@ -1092,32 +1108,93 @@ document.getElementById(
         }
 
 
-        p.language =
-            document.getElementById(
-                "adminLanguage"
-            ).value;
+        if (!editingId) {
 
-        p.title =
-            title;
+            alert(
+                "❌ Passage ID मिळाला नाही."
+            );
 
-        p.content =
-            content;
+            return;
+        }
 
 
-        savePassages();
+        try {
 
-        cancelEdit();
+            const response =
+                await fetch(
+                    `/api/typing-passages/${editingId}`,
+                    {
+                        method: "PUT",
 
-        loadPassages();
+                        headers: {
+    "Content-Type": "application/json",
+    "Authorization":
+        "Bearer " +
+        localStorage.getItem("authToken")
+},
+
+                        body:
+                            JSON.stringify({
+
+                                title:
+                                    title,
+
+                                language:
+                                    language,
+
+                                content:
+                                    content
+
+                            })
+                    }
+                );
 
 
-        alert(
-            "✅ Passage updated."
-        );
+            const data =
+                await response.json();
+
+
+            if (
+                !response.ok ||
+                !data.success
+            ) {
+
+                throw new Error(
+                    data.message ||
+                    "Passage update failed."
+                );
+
+            }
+
+
+            alert(
+                "✅ Passage Cloud मध्ये successfully updated."
+            );
+
+
+            cancelEdit();
+
+
+            await loadPassages();
+
+
+        } catch (error) {
+
+            console.error(
+                "CLOUD PASSAGE UPDATE ERROR:",
+                error
+            );
+
+
+            alert(
+                "❌ Passage update झाला नाही.\n\n" +
+                error.message
+            );
+
+        }
 
     }
 );
-
 
 /* =====================================================
    CANCEL EDIT
@@ -1170,49 +1247,95 @@ function cancelEdit() {
 
 
 /* =====================================================
-   DELETE PASSAGE
+   DELETE PASSAGE - CLOUD
    ===================================================== */
 
-function deletePassage(id) {
+async function deletePassage(id) {
 
     if (
         !confirm(
             "हा passage delete करायचा आहे का?"
         )
-    ) return;
+    ) {
+        return;
+    }
 
 
-    passages =
-        passages.filter(
-            p => p.id !== id
+    try {
+
+        const response =
+            await fetch(
+                `/api/typing-passages/${id}`,
+                {
+    method: "DELETE",
+
+    headers: {
+        "Authorization":
+            "Bearer " +
+            localStorage.getItem("authToken")
+    }
+}
+            );
+
+
+        const data =
+            await response.json();
+
+
+        if (
+            !response.ok ||
+            !data.success
+        ) {
+
+            throw new Error(
+                data.message ||
+                "Passage delete failed."
+            );
+
+        }
+
+
+        alert(
+            "✅ Passage Cloud मधून successfully deleted."
         );
 
 
-    savePassages();
+        await loadPassages();
 
-    loadPassages();
+
+    } catch (error) {
+
+        console.error(
+            "CLOUD PASSAGE DELETE ERROR:",
+            error
+        );
+
+
+        alert(
+            "❌ Passage delete झाला नाही.\n\n" +
+            error.message
+        );
+
+    }
+
 }
+
 /* =====================================================
    COURT STATS
    ===================================================== */
 
 function updateCourtStats(court) {
 
-    const data = courtData[court];
+    const data = courtData.district;
 
     if (!data.current) return;
 
     const typing =
-        document.getElementById(
-            court === "district"
-                ? "districtTyping"
-                : "highTyping"
-        );
+        document.getElementById("districtTyping");
 
     if (!typing) return;
 
     const typed = typing.value;
-
     const target = data.current.content;
 
     const stats =
@@ -1221,14 +1344,9 @@ function updateCourtStats(court) {
             target
         );
 
-    /*
-     * Calculate actual elapsed time
-     * using test start timestamp.
-     */
     let elapsedSeconds = 1;
 
     if (data.startTime) {
-
         elapsedSeconds =
             Math.max(
                 1,
@@ -1239,15 +1357,9 @@ function updateCourtStats(court) {
     const minutes =
         elapsedSeconds / 60;
 
-    /*
-     * Standard typing calculation:
-     * 5 characters = 1 word
-     */
     const gross =
         Math.round(
-            typed.length /
-            5 /
-            minutes
+            typed.length / 5 / minutes
         );
 
     const accuracy =
@@ -1272,29 +1384,24 @@ function updateCourtStats(court) {
             )
         );
 
-    const prefix =
-        court === "district"
-            ? "district"
-            : "high";
-
     const grossElement =
         document.getElementById(
-            prefix + "Gross"
+            "districtGross"
         );
 
     const netElement =
         document.getElementById(
-            prefix + "Net"
+            "districtNet"
         );
 
     const accuracyElement =
         document.getElementById(
-            prefix + "Accuracy"
+            "districtAccuracy"
         );
 
     const errorsElement =
         document.getElementById(
-            prefix + "Errors"
+            "districtErrors"
         );
 
     if (grossElement) {
@@ -1321,32 +1428,22 @@ function updateCourtStats(court) {
             stats.errors;
     }
 
-    updateCourtMirror(court);
+    updateCourtMirror("district");
 }
-/* =====================================================
-   COURT MIRROR
-   ===================================================== */
 
 function updateCourtMirror(court) {
 
     const typing =
         document.getElementById(
-            court === "district"
-                ? "districtTyping"
-                : "highTyping"
+            "districtTyping"
         );
-
 
     const mirror =
         document.getElementById(
-            court === "district"
-                ? "districtMirror"
-                : "highMirror"
+            "districtMirror"
         );
 
-
     if (!typing || !mirror) return;
-
 
     /*
        Typing करताना Green / Red comparison नाही.
@@ -1355,15 +1452,16 @@ function updateCourtMirror(court) {
     mirror.textContent =
         typing.value;
 }
+
 /* =====================================================
    SUBMIT COURT TYPING
    ===================================================== */
 function startCourtTyping(court) {
 
-    const data = courtData[court];
+    const data = courtData.district;
 
     if (!data) {
-        console.error("Court data not found:", court);
+        console.error("District Court data not found.");
         return;
     }
 
@@ -1374,136 +1472,131 @@ function startCourtTyping(court) {
 
     const typing =
         document.getElementById(
-            court === "district"
-                ? "districtTyping"
-                : "highTyping"
+            "districtTyping"
         );
 
     if (!typing) {
-        console.error("Typing area not found:", court);
+        console.error("District typing area not found.");
         return;
     }
 
-    // Clear previous typing
     typing.value = "";
-
-    // Enable typing area
     typing.disabled = false;
     typing.focus();
 
-    // Start test
     data.testStarted = true;
-data.startTime = Date.now();
+    data.startTime = Date.now();
 
-    // Get selected time
     const timeSelect =
         document.getElementById(
-            court === "district"
-                ? "districtTime"
-                : "highTime"
+            "districtTime"
         );
 
     let minutes = 5;
 
     if (timeSelect && timeSelect.value) {
-        minutes = Number(timeSelect.value) || 5;
+        minutes =
+            Number(timeSelect.value) || 5;
     }
 
-    data.remaining = minutes * 60;
+    data.remaining =
+        minutes * 60;
 
-    // Stop previous timer
     if (data.timer) {
         clearInterval(data.timer);
     }
 
-    data.timer = setInterval(function () {
+    data.timer =
+        setInterval(function () {
 
-        if (data.remaining <= 0) {
+            if (data.remaining <= 0) {
 
-            clearInterval(data.timer);
+                clearInterval(data.timer);
 
-            data.timer = null;
-            data.testStarted = false;
+                data.timer = null;
+                data.testStarted = false;
 
-            typing.disabled = true;
+                typing.disabled = true;
 
-            alert("Time is over!");
+                alert("Time is over!");
 
-            return;
-        }
+                return;
+            }
 
-        data.remaining--;
+            data.remaining--;
 
-        const minutesLeft =
-            Math.floor(data.remaining / 60);
+            const minutesLeft =
+                Math.floor(
+                    data.remaining / 60
+                );
 
-        const secondsLeft =
-            data.remaining % 60;
+            const secondsLeft =
+                data.remaining % 60;
 
-        const timeText =
-            String(minutesLeft).padStart(2, "0") +
-            ":" +
-            String(secondsLeft).padStart(2, "0");
+            const timeText =
+                String(minutesLeft).padStart(2, "0") +
+                ":" +
+                String(secondsLeft).padStart(2, "0");
 
-        const timerElement =
-            document.getElementById(
-                court === "district"
-                    ? "districtTimer"
-                    : "highTimer"
-            );
+            const timerElement =
+                document.getElementById(
+                    "districtTimer"
+                );
 
-        if (timerElement) {
-            timerElement.textContent = timeText;
-        }
+            if (timerElement) {
+                timerElement.textContent =
+                    timeText;
+            }
 
-    }, 1000);
+        }, 1000);
 
-    // Initial timer display
     const timerElement =
         document.getElementById(
-            court === "district"
-                ? "districtTimer"
-                : "highTimer"
+            "districtTimer"
         );
 
     if (timerElement) {
         timerElement.textContent =
-            String(minutes).padStart(2, "0") + ":00";
+            String(minutes).padStart(2, "0") +
+            ":00";
     }
 
     console.log(
-        court.toUpperCase() +
-        " Court Typing Test Started"
+        "DISTRICT Court Typing Test Started"
     );
 }
+
 
 function submitCourtTyping(court) {
 
     const data =
-        courtData[court];
+        courtData.district;
 
     if (!data.current) return;
 
     clearInterval(data.timer);
 
-    data.started = false;
+    data.testStarted = false;
 
     const typing =
         document.getElementById(
-            court === "district"
-                ? "districtTyping"
-                : "highTyping"
+            "districtTyping"
         );
+
+    if (!typing) return;
 
     typing.disabled = true;
 
-    document.getElementById(
-        court === "district"
-            ? "districtSubmit"
-            : "highSubmit"
-    ).disabled = true;
+    const submitButton =
+        document.getElementById(
+            "districtSubmit"
+        );
 
-    updateCourtStats(court);
+    if (submitButton) {
+        submitButton.disabled = true;
+    }
+
+    updateCourtStats("district");
 
     const typed =
         typing.value;
@@ -1518,19 +1611,17 @@ function submitCourtTyping(court) {
         typed.length
             ? Math.round(
                 stats.correct /
-                typed.length * 100
+                typed.length *
+                100
             )
             : 0;
 
-    const prefix =
-        court === "district"
-            ? "district"
-            : "high";
-
     const result =
         document.getElementById(
-            prefix + "TypingResult"
+            "districtTypingResult"
         );
+
+    if (!result) return;
 
     result.classList.remove(
         "hidden"
@@ -1538,9 +1629,7 @@ function submitCourtTyping(court) {
 
     result.innerHTML = `
 
-        <h4>📊 ${court === "district"
-            ? "District Court"
-            : "High Court"} Typing Result</h4>
+        <h4>📊 District Court Typing Result</h4>
 
         <div class="court-result-grid">
 
@@ -1567,7 +1656,6 @@ function submitCourtTyping(court) {
         </div>
     `;
 }
-
 
 /* =====================================================
    COURT STENO
@@ -1616,9 +1704,7 @@ function initializeCourtStenoPassages() {
     const districtKey =
         "gccDistrictCourtSteno";
 
-    const highKey =
-        "gccHighCourtSteno";
-
+   
 
     const districtPassages = [
         {
@@ -1656,41 +1742,7 @@ function initializeCourtStenoPassages() {
     ];
 
 
-    const highPassages = [
-        {
-            id: Date.now() + 201,
-            title: "High Court Steno - 60 WPM",
-            speed: 60,
-            audio: "",
-            text:
-                "The High Court exercises jurisdiction according to the Constitution and the laws applicable within its jurisdiction."
-        },
-        {
-            id: Date.now() + 202,
-            title: "High Court Steno - 80 WPM",
-            speed: 80,
-            audio: "",
-            text:
-                "The High Court has an important responsibility to protect fundamental rights and ensure justice according to law."
-        },
-        {
-            id: Date.now() + 203,
-            title: "High Court Steno - 100 WPM",
-            speed: 100,
-            audio: "",
-            text:
-                "Justice must be administered fairly and efficiently. Courts are responsible for interpreting laws and protecting legal rights."
-        },
-        {
-            id: Date.now() + 204,
-            title: "High Court Steno - 120 WPM",
-            speed: 120,
-            audio: "",
-            text:
-                "The administration of justice requires fairness, independence and adherence to constitutional principles and established legal procedures."
-        }
-    ];
-
+    
 
     function hasPassages(key) {
 
@@ -1721,70 +1773,55 @@ function initializeCourtStenoPassages() {
         );
     }
 
+  }
 
-    if (!hasPassages(highKey)) {
 
-        localStorage.setItem(
-            highKey,
-            JSON.stringify(
-                highPassages
-            )
-        );
-    }
+async function loadCourtStenoLists() {
 
-}
+    courtStenoData.district.passages = [];
 
-function getCourtStenoPassages(court) {
-
-    const key =
-        court === "district"
-            ? "gccDistrictCourtSteno"
-            : "gccHighCourtSteno";
-
-    let data =
-        JSON.parse(
-            localStorage.getItem(key)
-            || "null"
+    const select =
+        document.getElementById(
+            "districtStenoPassage"
         );
 
-    if (!data) {
-
-        data = [];
-
-        localStorage.setItem(
-            key,
-            JSON.stringify(data)
+    const speedSelect =
+        document.getElementById(
+            "districtStenoSpeed"
         );
-    }
 
-    return data;
-}
+    if (!select) return;
 
-function loadCourtStenoLists() {
+    try {
 
-    ["district", "high"].forEach(function(court) {
+        const response =
+            await fetch(
+                "/api/court-steno/passages/district"
+            );
 
         const data =
-            getCourtStenoPassages(court);
+            await response.json();
 
-        courtStenoData[court].passages =
-            data;
+        if (
+            !response.ok ||
+            !data.success
+        ) {
 
-        const select =
-            document.getElementById(
-                court === "district"
-                    ? "districtStenoPassage"
-                    : "highStenoPassage"
+            console.error(
+                "District Court Steno Load Error:",
+                data
             );
 
-        const speedSelect =
-            document.getElementById(
-                court === "district"
-                    ? "districtStenoSpeed"
-                    : "highStenoSpeed"
-            );
+            return;
+        }
 
-        if (!select) return;
+        const passages =
+            Array.isArray(data.passages)
+                ? data.passages
+                : [];
+
+        courtStenoData.district.passages =
+            passages;
 
         function fillPassages() {
 
@@ -1796,17 +1833,20 @@ function loadCourtStenoLists() {
                     ? Number(speedSelect.value)
                     : 60;
 
-            data
+            passages
                 .filter(function(passage) {
 
-                    return Number(passage.speed) ===
-                           selectedSpeed;
+                    return Number(
+                        passage.speed
+                    ) === selectedSpeed;
 
                 })
                 .forEach(function(passage) {
 
                     const option =
-                        document.createElement("option");
+                        document.createElement(
+                            "option"
+                        );
 
                     option.value =
                         passage.id;
@@ -1830,14 +1870,12 @@ function loadCourtStenoLists() {
 
                     fillPassages();
 
-                    courtStenoData[court]
-                        .current = null;
+                    courtStenoData.district.current =
+                        null;
 
                     const audio =
                         document.getElementById(
-                            court === "district"
-                                ? "districtStenoAudio"
-                                : "highStenoAudio"
+                            "districtStenoAudio"
                         );
 
                     if (audio) {
@@ -1853,9 +1891,7 @@ function loadCourtStenoLists() {
 
                     const status =
                         document.getElementById(
-                            court === "district"
-                                ? "districtStenoStatus"
-                                : "highStenoStatus"
+                            "districtStenoStatus"
                         );
 
                     if (status) {
@@ -1866,9 +1902,7 @@ function loadCourtStenoLists() {
 
                     const transSection =
                         document.getElementById(
-                            court === "district"
-                                ? "districtStenoTransSection"
-                                : "highStenoTransSection"
+                            "districtStenoTransSection"
                         );
 
                     if (transSection) {
@@ -1884,7 +1918,7 @@ function loadCourtStenoLists() {
             function() {
 
                 const selected =
-                    data.find(
+                    passages.find(
                         function(passage) {
 
                             return String(
@@ -1897,52 +1931,76 @@ function loadCourtStenoLists() {
                         }
                     );
 
-                courtStenoData[court]
-                    .current =
-                    selected || null;
+                if (!selected) {
 
-                if (selected) {
+                    courtStenoData.district.current =
+                        null;
 
-                    const audio =
-                        document.getElementById(
-                            court === "district"
-                                ? "districtStenoAudio"
-                                : "highStenoAudio"
-                        );
+                    return;
+                }
 
-                    if (audio) {
+                courtStenoData.district.current = {
 
-                        audio.src =
-                            selected.audio;
+                    id:
+                        selected.id,
 
-                        audio.load();
+                    title:
+                        selected.title,
 
-                        audio.onended =
-                            function() {
+                    speed:
+                        Number(
+                            selected.speed
+                        ),
 
-                                openCourtStenoTranscription(
-                                    court
-                                );
+                    audio:
+                        selected.audio,
 
-                            };
-                    }
+                    text:
+                        selected.reference_text || ""
 
-                    const status =
-                        document.getElementById(
-                            court === "district"
-                                ? "districtStenoStatus"
-                                : "highStenoStatus"
-                        );
+                };
 
-                    if (status) {
+                const audio =
+                    document.getElementById(
+                        "districtStenoAudio"
+                    );
 
-                        status.textContent =
-                            "Audio loaded. Audio पूर्ण झाल्यावर transcription section उघडेल.";
-                    }
+                if (audio) {
+
+                    audio.src =
+                        selected.audio;
+
+                    audio.load();
+
+                    audio.onended =
+                        function() {
+
+                            openCourtStenoTranscription(
+                                "district"
+                            );
+
+                        };
+                }
+
+                const status =
+                    document.getElementById(
+                        "districtStenoStatus"
+                    );
+
+                if (status) {
+
+                    status.textContent =
+                        "Audio loaded. Audio पूर्ण झाल्यावर transcription section उघडेल.";
                 }
             };
 
-        });
+    } catch (error) {
+
+        console.error(
+            "District Court Steno API Error:",
+            error
+        );
+    }
 
     displayCourtStenoAdminLists();
 }
@@ -1955,10 +2013,10 @@ function openCourtStenoTranscription(court) {
 
     const section =
         document.getElementById(
-            court === "district"
-                ? "districtStenoTransSection"
-                : "highStenoTransSection"
+            "districtStenoTransSection"
         );
+
+    if (!section) return;
 
     section.classList.remove(
         "hidden"
@@ -1966,16 +2024,15 @@ function openCourtStenoTranscription(court) {
 
     const text =
         document.getElementById(
-            court === "district"
-                ? "districtStenoText"
-                : "highStenoText"
+            "districtStenoText"
         );
 
-    text.focus();
+    if (text) {
+        text.focus();
+    }
 
-    startCourtSteno(court);
+    startCourtSteno("district");
 }
-
 
 /* =====================================================
    START COURT STENO
@@ -1984,42 +2041,52 @@ function openCourtStenoTranscription(court) {
 function startCourtSteno(court) {
 
     const data =
-        courtStenoData[court];
+        courtStenoData.district;
 
-    if (!data.current) {
+    if (!data || !data.current) {
 
         alert("Steno passage select करा.");
 
         return;
     }
 
-    clearInterval(data.timer);
+    clearInterval(
+        data.timer
+    );
 
     data.remaining =
         55 * 60;
 
-    updateCourtStenoTimer(court);
+    updateCourtStenoTimer(
+        "district"
+    );
 
-    document.getElementById(
-        court === "district"
-            ? "districtStenoText"
-            : "highStenoText"
-    ).disabled = false;
+    const text =
+        document.getElementById(
+            "districtStenoText"
+        );
 
-    document.getElementById(
-        court === "district"
-            ? "districtStenoSubmit"
-            : "highStenoSubmit"
-    ).disabled = false;
+    const submit =
+        document.getElementById(
+            "districtStenoSubmit"
+        );
+
+    if (text) {
+        text.disabled = false;
+    }
+
+    if (submit) {
+        submit.disabled = false;
+    }
 
     data.timer =
         setInterval(
-            () => {
+            function() {
 
                 data.remaining--;
 
                 updateCourtStenoTimer(
-                    court
+                    "district"
                 );
 
                 if (
@@ -2030,8 +2097,10 @@ function startCourtSteno(court) {
                         data.timer
                     );
 
+                    data.timer = null;
+
                     submitCourtSteno(
-                        court
+                        "district"
                     );
                 }
 
@@ -2039,13 +2108,10 @@ function startCourtSteno(court) {
             1000
         );
 
-    document.getElementById(
-        court === "district"
-            ? "districtStenoText"
-            : "highStenoText"
-    ).focus();
+    if (text) {
+        text.focus();
+    }
 }
-
 
 /* =====================================================
    COURT STENO TIMER
@@ -2053,9 +2119,13 @@ function startCourtSteno(court) {
 
 function updateCourtStenoTimer(court) {
 
+    const data =
+        courtStenoData.district;
+
+    if (!data) return;
+
     const seconds =
-        courtStenoData[court]
-            .remaining;
+        data.remaining;
 
     const min =
         Math.floor(
@@ -2069,37 +2139,48 @@ function updateCourtStenoTimer(court) {
         .toString()
         .padStart(2, "0");
 
-    document.getElementById(
-        court === "district"
-            ? "districtStenoTimer"
-            : "highStenoTimer"
-    ).textContent =
-        `${min}:${sec}`;
-}
+    const timer =
+        document.getElementById(
+            "districtStenoTimer"
+        );
 
+    if (timer) {
+        timer.textContent =
+            `${min}:${sec}`;
+    }
+}
 
 /* =====================================================
    SUBMIT COURT STENO
    ===================================================== */
 
 
-function submitCourtSteno(court) {
+async function submitCourtSteno(court) {
 
-    console.log("SUBMIT CLICKED:", court);
+    console.log(
+        "DISTRICT STENO SUBMIT CLICKED"
+    );
 
     const data =
-        courtStenoData[court];
+        courtStenoData.district;
 
-    if (!data.current) return;
+    if (!data || !data.current) return;
 
-    clearInterval(data.timer);
+    clearInterval(
+        data.timer
+    );
+
+    data.timer = null;
+
+    const textElement =
+        document.getElementById(
+            "districtStenoText"
+        );
+
+    if (!textElement) return;
 
     const typed =
-        document.getElementById(
-            court === "district"
-                ? "districtStenoText"
-                : "highStenoText"
-        ).value;
+        textElement.value;
 
     const reference =
         data.current.text;
@@ -2110,24 +2191,64 @@ function submitCourtSteno(court) {
             typed
         );
 
-    document.getElementById(
-        court === "district"
-            ? "districtStenoText"
-            : "highStenoText"
-    ).disabled = true;
+    /* =========================
+       TIME CALCULATION
+    ========================= */
 
-    document.getElementById(
-        court === "district"
-            ? "districtStenoSubmit"
-            : "highStenoSubmit"
-    ).disabled = true;
+    let usedSeconds = 0;
+
+    if (data.remaining !== undefined) {
+
+        usedSeconds =
+            (55 * 60) -
+            data.remaining;
+
+    }
+
+    usedSeconds =
+        Math.max(
+            1,
+            usedSeconds
+        );
+
+    const usedMinutes =
+        usedSeconds / 60;
+
+    const grossWPM =
+        Math.round(
+            typed.length /
+            5 /
+            usedMinutes
+        );
+
+    /* =========================
+       DISABLE TEST
+    ========================= */
+
+    textElement.disabled =
+        true;
+
+    const submitButton =
+        document.getElementById(
+            "districtStenoSubmit"
+        );
+
+    if (submitButton) {
+
+        submitButton.disabled =
+            true;
+    }
+
+    /* =========================
+       RESULT BOX
+    ========================= */
 
     const resultBox =
         document.getElementById(
-            court === "district"
-                ? "districtStenoResult"
-                : "highStenoResult"
+            "districtStenoResult"
         );
+
+    if (!resultBox) return;
 
     resultBox.classList.remove(
         "hidden"
@@ -2135,84 +2256,241 @@ function submitCourtSteno(court) {
 
     resultBox.innerHTML = `
 
-        <h4>📊 Steno Result</h4>
+        <h4>
+            📊 District Court Steno Result
+        </h4>
 
         <div class="court-result-grid">
 
             <div class="court-result-card">
-                Total Words
-                <b>${result.total}</b>
+                📝 Total Words
+                <b>
+                    ${result.total}
+                </b>
             </div>
 
             <div class="court-result-card">
-                Correct Words
-                <b>${result.correct}</b>
+                🟢 Correct Words
+                <b>
+                    ${result.correct}
+                </b>
             </div>
 
             <div class="court-result-card">
-                Errors
-                <b>${result.errors}</b>
+                🔴 Errors
+                <b>
+                    ${result.errors}
+                </b>
             </div>
 
             <div class="court-result-card">
-                Accuracy
-                <b>${result.accuracy}%</b>
+                🎯 Accuracy
+                <b>
+                    ${result.accuracy}%
+                </b>
+            </div>
+
+            <div class="court-result-card">
+                ⚡ Typing Speed
+                <b>
+                    ${isFinite(grossWPM)
+                        ? grossWPM
+                        : 0} WPM
+                </b>
+            </div>
+
+            <div class="court-result-card">
+                ⏱️ Time Used
+                <b>
+                    ${Math.floor(
+                        usedSeconds / 60
+                    )
+                    .toString()
+                    .padStart(2, "0")}
+                    :
+                    ${(usedSeconds % 60)
+                    .toString()
+                    .padStart(2, "0")}
+                </b>
             </div>
 
         </div>
 
         <hr>
 
-        <div>
+        <h4>
+            📄 Detailed Checking
+        </h4>
+
+        <div class="court-steno-checked-text">
             ${result.html}
         </div>
-    `;
-}
 
+        <hr>
+
+        <div class="court-steno-legend">
+
+            <span class="court-correct">
+                🟢 Correct
+            </span>
+
+            <span class="court-wrong">
+                🔴 Wrong
+            </span>
+
+            <span class="court-missing">
+                🟣 Missing
+            </span>
+
+            <span class="court-extra">
+                🟠 Extra
+            </span>
+
+        </div>
+    `;
+
+    /* =========================
+       SAVE RESULT TO MYSQL
+    ========================= */
+
+    try {
+
+console.log("🔵 STENO SAVE BLOCK STARTED");
+        const savedUser =
+            JSON.parse(
+                localStorage.getItem(
+    "loggedInUser"
+) || "null"
+            );
+
+        if (!savedUser || !savedUser.id) {
+
+            console.warn(
+                "User not logged in. Result not saved."
+            );
+
+            return;
+        }
+
+        const response =
+            await fetch(
+                "/api/steno-test-results",
+                {
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
+
+                    body: JSON.stringify({
+
+                        user_id:
+                            savedUser.id,
+
+                        court:
+                            "district",
+
+                        passage_id:
+                            data.current.id,
+
+                        passage_title:
+                            data.current.title,
+
+                        speed:
+                            data.current.speed,
+
+                        total_words:
+                            result.total,
+
+                        correct_words:
+                            result.correct,
+
+                        errors:
+                            result.errors,
+
+                        accuracy:
+                            result.accuracy,
+
+                       wpm:
+    isFinite(grossWPM)
+        ? grossWPM
+        : 0,
+
+time_used:
+    usedSeconds,
+
+reference_text:
+    reference,
+
+typed_text:
+    typed
+                    })
+                }
+            );
+
+        const saveData =
+            await response.json();
+
+        if (
+            response.ok &&
+            saveData.success
+        ) {
+
+            console.log(
+                "✅ Steno result saved to MySQL:",
+                saveData
+            );
+
+        } else {
+
+            console.error(
+                "❌ Steno result save failed:",
+                saveData
+            );
+        }
+
+    } catch (error) {
+
+        console.error(
+            "❌ Steno result API error:",
+            error
+        );
+
+    }
+
+}
 
 /* =====================================================
    STENO COMPARE
    ===================================================== */
 
-function compareSteno(
-    reference,
-    typed
-) {
+function normalizeWords(text) {
+    return text
+        .trim()
+        .replace(/\s+/g, " ")
+        .split(" ")
+        .filter(Boolean);
+}
+function compareSteno(reference, typed) {
 
-    const referenceWords =
-        normalizeWords(
-            reference
-        );
+    const referenceWords = normalizeWords(reference);
+    const typedWords = normalizeWords(typed);
 
-    const typedWords =
-        normalizeWords(
-            typed
-        );
-
-    const total =
-        referenceWords.length;
+    const total = referenceWords.length;
 
     let correct = 0;
-
     let html = "";
 
-    const max =
-        Math.max(
-            referenceWords.length,
-            typedWords.length
-        );
+    const max = Math.max(
+        referenceWords.length,
+        typedWords.length
+    );
 
-    for (
-        let i = 0;
-        i < max;
-        i++
-    ) {
+    for (let i = 0; i < max; i++) {
 
-        const expected =
-            referenceWords[i] || "";
-
-        const actual =
-            typedWords[i] || "";
+        const expected = referenceWords[i] || "";
+        const actual = typedWords[i] || "";
 
         if (
             expected.toLowerCase() ===
@@ -2221,29 +2499,49 @@ function compareSteno(
 
             correct++;
 
-            html +=
-                `<span class="court-correct">${escapeHTML(actual)}</span>`;
+            html += `
+                <span class="court-correct">
+                    ${escapeHTML(actual)}
+                </span>
+            `;
 
         } else {
 
-            html +=
-                `<span class="court-wrong" title="Correct: ${escapeHTML(expected)}">${escapeHTML(actual || "[Missing]")}</span>`;
+            if (actual && expected) {
+
+                html += `
+                    <span class="court-wrong"
+                          title="Correct Word: ${escapeHTML(expected)}">
+                        ${escapeHTML(actual)}
+                    </span>
+                `;
+
+            } else if (!actual && expected) {
+
+                html += `
+                    <span class="court-missing"
+                          title="Missing Word: ${escapeHTML(expected)}">
+                        [Missing: ${escapeHTML(expected)}]
+                    </span>
+                `;
+
+            } else if (actual && !expected) {
+
+                html += `
+                    <span class="court-extra"
+                          title="Extra Word">
+                        [Extra: ${escapeHTML(actual)}]
+                    </span>
+                `;
+            }
         }
     }
 
-    const errors =
-        Math.max(
-            total - correct,
-            0
-        );
+    const errors = Math.max(total - correct, 0);
 
-    const accuracy =
-        total
-            ? Math.round(
-                correct /
-                total * 100
-            )
-            : 0;
+    const accuracy = total
+        ? Math.round((correct / total) * 100)
+        : 0;
 
     return {
         total,
@@ -2253,17 +2551,6 @@ function compareSteno(
         html
     };
 }
-
-
-function normalizeWords(text) {
-
-    return text
-        .trim()
-        .replace(/\s+/g, " ")
-        .split(" ")
-        .filter(Boolean);
-}
-
 
 /* =====================================================
    MAIN STENO
@@ -2531,10 +2818,8 @@ function submitMainSteno() {
 
 
 /* =====================================================
-/* =====================================================
    SAVE MAIN STENO
    ===================================================== */
-
 document.getElementById(
     "saveStenoPassageBtn"
 ).addEventListener(
@@ -2628,17 +2913,17 @@ function saveStenoPassage() {
 }
 
 
-/* =====================================================
-   SAVE COURT STENO
-   SERVER AUDIO UPLOAD
-   ===================================================== */
+// ==========================================
+// SAVE / EDIT DISTRICT COURT STENO PASSAGE - MYSQL
+// ==========================================
 
 async function saveCourtStenoPassage(court) {
 
-    const prefix =
-        court === "district"
-            ? "districtSteno"
-            : "highSteno";
+    // District Court only
+    court = "district";
+
+    const prefix = "districtSteno";
+
 
     const titleElement =
         document.getElementById(
@@ -2660,6 +2945,11 @@ async function saveCourtStenoPassage(court) {
             prefix + "AudioFile"
         );
 
+
+    // ==========================================
+    // CHECK FORM ELEMENTS
+    // ==========================================
+
     if (
         !titleElement ||
         !speedElement ||
@@ -2668,17 +2958,24 @@ async function saveCourtStenoPassage(court) {
     ) {
 
         alert(
-            "❌ Court Steno form elements सापडले नाहीत."
+            "❌ District Court Steno form elements सापडले नाहीत."
         );
 
         return;
     }
 
+
+    // ==========================================
+    // GET FORM VALUES
+    // ==========================================
+
     const title =
         titleElement.value.trim();
 
     const speed =
-        Number(speedElement.value);
+        Number(
+            speedElement.value
+        );
 
     const reference =
         referenceElement.value.trim();
@@ -2686,114 +2983,118 @@ async function saveCourtStenoPassage(court) {
     const file =
         fileElement.files[0];
 
-    if (!title || !reference) {
+
+    // ==========================================
+    // VALIDATION
+    // ==========================================
+
+    if (!title) {
 
         alert(
-            "❌ Passage Title आणि Reference Text भरा."
+            "❌ Passage Title भरा."
         );
 
         return;
     }
 
+
+    if (!speed) {
+
+        alert(
+            "❌ Speed निवडा."
+        );
+
+        return;
+    }
+
+
+    if (!reference) {
+
+        alert(
+            "❌ Reference Dictation Text भरा."
+        );
+
+        return;
+    }
+
+
+    // ==========================================
+    // CHECK EDIT MODE
+    // ==========================================
+
     const editing =
         window.editingCourtSteno;
 
+
     // ==========================================
-    // EDIT EXISTING PASSAGE
+    // EDIT EXISTING DISTRICT PASSAGE
     // ==========================================
 
     if (
         editing &&
-        editing.court === court
+        String(editing.court) === "district"
     ) {
 
-        const key =
-            court === "district"
-                ? "gccDistrictCourtSteno"
-                : "gccHighCourtSteno";
+        const passageId =
+            Number(
+                editing.id
+            );
 
-        let passages = [];
+
+        if (!passageId) {
+
+            alert(
+                "❌ Invalid Passage ID."
+            );
+
+            return;
+        }
+
 
         try {
 
-            passages =
-                JSON.parse(
-                    localStorage.getItem(key) || "[]"
+            // ==========================================
+            // EDIT + NEW AUDIO
+            // ==========================================
+
+            if (file) {
+
+                const formData =
+                    new FormData();
+
+
+                formData.append(
+                    "court",
+                    "district"
                 );
 
-            if (!Array.isArray(passages)) {
-                passages = [];
-            }
+                formData.append(
+                    "title",
+                    title
+                );
 
-        } catch (error) {
+                formData.append(
+                    "speed",
+                    speed
+                );
 
-            alert(
-                "❌ Passage data read failed."
-            );
+                formData.append(
+                    "referenceText",
+                    reference
+                );
 
-            return;
-        }
+                formData.append(
+                    "audio",
+                    file
+                );
 
-        const index =
-            passages.findIndex(function(passage) {
 
-                return String(passage.id) ===
-                       String(editing.id);
+                alert(
+                    "⏳ नवीन Audio server वर upload होत आहे..."
+                );
 
-            });
 
-        if (index === -1) {
-
-            alert(
-                "❌ Editing passage सापडला नाही."
-            );
-
-            return;
-        }
-
-        passages[index].title =
-            title;
-
-        passages[index].speed =
-            speed;
-
-        passages[index].text =
-            reference;
-
-        // नवीन Audio दिला असेल तरच update करा
-        if (file) {
-
-            const formData =
-                new FormData();
-
-            formData.append(
-                "court",
-                court
-            );
-
-            formData.append(
-                "title",
-                title
-            );
-
-            formData.append(
-                "speed",
-                speed
-            );
-
-            formData.append(
-                "referenceText",
-                reference
-            );
-
-            formData.append(
-                "audio",
-                file
-            );
-
-            try {
-
-                const response =
+                const uploadResponse =
                     await fetch(
                         "/api/court-steno/upload",
                         {
@@ -2802,64 +3103,197 @@ async function saveCourtStenoPassage(court) {
                         }
                     );
 
-                const data =
-                    await response.json();
+
+                const uploadData =
+                    await uploadResponse.json();
+
 
                 if (
-                    !response.ok ||
-                    !data.success
+                    !uploadResponse.ok ||
+                    !uploadData.success
                 ) {
 
                     alert(
-                        "❌ New Audio upload failed."
+                        "❌ New Audio upload failed.\n\n" +
+                        (
+                            uploadData.message ||
+                            "Unknown server error."
+                        )
                     );
 
                     return;
                 }
 
-                passages[index].audio =
-                    data.passage.audio;
 
-            } catch (error) {
+                // ==========================================
+                // DELETE OLD PASSAGE
+                // ==========================================
 
-                console.error(
-                    "Edit Audio Error:",
-                    error
-                );
+                const deleteResponse =
+                    await fetch(
+                        "/api/court-steno/passages/" +
+                        passageId,
+                        {
+                            method: "DELETE"
+                        }
+                    );
+
+
+                const deleteData =
+                    await deleteResponse.json();
+
+
+                if (
+                    !deleteResponse.ok ||
+                    !deleteData.success
+                ) {
+
+                    alert(
+                        "⚠️ नवीन Audio save झाला आहे, पण जुना passage delete करता आला नाही."
+                    );
+
+                    return;
+                }
+
+
+                // ==========================================
+                // CLEAR EDIT MODE
+                // ==========================================
+
+                window.editingCourtSteno =
+                    null;
+
+
+                titleElement.value = "";
+
+                referenceElement.value = "";
+
+                fileElement.value = "";
+
+
+                // ==========================================
+                // REFRESH DATA
+                // ==========================================
+
+                await loadCourtStenoLists();
+
+                await displayCourtStenoAdminLists();
+
 
                 alert(
-                    "❌ Audio server connection failed."
+                    "✅ District Court Steno Passage आणि नवीन Audio Successfully Updated!"
+                );
+
+
+                return;
+            }
+
+
+            // ==========================================
+            // EDIT WITHOUT NEW AUDIO
+            // ==========================================
+
+            const response =
+                await fetch(
+                    "/api/court-steno/passages/" +
+                    passageId,
+                    {
+                        method: "PUT",
+
+                        headers: {
+                            "Content-Type":
+                                "application/json"
+                        },
+
+                        body:
+                            JSON.stringify({
+
+                                title:
+                                    title,
+
+                                speed:
+                                    speed,
+
+                                referenceText:
+                                    reference
+
+                            })
+                    }
+                );
+
+
+            const data =
+                await response.json();
+
+
+            if (
+                !response.ok ||
+                !data.success
+            ) {
+
+                alert(
+                    "❌ Passage update झाला नाही.\n\n" +
+                    (
+                        data.message ||
+                        "Update API उपलब्ध नाही किंवा server error."
+                    )
                 );
 
                 return;
             }
+
+
+            // ==========================================
+            // CLEAR EDIT MODE
+            // ==========================================
+
+            window.editingCourtSteno =
+                null;
+
+
+            titleElement.value = "";
+
+            referenceElement.value = "";
+
+            fileElement.value = "";
+
+
+            // ==========================================
+            // REFRESH DATA
+            // ==========================================
+
+            await loadCourtStenoLists();
+
+            await displayCourtStenoAdminLists();
+
+
+            alert(
+                "✅ District Court Steno Passage Successfully Updated!"
+            );
+
+
+            return;
+
+        } catch (error) {
+
+            console.error(
+                "District Court Steno Edit Error:",
+                error
+            );
+
+
+            alert(
+                "❌ Server connection failed."
+            );
+
+
+            return;
         }
-
-        localStorage.setItem(
-            key,
-            JSON.stringify(passages)
-        );
-
-        window.editingCourtSteno =
-            null;
-
-        titleElement.value = "";
-        referenceElement.value = "";
-        fileElement.value = "";
-
-        loadCourtStenoLists();
-
-        displayCourtStenoAdminLists();
-
-        alert(
-            "✅ Court Steno Passage Successfully Updated!"
-        );
-
-        return;
     }
 
+
     // ==========================================
-    // ADD NEW PASSAGE
+    // ADD NEW DISTRICT PASSAGE
     // ==========================================
 
     if (!file) {
@@ -2871,39 +3305,43 @@ async function saveCourtStenoPassage(court) {
         return;
     }
 
-    const formData =
-        new FormData();
-
-    formData.append(
-        "court",
-        court
-    );
-
-    formData.append(
-        "title",
-        title
-    );
-
-    formData.append(
-        "speed",
-        speed
-    );
-
-    formData.append(
-        "referenceText",
-        reference
-    );
-
-    formData.append(
-        "audio",
-        file
-    );
 
     try {
+
+        const formData =
+            new FormData();
+
+
+        formData.append(
+            "court",
+            "district"
+        );
+
+        formData.append(
+            "title",
+            title
+        );
+
+        formData.append(
+            "speed",
+            speed
+        );
+
+        formData.append(
+            "referenceText",
+            reference
+        );
+
+        formData.append(
+            "audio",
+            file
+        );
+
 
         alert(
             "⏳ Audio server वर upload होत आहे..."
         );
+
 
         const response =
             await fetch(
@@ -2914,8 +3352,10 @@ async function saveCourtStenoPassage(court) {
                 }
             );
 
+
         const data =
             await response.json();
+
 
         if (
             !response.ok ||
@@ -2933,174 +3373,45 @@ async function saveCourtStenoPassage(court) {
             return;
         }
 
-        const key =
-            court === "district"
-                ? "gccDistrictCourtSteno"
-                : "gccHighCourtSteno";
 
-        let passages = [];
-
-        try {
-
-            passages =
-                JSON.parse(
-                    localStorage.getItem(key) || "[]"
-                );
-
-            if (!Array.isArray(passages)) {
-                passages = [];
-            }
-
-        } catch (error) {
-
-            passages = [];
-        }
-
-        const newPassage = {
-
-            id: Date.now(),
-
-            title:
-                data.passage.title,
-
-            speed:
-                Number(
-                    data.passage.speed
-                ),
-
-            audio:
-                data.passage.audio,
-
-            text:
-                data.passage.text
-        };
-
-        passages.push(
-            newPassage
-        );
-
-        localStorage.setItem(
-            key,
-            JSON.stringify(passages)
-        );
+        // ==========================================
+        // CLEAR FORM
+        // ==========================================
 
         titleElement.value = "";
+
         referenceElement.value = "";
+
         fileElement.value = "";
 
-        loadCourtStenoLists();
 
-        displayCourtStenoAdminLists();
+        // ==========================================
+        // REFRESH MYSQL DATA
+        // ==========================================
+
+        await loadCourtStenoLists();
+
+        await displayCourtStenoAdminLists();
+
 
         alert(
-            "✅ Court Steno Passage आणि Audio Successfully Saved!"
+            "✅ District Court Steno Passage आणि Audio Successfully Saved in MySQL!"
         );
+
 
     } catch (error) {
 
         console.error(
-            "Court Steno Upload Error:",
+            "District Court Steno Save Error:",
             error
         );
+
 
         alert(
             "❌ Server connection failed."
         );
     }
 }
-/* =====================================================
-   DISPLAY MAIN STENO
-   ===================================================== */
-function displayStenoPassages() {
-
-    const box =
-        document.getElementById(
-            "stenoPassageList"
-        );
-
-    box.innerHTML = "";
-
-    stenoPassages.forEach(p => {
-
-        const div =
-            document.createElement(
-                "div"
-            );
-
-        div.className =
-            "steno-item";
-
-        div.innerHTML = `
-
-            <strong>
-                ${escapeHTML(p.title)}
-            </strong>
-
-            <small>
-                Speed: ${p.speed} WPM
-            </small>
-
-            <button onclick="useSteno(${p.id})">
-                Use
-            </button>
-
-            <button onclick="deleteSteno(${p.id})">
-                Delete
-            </button>
-        `;
-
-        box.appendChild(div);
-
-    });
-}
-
-
-/* =====================================================
-   USE STENO
-   ===================================================== */
-
-function useSteno(id) {
-
-    stenoPassageSelect.value =
-        id;
-
-    stenoPassageSelect.dispatchEvent(
-        new Event("change")
-    );
-
-    showSection(
-        "stenoSection"
-    );
-}
-
-
-/* =====================================================
-   DELETE STENO
-   ===================================================== */
-
-function deleteSteno(id) {
-
-    if (
-        !confirm(
-            "हा steno passage delete करायचा आहे का?"
-        )
-    ) return;
-
-    stenoPassages =
-        stenoPassages.filter(
-            p => p.id !== id
-        );
-
-    localStorage.setItem(
-        "gccStenoPassages",
-        JSON.stringify(
-            stenoPassages
-        )
-    );
-
-    loadStenoPassages();
-}
-
 
 /* =====================================================
    UTILITY
@@ -3649,18 +3960,19 @@ function openPremiumSection(sectionId) {
     */
 
     if (
-        user.plan !== "Monthly" &&
-        user.plan !== "Yearly"
-    ) {
+    user.plan !== "Monthly" &&
+    user.plan !== "Yearly" &&
+    user.plan !== "Free Trial"
+) {
 
-        alert(
-            "🔒 ही Premium सुविधा आहे. कृपया Premium Plan घ्या."
-        );
+    alert(
+        "🔒 ही Premium सुविधा वापरण्यासाठी Free Trial किंवा Premium Plan आवश्यक आहे."
+    );
 
-        showDashboard();
+    showDashboard();
 
-        return;
-    }
+    return;
+}
 
     /*
        Premium section show करा
@@ -3771,10 +4083,14 @@ async function loginUser() {
 
 
         localStorage.setItem(
-            "loggedInUser",
-            JSON.stringify(data.user)
-        );
+    "loggedInUser",
+    JSON.stringify(data.user)
+);
 
+localStorage.setItem(
+    "authToken",
+    data.token
+);
 
         message.textContent =
             "✅ Login Successful!";
@@ -3866,35 +4182,39 @@ if (dashboardBox) {
         data.user;
 
     // Subscription expiry date तपासा
-    let subscriptionActive = false;
+   let subscriptionActive = false;
 
-    if (
-        latestUser.plan &&
-        latestUser.plan !== "Free" &&
-        latestUser.subscription_expiry
-    ) {
+if (
+    latestUser.plan &&
+    (
+        latestUser.plan === "Free Trial" ||
+        latestUser.plan === "Monthly" ||
+        latestUser.plan === "Yearly"
+    ) &&
+    latestUser.subscription_expiry
+) {
 
-        const expiryDate =
-            new Date(
-                latestUser.subscription_expiry
-            );
+    const expiryDate =
+        new Date(
+            latestUser.subscription_expiry
+        );
 
-        const currentDate =
-            new Date();
+    const currentDate =
+        new Date();
 
-        subscriptionActive =
-            expiryDate > currentDate;
-    }
+    subscriptionActive =
+        expiryDate > currentDate;
+}
 
-    // Database + expiry दोन्ही तपासले
-    latestUser.active =
-        subscriptionActive;
+latestUser.active =
+    subscriptionActive;
 
     // Latest subscription data LocalStorage मध्ये save करा
     localStorage.setItem(
         "loggedInUser",
         JSON.stringify(latestUser)
     );
+loadStenoTestHistory(latestUser.id);
 
     if (plan) {
 
@@ -4093,8 +4413,8 @@ function updatePremiumAccess(isActive, plan) {
                     </p>
 
                     <div class="premium-price">
-                        <span>⭐ Monthly ₹299</span>
-                        <span>👑 Yearly ₹1,999</span>
+                        <span>⭐ Monthly ₹99</span>
+                        <span>👑 Yearly ₹999</span>
                     </div>
 
                     <div class="premium-lock-buttons">
@@ -4102,13 +4422,13 @@ function updatePremiumAccess(isActive, plan) {
                         <button
                             class="premium-subscribe-btn"
                             onclick="subscribePlan('Monthly')">
-                            ⭐ Subscribe Monthly ₹299
+                            ⭐ Subscribe Monthly ₹99
                         </button>
 
                         <button
                             class="premium-subscribe-btn"
                             onclick="subscribePlan('Yearly')">
-                            👑 Subscribe Yearly ₹1,999
+                            👑 Subscribe Yearly ₹999
                         </button>
 
                     </div>
@@ -4518,7 +4838,7 @@ async function openAdminDashboard() {
    LOAD ADMIN DASHBOARD
 ===================================================== */
 
-let adminUsersData = [];
+var adminUsersData = [];
 
 async function loadAdminDashboard() {
 
@@ -4678,13 +4998,13 @@ function updateAdminStatistics(users) {
             expiredUsers++;
         }
 
-        // Revenue from active/paid plans
+        // Revenue from paid plans
         if (user.plan === "Monthly") {
-            totalRevenue += 299;
+            totalRevenue += 99;
         }
 
         if (user.plan === "Yearly") {
-            totalRevenue += 1999;
+            totalRevenue += 999;
         }
 
     });
@@ -4731,7 +5051,6 @@ function updateAdminStatistics(users) {
             "₹" +
             totalRevenue.toLocaleString("en-IN");
 }
-
 
 /* =====================================================
    DISPLAY ADMIN USERS
@@ -5093,10 +5412,6 @@ function loadCourtTypingPassages() {
     const districtSelect =
         document.getElementById("districtPassage");
 
-    const highSelect =
-        document.getElementById("highPassage");
-
-
     function fillSelect(select) {
 
         if (!select) return;
@@ -5120,12 +5435,8 @@ function loadCourtTypingPassages() {
         });
     }
 
-
     fillSelect(districtSelect);
-
-    fillSelect(highSelect);
 }
-
 
 /* =====================================================
    COURT PASSAGE CHANGE
@@ -5136,9 +5447,7 @@ function setupCourtPassageEvents() {
     const districtSelect =
         document.getElementById("districtPassage");
 
-    const highSelect =
-        document.getElementById("highPassage");
-
+    
 
     if (districtSelect) {
 
@@ -5176,142 +5485,163 @@ function setupCourtPassageEvents() {
         );
     }
 
-
-    if (highSelect) {
-
-        highSelect.addEventListener(
-            "change",
-            function() {
-
-                const selected =
-                    passages.find(
-                        p =>
-                        String(p.id) ===
-                        String(this.value)
-                    );
-
-                if (typeof courtData !== "undefined") {
-
-                    courtData.high.current =
-                        selected || null;
-                }
-
-                const question =
-                    document.getElementById(
-                        "highQuestion"
-                    );
-
-                if (question) {
-
-                    question.textContent =
-                        selected
-                            ? selected.content
-                            : "No passage available.";
-                }
-
-            }
-        );
-    }
 }
 
 // ==========================================
-// DELETE COURT STENO PASSAGE
+// DELETE COURT STENO PASSAGE - MYSQL
 // ==========================================
 
-function deleteCourtStenoPassage(court, passageId) {
-
-    const key =
-        court === "district"
-            ? "gccDistrictCourtSteno"
-            : "gccHighCourtSteno";
+async function deleteCourtStenoPassage(court, passageId) {
 
     if (!confirm("हा Steno Passage delete करायचा आहे का?")) {
         return;
     }
 
-    let passages = [];
-
     try {
 
-        passages = JSON.parse(
-            localStorage.getItem(key) || "[]"
-        );
+        const response =
+            await fetch(
+                "/api/court-steno/passages/" + passageId,
+                {
+                    method: "DELETE"
+                }
+            );
 
-        if (!Array.isArray(passages)) {
-            passages = [];
+        const data =
+            await response.json();
+
+        if (
+            !response.ok ||
+            !data.success
+        ) {
+
+            alert(
+                "❌ Passage delete झाला नाही.\n\n" +
+                (
+                    data.message ||
+                    "Unknown server error."
+                )
+            );
+
+            return;
         }
+
+        // MySQL मधून delete झाल्यानंतर
+        // नवीन passage list पुन्हा load करा
+
+        await loadCourtStenoLists();
+
+        displayCourtStenoAdminLists();
+
+        alert(
+            "✅ Steno Passage Successfully Deleted!"
+        );
 
     } catch (error) {
 
         console.error(
-            "Steno Passage Read Error:",
+            "Court Steno Delete Error:",
             error
         );
 
-        return;
+        alert(
+            "❌ Server connection failed."
+        );
     }
-
-    passages = passages.filter(function(passage) {
-
-        return String(passage.id) !==
-               String(passageId);
-
-    });
-
-    localStorage.setItem(
-        key,
-        JSON.stringify(passages)
-    );
-
-    // Dropdown पुन्हा load करा
-   
-loadCourtStenoLists();
-
-displayCourtStenoAdminLists();
-
-loadPassages();
-
-    alert("✅ Steno Passage Successfully Deleted!");
 }
-
 // ==========================================
 // DISPLAY COURT STENO ADMIN PASSAGES
 // ==========================================
 
-function displayCourtStenoAdminLists() {
+// ==========================================
+// DISPLAY COURT STENO ADMIN PASSAGES - MYSQL
+// ==========================================
 
-    ["district", "high"].forEach(function(court) {
+function previewCourtStenoAudio(court, passageId) {
 
-        const key =
-            court === "district"
-                ? "gccDistrictCourtSteno"
-                : "gccHighCourtSteno";
+    const passages =
+        courtStenoData.district?.passages || [];
 
-        const container =
-            document.getElementById(
-                court === "district"
-                    ? "districtStenoAdminList"
-                    : "highStenoAdminList"
+    const passage =
+        passages.find(function(item) {
+
+            return String(item.id) ===
+                String(passageId);
+
+        });
+
+    if (!passage) {
+
+        alert("❌ Steno passage सापडला नाही.");
+
+        return;
+    }
+
+    const audio =
+        document.getElementById(
+            "districtStenoAudio"
+        );
+
+    if (!audio) {
+
+        alert("❌ Audio player सापडला नाही.");
+
+        return;
+    }
+
+    audio.src =
+        passage.audio;
+
+    audio.load();
+
+    audio.play().catch(function(error) {
+
+        console.log(
+            "Preview play blocked:",
+            error
+        );
+
+        alert(
+            "▶️ Audio player मध्ये Preview तयार आहे. Play button क्लिक करा."
+        );
+
+    });
+}
+
+async function displayCourtStenoAdminLists() {
+
+    const container =
+        document.getElementById(
+            "districtStenoAdminList"
+        );
+
+    if (!container) return;
+
+    try {
+
+        const response =
+            await fetch(
+                "/api/court-steno/passages/district"
             );
 
-        if (!container) return;
+        const data =
+            await response.json();
 
-        let passages = [];
+        if (
+            !response.ok ||
+            !data.success
+        ) {
 
-        try {
+            container.innerHTML =
+                "<p>❌ Steno passages load failed.</p>";
 
-            passages = JSON.parse(
-                localStorage.getItem(key) || "[]"
-            );
-
-            if (!Array.isArray(passages)) {
-                passages = [];
-            }
-
-        } catch (error) {
-
-            passages = [];
+            return;
         }
+
+        const passages =
+            Array.isArray(data.passages)
+                ? data.passages
+                : [];
 
         if (passages.length === 0) {
 
@@ -5322,7 +5652,7 @@ function displayCourtStenoAdminLists() {
         }
 
         let html = `
-            <h4>📋 Saved Steno Passages</h4>
+            <h4>📋 Saved District Court Steno Passages</h4>
 
             <div class="court-steno-admin-list-table">
         `;
@@ -5336,7 +5666,8 @@ function displayCourtStenoAdminLists() {
 
                         <strong>
                             ${escapeHTML(
-                                passage.title || "Untitled"
+                                passage.title ||
+                                "Untitled"
                             )}
                         </strong>
 
@@ -5352,7 +5683,7 @@ function displayCourtStenoAdminLists() {
                             type="button"
                             class="steno-preview-btn"
                             onclick="previewCourtStenoAudio(
-                                '${court}',
+                                'district',
                                 '${passage.id}'
                             )">
                             🎧 Preview
@@ -5362,7 +5693,7 @@ function displayCourtStenoAdminLists() {
                             type="button"
                             class="steno-edit-btn"
                             onclick="editCourtStenoPassage(
-                                '${court}',
+                                'district',
                                 '${passage.id}'
                             )">
                             ✏️ Edit
@@ -5372,7 +5703,7 @@ function displayCourtStenoAdminLists() {
                             type="button"
                             class="steno-delete-btn"
                             onclick="deleteCourtStenoPassage(
-                                '${court}',
+                                'district',
                                 '${passage.id}'
                             )">
                             🗑 Delete
@@ -5388,95 +5719,603 @@ function displayCourtStenoAdminLists() {
             </div>
         `;
 
-        container.innerHTML = html;
-    });
-}
-
-function editCourtStenoPassage(court, passageId) {
-
-    const key =
-        court === "district"
-            ? "gccDistrictCourtSteno"
-            : "gccHighCourtSteno";
-
-    let passages = [];
-
-    try {
-
-        passages = JSON.parse(
-            localStorage.getItem(key) || "[]"
-        );
-
-        if (!Array.isArray(passages)) {
-            passages = [];
-        }
+        container.innerHTML =
+            html;
 
     } catch (error) {
 
-        alert("❌ Passage data read failed.");
+        console.error(
+            "District Court Steno Admin List Error:",
+            error
+        );
+
+        container.innerHTML =
+            "<p>❌ Server connection failed.</p>";
+    }
+}
+
+async function editCourtStenoPassage(court, passageId) {
+
+    if (court !== "district") {
+        alert("❌ Only District Court Steno is available.");
         return;
     }
 
-    const passage =
-        passages.find(function(p) {
+    try {
 
-            return String(p.id) ===
-                   String(passageId);
+        const response = await fetch(
+            `/api/court-steno/passages/district`
+        );
 
+        const data = await response.json();
+
+        if (!response.ok || !data.success) {
+            alert("❌ Steno passages load failed.");
+            return;
+        }
+
+        const passages = Array.isArray(data.passages)
+            ? data.passages
+            : [];
+
+        const passage = passages.find(function(item) {
+            return String(item.id) === String(passageId);
         });
 
-    if (!passage) {
+        if (!passage) {
+            alert("❌ Steno passage सापडला नाही.");
+            return;
+        }
 
-        alert("❌ Passage सापडला नाही.");
+        const titleElement =
+            document.getElementById("districtStenoTitle");
+
+        const speedElement =
+            document.getElementById("districtStenoAdminSpeed");
+
+        const referenceElement =
+            document.getElementById(
+                "districtStenoReferenceText"
+            );
+
+        if (titleElement) {
+            titleElement.value =
+                passage.title || "";
+        }
+
+        if (speedElement) {
+            speedElement.value =
+                String(passage.speed || 60);
+        }
+
+        if (referenceElement) {
+            referenceElement.value =
+                passage.reference_text || "";
+        }
+
+        window.editingCourtSteno = {
+            court: "district",
+            id: passage.id
+        };
+
+        const saveButton =
+            document.querySelector(
+                'button[onclick*="saveCourtStenoPassage"]'
+            );
+
+        if (saveButton) {
+            saveButton.textContent =
+                "✏️ Update District Steno Passage";
+        }
+
+        alert(
+            "✏️ Edit Mode सुरू झाला. Passage details बदलून Update करा."
+        );
+
+    } catch (error) {
+
+        console.error(
+            "Edit District Court Steno Error:",
+            error
+        );
+
+        alert(
+            "❌ Edit करताना server error आला."
+        );
+    }
+}
+
+/* =====================================================
+   LOAD STENO TEST HISTORY
+===================================================== */
+
+async function loadStenoTestHistory(userId) {
+
+    const container =
+        document.getElementById(
+            "stenoHistoryContainer"
+        );
+
+    if (!container) return;
+
+    if (!userId) {
+
+        container.innerHTML =
+            "<p>⚠️ User information not found.</p>";
+
         return;
     }
 
-    const prefix =
-        court === "district"
-            ? "districtSteno"
-            : "highSteno";
+    container.innerHTML =
+        "<p>⏳ Loading Steno Test History...</p>";
 
-    const titleElement =
-        document.getElementById(
-            prefix + "Title"
+    try {
+
+        const response =
+            await fetch(
+                "/api/steno-test-history/" + userId
+            );
+
+        const data =
+            await response.json();
+
+        if (
+            !response.ok ||
+            !data.success
+        ) {
+
+            container.innerHTML =
+                "<p>❌ Steno history load failed.</p>";
+
+            console.error(
+                "Steno History API Error:",
+                data
+            );
+
+            return;
+        }
+
+        const history =
+            Array.isArray(data.history)
+                ? data.history
+                : [];
+
+        if (history.length === 0) {
+
+            container.innerHTML =
+                "<p>📭 No Steno Test History Found.</p>";
+
+            return;
+        }
+
+        let html = `
+            <div class="steno-history-table-wrap">
+
+                <table class="steno-history-table">
+
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+<th>Court</th>
+<th>Passage</th>
+<th>Speed</th>
+<th>WPM</th>
+<th>Accuracy</th>
+<th>Errors</th>
+<th>Time</th>
+<th>Result</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+        `;
+
+        history.forEach(function(item) {
+
+            const date =
+                item.created_at
+                    ? new Date(
+                        item.created_at
+                    ).toLocaleString("en-IN")
+                    : "-";
+
+            const timeUsed =
+                Number(
+                    item.time_used || 0
+                );
+
+            const minutes =
+                Math.floor(
+                    timeUsed / 60
+                )
+                .toString()
+                .padStart(2, "0");
+
+            const seconds =
+                (timeUsed % 60)
+                .toString()
+                .padStart(2, "0");
+
+            html += `
+                <tr>
+
+                    <td>
+                        ${escapeHTML(date)}
+                    </td>
+
+                    <td>
+                        ${escapeHTML(
+                            item.court || "-"
+                        )}
+                    </td>
+
+                    <td>
+                        ${escapeHTML(
+                            item.passage_title || "-"
+                        )}
+                    </td>
+
+                    <td>
+                        ${item.speed || 0} WPM
+                    </td>
+
+                    <td>
+                        ${item.wpm || 0}
+                    </td>
+
+                    <td>
+                        ${item.accuracy || 0}%
+                    </td>
+
+                    <td>
+                        ${item.errors || 0}
+                    </td>
+
+                    <td>
+                        ${minutes}:${seconds}
+                    </td>
+
+<td>
+    <button
+        type="button"
+        class="view-steno-result-btn"
+        onclick="viewStenoResult('${item.id}')">
+        👁 View Result
+    </button>
+</td>
+
+                </tr>
+            `;
+        });
+
+        html += `
+                    </tbody>
+
+                </table>
+
+            </div>
+        `;
+
+        container.innerHTML =
+            html;
+
+    } catch (error) {
+
+        console.error(
+            "Steno History Error:",
+            error
         );
 
-    const speedElement =
+        container.innerHTML =
+            "<p>❌ Server connection failed.</p>";
+    }
+}
+
+/* =====================================================
+   VIEW STENO RESULT
+===================================================== */
+
+function viewStenoResult(resultId) {
+
+    const container =
         document.getElementById(
-            prefix + "AdminSpeed"
+            "stenoHistoryContainer"
         );
 
-    const referenceElement =
-        document.getElementById(
-            prefix + "ReferenceText"
+    if (!container) return;
+
+    const loggedInUser =
+        JSON.parse(
+            localStorage.getItem(
+                "loggedInUser"
+            )
         );
 
-    if (titleElement) {
+    if (
+        !loggedInUser ||
+        !loggedInUser.id
+    ) {
 
-        titleElement.value =
-            passage.title || "";
+        alert(
+            "❌ User information not found."
+        );
+
+        return;
     }
 
-    if (speedElement) {
+    fetch(
+        "/api/steno-test-history/" +
+        loggedInUser.id
+    )
+        .then(function(response) {
+            return response.json();
+        })
 
-        speedElement.value =
-            passage.speed || 60;
-    }
+        .then(function(data) {
 
-    if (referenceElement) {
+            if (!data.success) {
 
-        referenceElement.value =
-            passage.text || "";
-    }
+                alert(
+                    "❌ Result load failed."
+                );
 
-    // Editing passage ID store करा
-    window.editingCourtSteno = {
-        court: court,
-        id: passageId
-    };
+                return;
+            }
 
-    alert(
-        "✏️ Passage Edit Mode मध्ये आला आहे.\n\n" +
-        "Title / Speed / Reference Text बदलून Save करा."
-    );
+            const result =
+                data.history.find(
+                    function(item) {
+
+                        return String(
+                            item.id
+                        ) === String(
+                            resultId
+                        );
+
+                    }
+                );
+
+            if (!result) {
+
+                alert(
+                    "❌ Result सापडला नाही."
+                );
+
+                return;
+            }
+
+            const reference =
+                result.reference_text || "";
+
+            const typed =
+                result.typed_text || "";
+
+            const hasDetailedText =
+                Boolean(
+                    reference ||
+                    typed
+                );
+
+            let comparison = {
+                html: ""
+            };
+
+            if (hasDetailedText) {
+
+                comparison =
+                    compareSteno(
+                        reference,
+                        typed
+                    );
+
+            }
+
+            container.innerHTML = `
+
+                <div class="steno-detailed-result">
+
+                    <h3>
+                        📊 Detailed Steno Result
+                    </h3>
+
+                    <div class="steno-result-summary">
+
+                        <div>
+                            <strong>
+                                Passage
+                            </strong>
+
+                            <span>
+                                ${escapeHTML(
+                                    result.passage_title || "-"
+                                )}
+                            </span>
+                        </div>
+
+                        <div>
+                            <strong>
+                                Speed
+                            </strong>
+
+                            <span>
+                                ${result.speed || 0} WPM
+                            </span>
+                        </div>
+
+                        <div>
+                            <strong>
+                                WPM
+                            </strong>
+
+                            <span>
+                                ${result.wpm || 0}
+                            </span>
+                        </div>
+
+                        <div>
+                            <strong>
+                                Accuracy
+                            </strong>
+
+                            <span>
+                                ${result.accuracy || 0}%
+                            </span>
+                        </div>
+
+                        <div>
+                            <strong>
+                                Errors
+                            </strong>
+
+                            <span>
+                                ${result.errors || 0}
+                            </span>
+                        </div>
+
+                    </div>
+
+
+                    <h4>
+                        📄 Reference Dictation
+                    </h4>
+
+                    ${
+                        hasDetailedText
+                            ? `
+                                <div class="steno-reference-text">
+                                    ${escapeHTML(
+                                        reference
+                                    )}
+                                </div>
+                              `
+                            : `
+                                <div class="steno-reference-text">
+                                    ⚠️ या जुन्या test साठी
+                                    Reference Dictation उपलब्ध नाही.
+                                </div>
+                              `
+                    }
+
+
+                    <div class="steno-result-legend">
+
+                        <span class="legend-correct">
+                            🟢 Correct
+                        </span>
+
+                        <span class="legend-wrong">
+                            🔴 Wrong
+                        </span>
+
+                        <span class="legend-missing">
+                            🟣 Missing
+                        </span>
+
+                        <span class="legend-extra">
+                            🟠 Extra
+                        </span>
+
+                    </div>
+
+
+                    <h4>
+                        ⌨ Your Transcription
+                    </h4>
+
+                    ${
+                        hasDetailedText
+                            ? `
+                                <div class="steno-typed-result">
+                                    ${comparison.html}
+                                </div>
+                              `
+                            : `
+                                <div class="steno-typed-result">
+                                    ⚠️ या जुन्या test साठी
+                                    Your Transcription उपलब्ध नाही.
+                                </div>
+                              `
+                    }
+
+
+                    <button
+                        type="button"
+                        onclick="loadStenoTestHistory(${loggedInUser.id})">
+                        ↩ Back to History
+                    </button>
+
+                </div>
+
+            `;
+
+        })
+
+        .catch(function(error) {
+
+            console.error(
+                "View Steno Result Error:",
+                error
+            );
+
+            alert(
+                "❌ Server connection error."
+            );
+
+        });
+}
+
+/* =====================================================
+   STENO HISTORY WPM FILTER
+===================================================== */
+
+function filterStenoHistory() {
+
+    const filter =
+        document.getElementById(
+            "stenoWpmFilter"
+        );
+
+    const selectedWpm =
+        filter ? filter.value : "all";
+
+    const rows =
+        document.querySelectorAll(
+            ".steno-history-table tbody tr"
+        );
+
+    rows.forEach(function(row) {
+
+        if (selectedWpm === "all") {
+
+            row.style.display = "";
+
+            return;
+        }
+
+        const speedCell =
+            row.querySelector(
+                "td:nth-child(4)"
+            );
+
+        if (!speedCell) return;
+
+        const rowSpeed =
+            speedCell.textContent
+                .replace("WPM", "")
+                .trim();
+
+        if (
+            String(rowSpeed) ===
+            String(selectedWpm)
+        ) {
+
+            row.style.display = "";
+
+        } else {
+
+            row.style.display = "none";
+
+        }
+
+    });
 }

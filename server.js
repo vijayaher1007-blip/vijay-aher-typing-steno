@@ -1,4 +1,5 @@
 const express = require("express");
+const crypto = require("crypto");
 const cors = require("cors");
 require("dotenv").config();
 const bcrypt = require("bcryptjs");
@@ -7,7 +8,166 @@ const path = require("path");
 const fs = require("fs");
 const multer = require("multer");
 const Razorpay = require("razorpay");
-const crypto = require("crypto");
+
+// =====================================================
+// AUTH TOKEN VERIFICATION
+// =====================================================
+
+function verifyAuthToken(req, res, next) {
+
+    try {
+
+        const authHeader =
+            req.headers.authorization || "";
+
+        if (
+            !authHeader.startsWith("Bearer ")
+        ) {
+
+            return res.status(401).json({
+
+                success: false,
+
+                message:
+                    "Authentication required."
+
+            });
+
+        }
+
+
+        const token =
+            authHeader.substring(7);
+
+
+        const parts =
+            token.split(".");
+
+
+        if (parts.length !== 2) {
+
+            return res.status(401).json({
+
+                success: false,
+
+                message:
+                    "Invalid authentication token."
+
+            });
+
+        }
+
+
+        const tokenPayload =
+            parts[0];
+
+        const receivedSignature =
+            parts[1];
+
+
+        const expectedSignature =
+            crypto
+                .createHmac(
+                    "sha256",
+                    process.env.AUTH_SECRET
+                )
+                .update(tokenPayload)
+                .digest("hex");
+
+
+        if (
+            receivedSignature !==
+            expectedSignature
+        ) {
+
+            return res.status(401).json({
+
+                success: false,
+
+                message:
+                    "Invalid authentication token."
+
+            });
+
+        }
+
+
+        const userData =
+            JSON.parse(
+                Buffer.from(
+                    tokenPayload,
+                    "base64"
+                ).toString("utf8")
+            );
+
+
+        if (!userData.id) {
+
+            return res.status(401).json({
+
+                success: false,
+
+                message:
+                    "Invalid user information."
+
+            });
+
+        }
+
+
+        req.authUser =
+            userData;
+
+
+        next();
+
+
+    } catch (error) {
+
+        console.error(
+            "AUTH TOKEN ERROR:",
+            error
+        );
+
+
+        return res.status(401).json({
+
+            success: false,
+
+            message:
+                "Authentication failed."
+
+        });
+
+    }
+
+}
+
+// =====================================================
+// ADMIN ONLY AUTHORIZATION
+// =====================================================
+
+function requireAdmin(req, res, next) {
+
+    if (
+        !req.authUser ||
+        Number(req.authUser.is_admin) !== 1
+    ) {
+
+        return res.status(403).json({
+
+            success: false,
+
+            message:
+                "Admin access required."
+
+        });
+
+    }
+
+    next();
+
+}
 
 const razorpay = new Razorpay({
     key_id: process.env.RAZORPAY_KEY_ID,
@@ -122,8 +282,92 @@ app.get("/api/court-steno/test", (req, res) => {
         message: "COURT STENO ROUTE OK"
     });
 });
+   
+// =====================================================
+// DELETE COURT STENO PASSAGE
+// =====================================================
 
-app.post(
+app.delete(
+    "/api/court-steno/passages/:id",
+    (req, res) => {
+
+        const id =
+            Number(req.params.id);
+
+        if (!id) {
+
+            return res.status(400).json({
+
+                success: false,
+
+                message:
+                    "Invalid passage ID."
+
+            });
+
+        }
+
+        const sql = `
+            DELETE FROM court_steno_passages
+            WHERE id = ?
+        `;
+
+        db.query(
+            sql,
+            [id],
+            (err, result) => {
+
+                if (err) {
+
+                    console.error(
+                        "COURT STENO DELETE ERROR:",
+                        err
+                    );
+
+                    return res.status(500).json({
+
+                        success: false,
+
+                        message:
+                            "Court Steno passage delete failed.",
+
+                        error:
+                            err.message
+
+                    });
+
+                }
+
+                if (
+                    result.affectedRows === 0
+                ) {
+
+                    return res.status(404).json({
+
+                        success: false,
+
+                        message:
+                            "Passage not found."
+
+                    });
+
+                }
+
+                res.json({
+
+                    success: true,
+
+                    message:
+                        "Court Steno passage deleted successfully."
+
+                });
+
+            }
+        );
+
+    }
+);
+ app.post(
     "/api/court-steno/upload",
     uploadCourtSteno.single("audio"),
     (req, res) => {
@@ -134,127 +378,122 @@ app.post(
 
                 return res.status(400).json({
                     success: false,
-                    message:
-                        "Audio file is required."
+                    message: "Audio file is required."
                 });
 
             }
 
-            const court =
-                req.body.court || "";
+           const court = "district";
 
-            const title =
-                (req.body.title || "").trim();
+const title =
+    (req.body.title || "").trim();
 
-            const speed =
-                Number(
-                    req.body.speed || 0
-                );
+const speed =
+    Number(req.body.speed || 0);
 
-            const referenceText =
-                (
-                    req.body.referenceText ||
-                    ""
-                ).trim();
+const referenceText =
+    (
+        req.body.referenceText ||
+        ""
+    ).trim();
 
-            if (
-                !court ||
-                !title ||
-                !speed ||
-                !referenceText
-            ) {
+if (
+    !title ||
+    !speed ||
+    !referenceText
+) {
 
-                return res.status(400).json({
+               return res.status(400).json({
 
-                    success: false,
+    success: false,
 
-                    message:
-                        "Court, title, speed and reference text are required."
+    message:
+        "Title, speed and reference text are required."
 
-                });
-
+});
             }
 
             const audioUrl =
-    "/uploads/court-steno/" +
-    req.file.filename;
+                "/uploads/court-steno/" +
+                req.file.filename;
 
-const insertSql = `
-    INSERT INTO court_steno_passages
-    (
-        court,
-        title,
-        speed,
-        audio,
-        reference_text
-    )
-    VALUES (?, ?, ?, ?, ?)
-`;
-
-db.query(
-    insertSql,
-    [
-        court,
-        title,
-        speed,
-        audioUrl,
-        referenceText
-    ],
-    (dbErr, result) => {
-
-        if (dbErr) {
-
-            console.error(
-                "COURT STENO DATABASE INSERT ERROR:",
-                dbErr
-            );
-
-            return res.status(500).json({
-
-                success: false,
-
-                message:
-                    "Court Steno passage database मध्ये save होऊ शकला नाही.",
-
-                error:
-                    dbErr.message
-
-            });
-        }
-
-        res.json({
-
-            success: true,
-
-            message:
-                "Court Steno passage successfully saved in database.",
-
-            passage: {
-
-                id:
-                    result.insertId,
-
-                title:
-                    title,
-
-                speed:
-                    speed,
-
-                court:
+            const insertSql = `
+                INSERT INTO court_steno_passages
+                (
                     court,
+                    title,
+                    speed,
+                    audio,
+                    reference_text
+                )
+                VALUES (?, ?, ?, ?, ?)
+            `;
 
-                text:
-                    referenceText,
+            db.query(
+                insertSql,
+                [
+                    court,
+                    title,
+                    speed,
+                    audioUrl,
+                    referenceText
+                ],
+                (dbErr, result) => {
 
-                audio:
-                    audioUrl
+                    if (dbErr) {
 
-            }
+                        console.error(
+                            "COURT STENO DATABASE INSERT ERROR:",
+                            dbErr
+                        );
 
-        });
+                        return res.status(500).json({
 
-    }
-);
+                            success: false,
+
+                            message:
+                                "Court Steno passage database मध्ये save होऊ शकला नाही.",
+
+                            error:
+                                dbErr.message
+
+                        });
+
+                    }
+
+                    res.json({
+
+                        success: true,
+
+                        message:
+                            "Court Steno passage successfully saved in database.",
+
+                        passage: {
+
+                            id:
+                                result.insertId,
+
+                            title:
+                                title,
+
+                            speed:
+                                speed,
+
+                            court:
+                                court,
+
+                            text:
+                                referenceText,
+
+                            audio:
+                                audioUrl
+
+                        }
+
+                    });
+
+                }
+            );
 
         } catch (error) {
 
@@ -277,6 +516,83 @@ db.query(
     }
 );
 
+
+app.get(
+    "/api/court-steno/passages/:court",
+    (req, res) => {
+
+        const court =
+            req.params.court;
+
+       if (court !== "district") {
+
+            return res.status(400).json({
+
+                success: false,
+
+                message:
+                    "Invalid court."
+
+            });
+
+        }
+
+        const sql = `
+            SELECT
+                id,
+                court,
+                title,
+                speed,
+                audio,
+                reference_text,
+                created_at,
+                updated_at
+            FROM court_steno_passages
+            WHERE court = ?
+            ORDER BY id DESC
+        `;
+
+        db.query(
+            sql,
+            [court],
+            (err, results) => {
+
+                if (err) {
+
+                    console.error(
+                        "COURT STENO FETCH ERROR:",
+                        err
+                    );
+
+                    return res.status(500).json({
+
+                        success: false,
+
+                        message:
+                            "Court Steno passages load failed.",
+
+                        error:
+                            err.message
+
+                    });
+
+                }
+
+                res.json({
+
+                    success: true,
+
+                    passages:
+                        results
+
+                });
+
+            }
+        );
+
+    }
+);
+
 app.get("/test", (req, res) => {
     res.send("SERVER OK");
 });
@@ -288,6 +604,7 @@ app.get("/", (req, res) => {
 
 app.post("/api/register", async (req, res) => {
     try {
+
         const { name, email, password } = req.body;
 
         if (!name || !email || !password) {
@@ -296,49 +613,233 @@ app.post("/api/register", async (req, res) => {
             });
         }
 
-        const hashedPassword = await bcrypt.hash(password, 10);
+        const hashedPassword =
+            await bcrypt.hash(password, 10);
+
+        const trialStart =
+            new Date();
+
+        const trialExpiry =
+            new Date(trialStart);
+
+        trialExpiry.setDate(
+            trialExpiry.getDate() + 7
+        );
 
         const sql = `
-            INSERT INTO users (name, email, password_hash)
-            VALUES (?, ?, ?)
+            INSERT INTO users
+            (
+                name,
+                email,
+                password_hash,
+                plan,
+                subscription_start,
+                subscription_expiry
+            )
+            VALUES (?, ?, ?, ?, ?, ?)
         `;
 
         db.query(
             sql,
-            [name, email, hashedPassword],
+            [
+                name,
+                email,
+                hashedPassword,
+                "Free Trial",
+                trialStart,
+                trialExpiry
+            ],
             (err, result) => {
-               if (err) {
-    console.error("REGISTER DATABASE ERROR:", err);
 
-    if (err.code === "ER_DUP_ENTRY") {
-        return res.status(409).json({
-            message: "Email already registered."
-        });
-    }
+                if (err) {
 
-    return res.status(500).json({
-        message: "Database error.",
-        error: err.message,
-        code: err.code
-    });
-}
-                
+                    console.error(
+                        "REGISTER DATABASE ERROR:",
+                        err
+                    );
+
+                    if (err.code === "ER_DUP_ENTRY") {
+
+                        return res.status(409).json({
+                            message:
+                                "Email already registered."
+                        });
+
+                    }
+
+                    return res.status(500).json({
+                        message:
+                            "Database error.",
+                        error:
+                            err.message,
+                        code:
+                            err.code
+                    });
+                }
 
                 res.status(201).json({
-                    message: "Registration successful!",
-                    userId: result.insertId
+
+                    message:
+                        "Registration successful! 7 Days Free Trial started.",
+
+                    userId:
+                        result.insertId,
+
+                    plan:
+                        "Free Trial",
+
+                    subscription_start:
+                        trialStart,
+
+                    subscription_expiry:
+                        trialExpiry
                 });
+
             }
         );
 
     } catch (error) {
-        console.error(error);
+
+        console.error(
+            "REGISTER SERVER ERROR:",
+            error
+        );
 
         res.status(500).json({
-            message: "Server error."
+            message:
+                "Server error."
         });
+
     }
 });
+
+// =====================================================
+// UPDATE COURT STENO PASSAGE
+// =====================================================
+
+app.put(
+    "/api/court-steno/passages/:id",
+    (req, res) => {
+
+        const id =
+            Number(req.params.id);
+
+        const title =
+            (req.body.title || "").trim();
+
+        const speed =
+            Number(req.body.speed || 0);
+
+        const referenceText =
+            (req.body.referenceText || "").trim();
+
+
+        if (!id) {
+
+            return res.status(400).json({
+
+                success: false,
+
+                message:
+                    "Invalid passage ID."
+
+            });
+
+        }
+
+
+        if (
+            !title ||
+            !speed ||
+            !referenceText
+        ) {
+
+            return res.status(400).json({
+
+                success: false,
+
+                message:
+                    "Title, speed and reference text are required."
+
+            });
+
+        }
+
+
+        const sql = `
+            UPDATE court_steno_passages
+            SET
+                title = ?,
+                speed = ?,
+                reference_text = ?
+            WHERE id = ?
+        `;
+
+
+        db.query(
+            sql,
+
+            [
+                title,
+                speed,
+                referenceText,
+                id
+            ],
+
+            (err, result) => {
+
+                if (err) {
+
+                    console.error(
+                        "COURT STENO UPDATE ERROR:",
+                        err
+                    );
+
+                    return res.status(500).json({
+
+                        success: false,
+
+                        message:
+                            "Court Steno passage update failed.",
+
+                        error:
+                            err.message
+
+                    });
+
+                }
+
+
+                if (
+                    result.affectedRows === 0
+                ) {
+
+                    return res.status(404).json({
+
+                        success: false,
+
+                        message:
+                            "Passage not found."
+
+                    });
+
+                }
+
+
+                res.json({
+
+                    success: true,
+
+                    message:
+                        "Court Steno passage updated successfully."
+
+                });
+
+            }
+        );
+
+    }
+);
 
 app.post("/api/login", async (req, res) => {
     try {
@@ -380,16 +881,43 @@ return res.status(500).json({
                 });
             }
 
-            res.json({
-                message: "Login successful!",
-                user: {
+            const tokenData = {
     id: user.id,
-    name: user.name,
     email: user.email,
-    plan: user.plan,
-    is_admin: user.is_admin
-}
-            });
+    is_admin: Number(user.is_admin) === 1
+};
+
+const tokenPayload =
+    Buffer.from(
+        JSON.stringify(tokenData)
+    ).toString("base64");
+
+const signature =
+    crypto
+        .createHmac(
+            "sha256",
+            process.env.AUTH_SECRET
+        )
+        .update(tokenPayload)
+        .digest("hex");
+
+const authToken =
+    `${tokenPayload}.${signature}`;
+
+
+res.json({
+    message: "Login successful!",
+
+    token: authToken,
+
+    user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        plan: user.plan,
+        is_admin: user.is_admin
+    }
+});
         });
 
     } catch (error) {
@@ -413,11 +941,11 @@ app.post("/api/create-order", async (req, res) => {
         let planName;
 
         if (plan === "Monthly") {
-            amount = 29900; // ₹299 in paise
+            amount = 9900; // ₹99 in paise
             planName = "Monthly";
         } 
         else if (plan === "Yearly") {
-            amount = 199900; // ₹1999 in paise
+            amount = 99900; // ₹999 in paise
             planName = "Yearly";
         } 
         else {
@@ -452,6 +980,303 @@ app.post("/api/create-order", async (req, res) => {
         });
     }
 });
+
+// =====================================================
+// CLOUD TYPING PASSAGE API
+// =====================================================
+
+// GET ALL TYPING PASSAGES
+app.get("/api/typing-passages", (req, res) => {
+
+    const sql = `
+        SELECT
+            id,
+            title,
+            language,
+            content,
+            created_at,
+            updated_at
+        FROM typing_passages
+        ORDER BY id ASC
+    `;
+
+    db.query(sql, (err, results) => {
+
+        if (err) {
+
+            console.error(
+                "TYPING PASSAGES FETCH ERROR:",
+                err
+            );
+
+            return res.status(500).json({
+                success: false,
+                message: "Typing passages load failed.",
+                error: err.message
+            });
+        }
+
+        res.json({
+            success: true,
+            passages: results
+        });
+
+    });
+
+});
+
+
+// ADD TYPING PASSAGE
+app.post(
+    "/api/typing-passages",
+    verifyAuthToken,
+    requireAdmin,
+    (req, res) => {
+
+    const {
+        title,
+        language,
+        content
+    } = req.body;
+
+    if (
+        !title ||
+        !language ||
+        !content
+    ) {
+
+        return res.status(400).json({
+            success: false,
+            message:
+                "Title, language and content are required."
+        });
+
+    }
+
+    const sql = `
+        INSERT INTO typing_passages
+        (
+            title,
+            language,
+            content
+        )
+        VALUES (?, ?, ?)
+    `;
+
+    db.query(
+        sql,
+        [
+            title,
+            language,
+            content
+        ],
+        (err, result) => {
+
+            if (err) {
+
+                console.error(
+                    "TYPING PASSAGE ADD ERROR:",
+                    err
+                );
+
+                return res.status(500).json({
+                    success: false,
+                    message:
+                        "Typing passage could not be saved.",
+                    error:
+                        err.message
+                });
+
+            }
+
+            res.status(201).json({
+
+                success: true,
+
+                message:
+                    "Typing passage saved successfully.",
+
+                passageId:
+                    result.insertId
+
+            });
+
+        }
+    );
+
+});
+
+
+// UPDATE TYPING PASSAGE
+app.put(
+    "/api/typing-passages/:id",
+    verifyAuthToken,
+    requireAdmin,
+    (req, res) => {
+
+    const id =
+        Number(req.params.id);
+
+    const {
+        title,
+        language,
+        content
+    } = req.body;
+
+    if (!id) {
+
+        return res.status(400).json({
+            success: false,
+            message: "Valid passage ID is required."
+        });
+
+    }
+
+    if (
+        !title ||
+        !language ||
+        !content
+    ) {
+
+        return res.status(400).json({
+            success: false,
+            message:
+                "Title, language and content are required."
+        });
+
+    }
+
+    const sql = `
+        UPDATE typing_passages
+        SET
+            title = ?,
+            language = ?,
+            content = ?
+        WHERE id = ?
+    `;
+
+    db.query(
+        sql,
+        [
+            title,
+            language,
+            content,
+            id
+        ],
+        (err, result) => {
+
+            if (err) {
+
+                console.error(
+                    "TYPING PASSAGE UPDATE ERROR:",
+                    err
+                );
+
+                return res.status(500).json({
+                    success: false,
+                    message:
+                        "Typing passage could not be updated.",
+                    error:
+                        err.message
+                });
+
+            }
+
+            if (result.affectedRows === 0) {
+
+                return res.status(404).json({
+                    success: false,
+                    message:
+                        "Typing passage not found."
+                });
+
+            }
+
+            res.json({
+
+                success: true,
+
+                message:
+                    "Typing passage updated successfully."
+
+            });
+
+        }
+    );
+
+});
+
+
+// DELETE TYPING PASSAGE
+app.delete(
+    "/api/typing-passages/:id",
+    verifyAuthToken,
+    requireAdmin,
+    (req, res) => {
+
+    const id =
+        Number(req.params.id);
+
+    if (!id) {
+
+        return res.status(400).json({
+            success: false,
+            message: "Valid passage ID is required."
+        });
+
+    }
+
+    const sql = `
+        DELETE FROM typing_passages
+        WHERE id = ?
+    `;
+
+    db.query(
+        sql,
+        [id],
+        (err, result) => {
+
+            if (err) {
+
+                console.error(
+                    "TYPING PASSAGE DELETE ERROR:",
+                    err
+                );
+
+                return res.status(500).json({
+                    success: false,
+                    message:
+                        "Typing passage could not be deleted.",
+                    error:
+                        err.message
+                });
+
+            }
+
+            if (result.affectedRows === 0) {
+
+                return res.status(404).json({
+                    success: false,
+                    message:
+                        "Typing passage not found."
+                });
+
+            }
+
+            res.json({
+
+                success: true,
+
+                message:
+                    "Typing passage deleted successfully."
+
+            });
+
+        }
+    );
+
+});
+
 // ================================
 // RAZORPAY PAYMENT VERIFICATION
 // ================================
@@ -574,16 +1399,16 @@ app.post("/api/verify-payment", async (req, res) => {
             });
         }
 
-        let amount;
-        let expiryDays;
+       let amount;
+let expiryDays;
 
-        if (plan === "Monthly") {
-            amount = 299;
-            expiryDays = 30;
-        } else if (plan === "Yearly") {
-            amount = 1999;
-            expiryDays = 365;
-        } else {
+if (plan === "Monthly") {
+    amount = 99;
+    expiryDays = 30;
+} else if (plan === "Yearly") {
+    amount = 999;
+    expiryDays = 365;
+} else {
             return res.status(400).json({
                 success: false,
                 message: "Invalid plan."
@@ -1006,6 +1831,194 @@ app.get("/api/admin/revenue/:adminId", (req, res) => {
     );
 
 });
+
+// =====================================================
+// SAVE STENO TEST RESULT API
+// =====================================================
+
+app.post(
+    "/api/steno-test-results",
+    (req, res) => {
+
+        const {
+    user_id,
+    court,
+    passage_id,
+    passage_title,
+    speed,
+    total_words,
+    correct_words,
+    errors,
+    accuracy,
+    wpm,
+    time_used,
+    reference_text,
+    typed_text
+} = req.body;
+
+        if (
+            !user_id ||
+            !court ||
+            total_words === undefined ||
+            correct_words === undefined ||
+            errors === undefined ||
+            accuracy === undefined ||
+            wpm === undefined ||
+            time_used === undefined
+        ) {
+
+            return res.status(400).json({
+                success: false,
+                message:
+                    "Required Steno result data is missing."
+            });
+
+        }
+
+        const sql = `
+            INSERT INTO steno_test_results
+(
+    user_id,
+    court,
+    passage_id,
+    passage_title,
+    speed,
+    total_words,
+    correct_words,
+    errors,
+    accuracy,
+    wpm,
+    time_used,
+    reference_text,
+    typed_text
+)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `;
+
+        db.query(
+            sql,
+            [
+    user_id,
+    court,
+    passage_id || null,
+    passage_title || null,
+    speed || null,
+    total_words,
+    correct_words,
+    errors,
+    accuracy,
+    wpm,
+    time_used,
+    reference_text || null,
+    typed_text || null
+],
+            (err, result) => {
+
+                if (err) {
+
+                    console.error(
+                        "STENO RESULT SAVE ERROR:",
+                        err
+                    );
+
+                    return res.status(500).json({
+                        success: false,
+                        message:
+                            "Steno test result could not be saved.",
+                        error:
+                            err.message
+                    });
+
+                }
+
+                res.json({
+                    success: true,
+                    message:
+                        "Steno test result saved successfully.",
+                    resultId:
+                        result.insertId
+                });
+
+            }
+        );
+
+    }
+);
+
+// =====================================================
+// GET STENO TEST HISTORY API
+// =====================================================
+
+app.get(
+    "/api/steno-test-history/:userId",
+    (req, res) => {
+
+        const userId =
+            Number(req.params.userId);
+
+        if (!userId) {
+
+            return res.status(400).json({
+                success: false,
+                message:
+                    "Valid user ID is required."
+            });
+
+        }
+
+        const sql = `
+            SELECT
+                id,
+                court,
+                passage_id,
+                passage_title,
+                speed,
+                total_words,
+                correct_words,
+                errors,
+                accuracy,
+                wpm,
+                time_used,
+reference_text,
+typed_text,
+created_at
+            FROM steno_test_results
+            WHERE user_id = ?
+            ORDER BY id DESC
+        `;
+
+        db.query(
+            sql,
+            [userId],
+            (err, results) => {
+
+                if (err) {
+
+                    console.error(
+                        "STENO HISTORY FETCH ERROR:",
+                        err
+                    );
+
+                    return res.status(500).json({
+                        success: false,
+                        message:
+                            "Steno test history load failed.",
+                        error:
+                            err.message
+                    });
+
+                }
+
+                res.json({
+                    success: true,
+                    history: results
+                });
+
+            }
+        );
+
+    }
+);
 
 const PORT = process.env.PORT || 5000;
 

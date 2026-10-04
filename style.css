@@ -1133,7 +1133,7 @@ textarea {
 ===================================================== */
 
 .premium-section.premium-locked::after {
-    content: "🔒 PREMIUM TEST\A Subscription Required\A\A Monthly ₹299  |  Yearly ₹1,999";
+    content: "🔒 PREMIUM TEST\A Subscription Required\A\A Monthly ₹99  |  Yearly ₹999";
     white-space: pre;
     position: absolute;
     top: 50%;
@@ -1704,6 +1704,200 @@ textarea {
 
     textarea {
         font-size: 16px;
+    }
+
+}
+
+/* =====================================================
+   STENO DETAILED RESULT
+===================================================== */
+
+.steno-detailed-result {
+    margin-top: 20px;
+    padding: 20px;
+    border-radius: 14px;
+    background: #f8f9ff;
+    border: 1px solid #dfe3ff;
+}
+
+.steno-detailed-result h3 {
+    margin-top: 0;
+    margin-bottom: 20px;
+}
+
+.steno-result-summary {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 12px;
+    margin-bottom: 25px;
+}
+
+.steno-result-summary > div {
+    padding: 14px;
+    background: white;
+    border-radius: 10px;
+    border: 1px solid #e5e5e5;
+    text-align: center;
+}
+
+.steno-result-summary strong {
+    display: block;
+    margin-bottom: 7px;
+}
+
+.steno-result-summary span {
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.steno-reference-text,
+.steno-typed-result {
+    margin-bottom: 20px;
+    padding: 15px;
+    background: white;
+    border-radius: 10px;
+    border: 1px solid #ddd;
+    line-height: 1.8;
+}
+
+.steno-detailed-result button {
+    padding: 10px 18px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+/* Mobile */
+
+@media (max-width: 768px) {
+
+    .steno-result-summary {
+        grid-template-columns: 1fr 1fr;
+    }
+
+}
+
+@media (max-width: 480px) {
+
+    .steno-result-summary {
+        grid-template-columns: 1fr;
+    }
+
+}
+
+/* =====================================================
+   STENO HISTORY WPM FILTER
+===================================================== */
+
+.steno-history-filter {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 15px 0 20px;
+    padding: 12px 15px;
+    background: #ffffff;
+    border: 1px solid #e1e4f5;
+    border-radius: 10px;
+}
+
+.steno-history-filter label {
+    font-weight: 700;
+}
+
+.steno-history-filter select {
+    min-width: 150px;
+    padding: 9px 12px;
+    border: 1px solid #bfc5df;
+    border-radius: 7px;
+    background: #ffffff;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.steno-history-filter select:focus {
+    outline: none;
+}
+
+/* View Result Button */
+
+.view-steno-result-btn {
+    padding: 7px 12px;
+    border: none;
+    border-radius: 7px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+/* Mobile */
+
+@media (max-width: 600px) {
+
+    .steno-history-filter {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .steno-history-filter select {
+        width: 100%;
+    }
+
+}
+
+/* =====================================================
+   STENO RESULT LEGEND
+===================================================== */
+
+.steno-result-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 10px 0 18px;
+}
+
+.steno-result-legend span {
+    display: inline-block;
+    padding: 7px 12px;
+    border-radius: 7px;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.legend-correct {
+    color: #198754;
+    background: #e8f7ee;
+    border: 1px solid #b7e4c7;
+}
+
+.legend-wrong {
+    color: #dc3545;
+    background: #ffe5e5;
+    border: 1px solid #f5b5b5;
+}
+
+.legend-missing {
+    color: #d63384;
+    background: #fff0f6;
+    border: 1px solid #f3bfd8;
+}
+
+.legend-extra {
+    color: #fd7e14;
+    background: #fff3e6;
+    border: 1px solid #ffd0a3;
+}
+
+/* Mobile */
+
+@media (max-width: 480px) {
+
+    .steno-result-legend {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .steno-result-legend span {
+        text-align: center;
     }
 
 }

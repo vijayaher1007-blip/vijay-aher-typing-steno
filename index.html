@@ -159,7 +159,7 @@
 
     <div class="plan-box">
         <h4>⭐ Monthly Plan</h4>
-        <p>₹299 / Month</p>
+        <p>₹99 / Month</p>
         <button onclick="subscribePlan('Monthly')">
             Subscribe
         </button>
@@ -167,7 +167,7 @@
 
     <div class="plan-box">
         <h4>👑 Yearly Plan</h4>
-        <p>₹1999 / Year</p>
+        <p>₹999 / Year</p>
         <button onclick="subscribePlan('Yearly')">
             Subscribe
         </button>
@@ -175,7 +175,52 @@
 
 </div>
 
-   
+<!-- =====================================================
+     STENO TEST HISTORY
+     ===================================================== -->
+
+<div class="dashboard-card steno-history-card">
+
+    <h3>📜 Steno Test History</h3>
+
+    <p class="history-subtitle">
+        <h3>📜 Steno Test History</h3>
+
+<p class="history-subtitle">
+    तुमच्या मागील Steno Test चे Results
+</p>
+
+<div class="steno-history-filter">
+
+    <label for="stenoWpmFilter">
+        Filter by WPM:
+    </label>
+
+    <select id="stenoWpmFilter"
+            onchange="filterStenoHistory()">
+
+        <option value="all">All WPM</option>
+        <option value="60">60 WPM</option>
+        <option value="80">80 WPM</option>
+        <option value="100">100 WPM</option>
+        <option value="120">120 WPM</option>
+
+    </select>
+
+</div>
+
+    <div
+        id="stenoHistoryContainer"
+        class="steno-history-container"
+    >
+
+        <p>
+            ⏳ Steno history loading...
+        </p>
+
+    </div>
+
+</div>   
         
 <!-- =====================================================
      ADMIN DASHBOARD
@@ -309,9 +354,6 @@
     District Court
 </button>
 
-<button onclick="openPremiumSection('highCourtSection')">
-    High Court
-</button>
 </nav>
 
 
@@ -1006,267 +1048,6 @@
 
 
 
-<!-- =====================================================
-     HIGH COURT
-     ===================================================== -->
-
-<section id="highCourtSection" class="main-section hidden premium-section">
-
-    <div class="court-heading high-heading">
-
-        <h2>🏛 HIGH COURT</h2>
-
-        <p>High Court Typing + Steno Test</p>
-
-    </div>
-
-
-    <!-- HIGH COURT TYPING -->
-
-    <div class="court-module">
-
-        <h3>⌨ High Court Typing Test</h3>
-
-        <div class="court-controls">
-
-            <label>
-                Language
-
-                <select id="highLanguage">
-                    <option value="English">English</option>
-                    <option value="Marathi">Marathi</option>
-                    <option value="Hindi">Hindi</option>
-                </select>
-            </label>
-
-            <label>
-                Time
-
-                <select id="highDuration">
-                    <option value="3">3 Minutes</option>
-                    <option value="5">5 Minutes</option>
-                    <option value="7">7 Minutes</option>
-                    <option value="10">10 Minutes</option>
-                    <option value="15">15 Minutes</option>
-                </select>
-            </label>
-
-            <label>
-                Passage
-
-                <select id="highPassage"></select>
-            </label>
-
-            <button onclick="startCourtTyping('high')">
-                ▶ Start
-            </button>
-
-            <button id="highSubmit"
-                    onclick="submitCourtTyping('high')"
-                    disabled>
-                ✓ Submit
-            </button>
-
-        </div>
-
-
-        <div class="court-status">
-
-            <div>
-                TIME
-                <strong id="highTimer">00:00</strong>
-            </div>
-
-            <div>
-                GROSS WPM
-                <strong id="highGross">0</strong>
-            </div>
-
-            <div>
-                NET WPM
-                <strong id="highNet">0</strong>
-            </div>
-
-            <div>
-                ACCURACY
-                <strong id="highAccuracy">100%</strong>
-            </div>
-
-            <div>
-                ERRORS
-                <strong id="highErrors">0</strong>
-            </div>
-
-        </div>
-
-
-        <div class="court-test-grid">
-
-            <div>
-
-                <h4>Question Paper</h4>
-
-                <div id="highQuestion"
-                     class="court-question"></div>
-
-            </div>
-
-            <div>
-
-                <h4>Typing Area</h4>
-
-                <textarea id="highTyping"
-                          disabled
-                          spellcheck="false"
-                          placeholder="Start typing...">
-                </textarea>
-
-                <div id="highMirror"
-                     class="court-mirror"></div>
-
-            </div>
-
-        </div>
-
-
-        <div id="highTypingResult"
-             class="court-result hidden">
-        </div>
-
-    </div>
-
-
-
-    <!-- HIGH COURT STENO -->
-
-    <div class="court-module">
-
-        <h3>🎙 High Court Steno Test</h3>
-
-        <div class="court-controls">
-
-            <label>
-                Speed
-
-                <select id="highStenoSpeed">
-                    <option value="60">60 WPM</option>
-                    <option value="80">80 WPM</option>
-                    <option value="100">100 WPM</option>
-                    <option value="120">120 WPM</option>
-                </select>
-            </label>
-
-            <label>
-                Steno Passage
-
-                <select id="highStenoPassage">
-                    <option value="">Select Passage</option>
-                </select>
-            </label>
-
-        </div>
-
-<div class="court-steno-admin-box">
-
-    <h4>📤 Add High Court Steno Passage</h4>
-
-<div id="highStenoAdminList"
-     class="court-steno-admin-list">
-</div>
-
-    <label>
-        Passage Title
-        <input
-            type="text"
-            id="highStenoTitle"
-            placeholder="Example: High Court 60 WPM">
-    </label>
-
-    <label>
-        Speed
-        <select id="highStenoAdminSpeed">
-            <option value="60">60 WPM</option>
-            <option value="80">80 WPM</option>
-            <option value="100">100 WPM</option>
-            <option value="120">120 WPM</option>
-        </select>
-    </label>
-
-    <label>
-        Dictation Audio
-        <input
-            type="file"
-            id="highStenoAudioFile"
-            accept="audio/*">
-    </label>
-
-    <label>
-        Reference Dictation Text
-        <textarea
-            id="highStenoReferenceText"
-            placeholder="Reference dictation text येथे टाका..."></textarea>
-    </label>
-
-    <button
-        type="button"
-        onclick="saveCourtStenoPassage('high')">
-        💾 Save High Court Steno Passage
-    </button>
-
-</div>
-
-        <div class="court-audio">
-
-            <h4>🎧 High Court Dictation</h4>
-
-            <audio id="highStenoAudio"
-                   controls></audio>
-
-            <p id="highStenoStatus">
-                Select passage.
-            </p>
-
-        </div>
-
-
-        <div id="highStenoTransSection"
-             class="court-transcription hidden">
-
-            <div class="court-trans-header">
-
-                <h4>⌨ Transcription</h4>
-
-                <strong id="highStenoTimer">
-                    55:00
-                </strong>
-
-            </div>
-
-            <textarea id="highStenoText"
-                      spellcheck="false"
-                      placeholder="Transcription येथे करा...">
-            </textarea>
-
-            <button onclick="startCourtSteno('high')">
-                ▶ Start Transcription
-            </button>
-
-            <button id="highStenoSubmit"
-                    onclick="submitCourtSteno('high')"
-                    disabled>
-                ✓ Submit
-            </button>
-
-        </div>
-
-
-        <div id="highStenoResult"
-             class="court-result hidden">
-        </div>
-
-    </div>
-
-</section>
 <!-- =====================================================
      ANSWER KEY
      ===================================================== -->
