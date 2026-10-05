@@ -447,98 +447,161 @@
     </div>
 
 
-    <div class="test-wrapper">
+    <div class="typing-workspace">
 
-        <section class="test-panel">
+    <!-- QUESTION PAPER -->
+    <section class="test-panel typing-panel">
 
-            <div class="panel-title">
-                <h2>Question Paper</h2>
-
-                <div>
-                    <button onclick="zoomQuestion(1)">A+</button>
-                    <button onclick="zoomQuestion(-1)">A-</button>
-                </div>
-            </div>
-
-            <div id="questionText"
-                 class="question-text english-font"></div>
-
-        </section>
-
-
-        <section class="test-panel">
-
-            <div class="panel-title">
-
-                <h2>Typing Area</h2>
-
-                <div>
-                    <button onclick="zoomTyping(1)">A+</button>
-                    <button onclick="zoomTyping(-1)">A-</button>
-                </div>
-
-            </div>
-
-            <div class="typing-container">
-
-                <div id="typingMirror"></div>
-
-                <textarea
-                    id="typingArea"
-                    spellcheck="false"
-                    disabled
-                    placeholder="Start Test करून येथे typing करा...">
-                </textarea>
-
-            </div>
-
-        </section>
-
-    </div>
-
-
-    <section id="resultBox" class="result hidden">
-
-        <h2>📊 Typing Test Result</h2>
-
-        <div class="result-grid">
+        <div class="panel-title">
 
             <div>
-                <span>Total Characters</span>
-                <b id="rTotal">0</b>
+                <h2>📄 Question Paper</h2>
+
+                <select id="questionSidePassageSelect">
+                    <option value="">Select Question Paper</option>
+                </select>
             </div>
 
-            <div>
-                <span>Correct</span>
-                <b id="rCorrect">0</b>
-            </div>
-
-            <div>
-                <span>Errors</span>
-                <b id="rErrors">0</b>
-            </div>
-
-            <div>
-                <span>Accuracy</span>
-                <b id="rAccuracy">0%</b>
-            </div>
-
-            <div>
-                <span>Gross WPM</span>
-                <b id="rGross">0</b>
-            </div>
-
-            <div>
-                <span>Net WPM</span>
-                <b id="rNet">0</b>
+            <div class="zoom-buttons">
+                <button onclick="zoomQuestion(1)">A+</button>
+                <button onclick="zoomQuestion(-1)">A-</button>
             </div>
 
         </div>
 
-        <button onclick="window.print()">🖨 Print Result</button>
+        <div
+            id="questionText"
+            class="question-text english-font">
+        </div>
 
     </section>
 
+
+    <!-- ANSWER KEY / TYPING -->
+    <section class="test-panel typing-panel">
+
+        <div class="panel-title">
+
+            <div>
+                <h2>⌨ Answer Key</h2>
+
+                <select id="answerSideSelect">
+                    <option value="typed">
+                        My Typed Answer
+                    </option>
+                </select>
+            </div>
+
+            <div class="zoom-buttons">
+                <button onclick="zoomTyping(1)">A+</button>
+                <button onclick="zoomTyping(-1)">A-</button>
+            </div>
+
+        </div>
+
+        <div class="typing-container">
+
+            <div id="typingMirror"></div>
+
+            <textarea
+                id="typingArea"
+                spellcheck="false"
+                disabled
+                placeholder="Start Test करून येथे typing करा...">
+            </textarea>
+
+        </div>
+
+    </section>
+
+</div>
+
+
+<!-- FULL SCREEN BUTTON -->
+<div class="typing-fullscreen-control">
+
+    <button
+        type="button"
+        id="typingFullscreenBtn"
+        onclick="toggleTypingFullscreen()">
+
+        ⛶ Full Screen Typing
+
+    </button>
+
+</div>
+
+
+<!-- MAIN TYPING TEST RESULT -->
+
+<section id="resultBox" class="result hidden">
+
+    <h2>📊 Typing Test Result</h2>
+
+    <div class="typing-result-status">
+        <div id="typingPassFail">
+            RESULT
+        </div>
+    </div>
+
+    <div class="result-grid">
+
+        <div>
+            <span>Total Words</span>
+            <b id="rTotal">0</b>
+        </div>
+
+        <div>
+            <span>Correct Words</span>
+            <b id="rCorrect">0</b>
+        </div>
+
+        <div>
+            <span>Wrong Words</span>
+            <b id="rErrors">0</b>
+        </div>
+
+        <div>
+            <span>Accuracy</span>
+            <b id="rAccuracy">0%</b>
+        </div>
+
+        <div>
+            <span>Gross WPM</span>
+            <b id="rGross">0</b>
+        </div>
+
+        <div>
+            <span>Net WPM</span>
+            <b id="rNet">0</b>
+        </div>
+
+        <div>
+            <span>Full Marks</span>
+            <b id="rFullMarks">20</b>
+        </div>
+
+        <div>
+            <span>Obtained Marks</span>
+            <b id="rObtainedMarks">0 / 20</b>
+        </div>
+
+    </div>
+
+    <!-- QUESTION PAPER + TYPED ANSWER -->
+
+    <div
+        id="typingFinalComparison"
+        class="typing-final-comparison">
+    </div>
+
+    <button
+        type="button"
+        onclick="window.print()">
+        🖨 Print Result
+    </button>
+
+</section>
 
     <!-- MAIN PASSAGE MANAGEMENT -->
 

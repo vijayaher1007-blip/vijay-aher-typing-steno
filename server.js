@@ -249,6 +249,76 @@ const uploadCourtSteno =
 
     });
 
+// ==========================================
+// MAIN STENO DICTATION AUDIO UPLOAD
+// ==========================================
+
+const mainStenoUploadDir =
+    path.join(
+        __dirname,
+        "uploads",
+        "steno"
+    );
+
+if (!fs.existsSync(mainStenoUploadDir)) {
+
+    fs.mkdirSync(
+        mainStenoUploadDir,
+        {
+            recursive: true
+        }
+    );
+
+}
+
+const mainStenoStorage =
+    multer.diskStorage({
+
+        destination:
+            function (req, file, cb) {
+
+                cb(
+                    null,
+                    mainStenoUploadDir
+                );
+
+            },
+
+        filename:
+            function (req, file, cb) {
+
+                const ext =
+                    path.extname(
+                        file.originalname
+                    );
+
+                const filename =
+                    "steno-" +
+                    Date.now() +
+                    ext;
+
+                cb(
+                    null,
+                    filename
+                );
+
+            }
+
+    });
+
+const uploadMainSteno =
+    multer({
+
+        storage:
+            mainStenoStorage,
+
+        limits: {
+            fileSize:
+                100 * 1024 * 1024
+        }
+
+    });
+
 
 // Website folder
 
@@ -367,12 +437,23 @@ app.delete(
 
     }
 );
- app.post(
+// ==========================================
+// DISTRICT COURT STENO AUDIO UPLOAD
+// MYSQL + ADMIN SECURITY
+// ==========================================
+
+app.post(
     "/api/court-steno/upload",
+    verifyAuthToken,
+    requireAdmin,
     uploadCourtSteno.single("audio"),
-    (req, res) => {
+    async (req, res) => {
 
         try {
+
+            // ==========================================
+            // CHECK AUDIO FILE
+            // ==========================================
 
             if (!req.file) {
 
@@ -380,42 +461,100 @@ app.delete(
                     success: false,
                     message: "Audio file is required."
                 });
-
             }
 
-           const court = "district";
 
-const title =
-    (req.body.title || "").trim();
+            // ==========================================
+            // DISTRICT COURT ONLY
+            // ==========================================
 
-const speed =
-    Number(req.body.speed || 0);
+            const court = "district";
 
-const referenceText =
-    (
-        req.body.referenceText ||
-        ""
-    ).trim();
 
-if (
-    !title ||
-    !speed ||
-    !referenceText
-) {
+            // ==========================================
+            // GET FORM DATA
+            // ==========================================
 
-               return res.status(400).json({
+            const title =
+                (req.body.title || "").trim();
 
-    success: false,
+            const speed =
+                Number(
+                    req.body.speed || 0
+                );
 
-    message:
-        "Title, speed and reference text are required."
+            const referenceText =
+                (
+                    req.body.referenceText ||
+                    ""
+                ).trim();
 
-});
+
+            // ==========================================
+            // VALIDATION
+            // ==========================================
+
+            if (!title) {
+
+                return res.status(400).json({
+                    success: false,
+                    message: "Passage title is required."
+                });
             }
+
+
+            if (
+                ![60, 80, 100, 120].includes(speed)
+            ) {
+
+                return res.status(400).json({
+                    success: false,
+                    message:
+                        "Invalid Steno speed. Use 60, 80, 100 or 120 WPM."
+                });
+            }
+
+
+            if (!referenceText) {
+
+                return res.status(400).json({
+                    success: false,
+                    message:
+                        "Reference dictation text is required."
+                });
+            }
+
+
+            // ==========================================
+            // AUDIO URL
+            // ==========================================
 
             const audioUrl =
                 "/uploads/court-steno/" +
                 req.file.filename;
+
+
+            console.log(
+                "COURT STENO UPLOAD:",
+                {
+                    admin:
+                        req.authUser?.email,
+
+                    title:
+                        title,
+
+                    speed:
+                        speed,
+
+                    audio:
+                        audioUrl
+                }
+            );
+
+
+            // ==========================================
+            // INSERT INTO MYSQL
+            // ==========================================
 
             const insertSql = `
                 INSERT INTO court_steno_passages
@@ -429,8 +568,10 @@ if (
                 VALUES (?, ?, ?, ?, ?)
             `;
 
+
             db.query(
                 insertSql,
+
                 [
                     court,
                     title,
@@ -438,6 +579,7 @@ if (
                     audioUrl,
                     referenceText
                 ],
+
                 (dbErr, result) => {
 
                     if (dbErr) {
@@ -456,22 +598,34 @@ if (
 
                             error:
                                 dbErr.message
-
                         });
-
                     }
 
-                    res.json({
+
+                    // ==========================================
+                    // SUCCESS
+                    // ==========================================
+
+                    console.log(
+                        "COURT STENO SAVED:",
+                        result.insertId
+                    );
+
+
+                    return res.status(201).json({
 
                         success: true,
 
                         message:
-                            "Court Steno passage successfully saved in database.",
+                            "District Court Steno passage successfully saved.",
 
                         passage: {
 
                             id:
                                 result.insertId,
+
+                            court:
+                                court,
 
                             title:
                                 title,
@@ -479,17 +633,12 @@ if (
                             speed:
                                 speed,
 
-                            court:
-                                court,
-
-                            text:
-                                referenceText,
-
                             audio:
-                                audioUrl
+                                audioUrl,
 
+                            referenceText:
+                                referenceText
                         }
-
                     });
 
                 }
@@ -498,25 +647,27 @@ if (
         } catch (error) {
 
             console.error(
-                "Court Steno Upload Error:",
+                "COURT STENO UPLOAD ERROR:",
                 error
             );
 
-            res.status(500).json({
+
+            return res.status(500).json({
 
                 success: false,
 
                 message:
-                    "Audio upload failed."
+                    "District Court Steno upload failed.",
 
+                error:
+                    error.message
             });
-
         }
 
     }
 );
 
-
+                
 app.get(
     "/api/court-steno/passages/:court",
     (req, res) => {
@@ -585,6 +736,349 @@ app.get(
                     passages:
                         results
 
+                });
+
+            }
+        );
+
+    }
+);
+
+// =====================================================
+// MAIN STENO DICTATION - MYSQL API
+// =====================================================
+
+// LOAD MAIN STENO PASSAGES
+app.get(
+    "/api/steno-passages",
+    (req, res) => {
+
+        const sql = `
+            SELECT
+                id,
+                title,
+                speed,
+                audio,
+                reference_text,
+                created_at,
+                updated_at
+            FROM steno_passages
+            ORDER BY id DESC
+        `;
+
+        db.query(
+            sql,
+            (err, results) => {
+
+                if (err) {
+
+                    console.error(
+                        "MAIN STENO FETCH ERROR:",
+                        err
+                    );
+
+                    return res.status(500).json({
+                        success: false,
+                        message:
+                            "Main Steno passages load failed.",
+                        error:
+                            err.message
+                    });
+                }
+
+                return res.json({
+                    success: true,
+                    passages: results
+                });
+
+            }
+        );
+
+    }
+);
+
+
+// ADD MAIN STENO PASSAGE
+// =====================================================
+// MAIN STENO DICTATION - AUDIO UPLOAD + MYSQL
+// =====================================================
+
+app.post(
+    "/api/steno-passages",
+    verifyAuthToken,
+    requireAdmin,
+    uploadMainSteno.single("audio"),
+    (req, res) => {
+
+        try {
+
+            // ==========================================
+            // CHECK AUDIO
+            // ==========================================
+
+            if (!req.file) {
+
+                return res.status(400).json({
+                    success: false,
+                    message:
+                        "Steno audio file is required."
+                });
+
+            }
+
+
+            // ==========================================
+            // FORM DATA
+            // ==========================================
+
+            const title =
+                (req.body.title || "").trim();
+
+            const speed =
+                Number(
+                    req.body.speed || 0
+                );
+
+            const referenceText =
+                (
+                    req.body.referenceText ||
+                    ""
+                ).trim();
+
+
+            // ==========================================
+            // VALIDATION
+            // ==========================================
+
+            if (!title) {
+
+                return res.status(400).json({
+                    success: false,
+                    message:
+                        "Steno passage title is required."
+                });
+
+            }
+
+
+            if (
+                ![60, 80, 100, 120].includes(speed)
+            ) {
+
+                return res.status(400).json({
+                    success: false,
+                    message:
+                        "Invalid Steno speed."
+                });
+
+            }
+
+
+            if (!referenceText) {
+
+                return res.status(400).json({
+                    success: false,
+                    message:
+                        "Reference dictation text is required."
+                });
+
+            }
+
+
+            // ==========================================
+            // AUDIO URL
+            // ==========================================
+
+            const audioUrl =
+                "/uploads/steno/" +
+                req.file.filename;
+
+
+            // ==========================================
+            // SAVE MYSQL
+            // ==========================================
+
+            const sql = `
+                INSERT INTO steno_passages
+                (
+                    title,
+                    speed,
+                    audio,
+                    reference_text
+                )
+                VALUES (?, ?, ?, ?)
+            `;
+
+
+            db.query(
+                sql,
+                [
+                    title,
+                    speed,
+                    audioUrl,
+                    referenceText
+                ],
+                (err, result) => {
+
+                    if (err) {
+
+                        console.error(
+                            "MAIN STENO INSERT ERROR:",
+                            err
+                        );
+
+                        // Delete uploaded file
+                        // if database save fails
+                        try {
+
+                            fs.unlinkSync(
+                                req.file.path
+                            );
+
+                        } catch (deleteError) {
+
+                            console.error(
+                                "AUDIO CLEANUP ERROR:",
+                                deleteError
+                            );
+
+                        }
+
+
+                        return res.status(500).json({
+                            success: false,
+                            message:
+                                "Main Steno passage save failed.",
+                            error:
+                                err.message
+                        });
+
+                    }
+
+
+                    console.log(
+                        "MAIN STENO SAVED:",
+                        {
+                            id:
+                                result.insertId,
+
+                            title:
+                                title,
+
+                            speed:
+                                speed,
+
+                            audio:
+                                audioUrl
+                        }
+                    );
+
+
+                    return res.status(201).json({
+
+                        success: true,
+
+                        message:
+                            "Main Steno passage successfully saved.",
+
+                        passage: {
+
+                            id:
+                                result.insertId,
+
+                            title:
+                                title,
+
+                            speed:
+                                speed,
+
+                            audio:
+                                audioUrl,
+
+                            referenceText:
+                                referenceText
+
+                        }
+
+                    });
+
+                }
+            );
+
+        } catch (error) {
+
+            console.error(
+                "MAIN STENO SAVE ERROR:",
+                error
+            );
+
+            return res.status(500).json({
+                success: false,
+                message:
+                    "Main Steno save failed.",
+                error:
+                    error.message
+            });
+
+        }
+
+    }
+);
+
+// DELETE MAIN STENO PASSAGE
+app.delete(
+    "/api/steno-passages/:id",
+    verifyAuthToken,
+    requireAdmin,
+    (req, res) => {
+
+        const id =
+            Number(req.params.id);
+
+        if (!id) {
+
+            return res.status(400).json({
+                success: false,
+                message:
+                    "Invalid Steno passage ID."
+            });
+
+        }
+
+
+        const sql = `
+            DELETE FROM steno_passages
+            WHERE id = ?
+        `;
+
+
+        db.query(
+            sql,
+            [id],
+            (err, result) => {
+
+                if (err) {
+
+                    console.error(
+                        "MAIN STENO DELETE ERROR:",
+                        err
+                    );
+
+                    return res.status(500).json({
+                        success: false,
+                        message:
+                            "Main Steno passage delete failed.",
+                        error:
+                            err.message
+                    });
+
+                }
+
+
+                return res.json({
+                    success: true,
+                    message:
+                        "Main Steno passage deleted."
                 });
 
             }

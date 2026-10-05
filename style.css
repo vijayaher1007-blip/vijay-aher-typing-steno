@@ -1901,3 +1901,393 @@ textarea {
     }
 
 }
+
+/* =====================================================
+   MAIN TYPING RESULT - SIDE BY SIDE
+   ===================================================== */
+
+.typing-final-comparison {
+    width: 100%;
+    margin-top: 25px;
+}
+
+
+/* HEADER */
+
+.comparison-header {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 12px;
+}
+
+.comparison-header h3 {
+    margin: 0;
+    padding: 14px;
+    text-align: center;
+    border-radius: 10px;
+    background: linear-gradient(
+        135deg,
+        #1e3c72,
+        #2a5298
+    );
+    color: white;
+}
+
+
+/* TWO COLUMNS */
+
+.comparison-columns {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    align-items: stretch !important;
+    justify-content: space-between !important;
+    gap: 20px !important;
+    width: 100% !important;
+}
+
+.comparison-question {
+    flex: 1 1 50% !important;
+    width: 50% !important;
+    max-width: 50% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+}
+
+.comparison-answer {
+    flex: 1 1 50% !important;
+    width: 50% !important;
+    max-width: 50% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+}
+
+/* LEFT - QUESTION PAPER */
+
+.comparison-question {
+    width: 100%;
+    min-height: 350px;
+    padding: 20px;
+    box-sizing: border-box;
+    border: 2px solid #2a5298;
+    border-radius: 12px;
+    background: #f8fbff;
+}
+
+
+/* RIGHT - ANSWER KEY */
+
+.comparison-answer {
+    width: 100%;
+    min-height: 350px;
+    padding: 20px;
+    box-sizing: border-box;
+    border: 2px solid #dc3545;
+    border-radius: 12px;
+    background: #fff8f8;
+}
+
+
+/* QUESTION TEXT */
+
+.comparison-text {
+    font-size: 20px;
+    line-height: 1.8;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+
+/* ANSWER WORD RESULT */
+
+.comparison-word-result {
+    font-size: 20px;
+    line-height: 2;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+
+/* CORRECT WORD */
+
+.correct-word {
+    color: #198754;
+    font-weight: 600;
+    margin-right: 6px;
+}
+
+
+/* WRONG WORD */
+
+.wrong-word {
+    color: #dc3545;
+    background: #ffd6d6;
+    font-weight: 700;
+    padding: 3px 6px;
+    border-radius: 5px;
+    margin-right: 6px;
+}
+
+
+/* MISSING WORD */
+
+.missing-word {
+    color: #7b2cbf;
+    background: #eadcff;
+    font-weight: 700;
+    padding: 3px 6px;
+    border-radius: 5px;
+    margin-right: 6px;
+}
+
+
+/* EXTRA WORD */
+
+.extra-word {
+    color: #d97706;
+    background: #ffedd5;
+    font-weight: 700;
+    padding: 3px 6px;
+    border-radius: 5px;
+    margin-right: 6px;
+}
+
+
+/* LEGEND */
+
+.comparison-legend {
+    display: flex;
+    justify-content: center;
+    gap: 25px;
+    flex-wrap: wrap;
+    margin-top: 18px;
+    padding: 12px;
+    background: #f1f3f5;
+    border-radius: 10px;
+}
+
+
+/* MARK SUMMARY */
+
+.marks-summary {
+    margin-top: 18px;
+    padding: 15px;
+    text-align: center;
+    font-size: 18px;
+    background: #fff3cd;
+    border: 1px solid #ffc107;
+    border-radius: 10px;
+}
+
+
+/* =====================================================
+   MOBILE
+   ===================================================== */
+
+@media (max-width: 768px) {
+
+    .comparison-header {
+        grid-template-columns: 1fr;
+    }
+
+    .comparison-columns {
+        grid-template-columns: 1fr;
+    }
+
+}
+
+/* =====================================================
+   MAIN TYPING TEST - QUESTION LEFT / TYPING RIGHT
+   ===================================================== */
+
+.typing-workspace {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 20px !important;
+    width: 100% !important;
+    align-items: stretch !important;
+}
+
+.typing-workspace .typing-panel {
+    width: 100% !important;
+    min-width: 0 !important;
+}
+
+
+/* Question Paper - LEFT */
+
+.typing-workspace .typing-panel:first-child {
+    grid-column: 1 !important;
+    grid-row: 1 !important;
+}
+
+
+/* Typing Area - RIGHT */
+
+.typing-workspace .typing-panel:nth-child(2) {
+    grid-column: 2 !important;
+    grid-row: 1 !important;
+}
+
+
+/* Desktop only */
+
+@media (min-width: 769px) {
+
+    .typing-workspace {
+        display: grid !important;
+        grid-template-columns: 1fr 1fr !important;
+    }
+
+}
+
+
+/* Mobile */
+
+@media (max-width: 768px) {
+
+    .typing-workspace {
+        grid-template-columns: 1fr !important;
+    }
+
+    .typing-workspace .typing-panel:first-child,
+    .typing-workspace .typing-panel:nth-child(2) {
+        grid-column: 1 !important;
+        grid-row: auto !important;
+    }
+
+}
+
+/* =====================================================
+   MAIN TYPING - REMOVE DUPLICATE TYPING DISPLAY
+   ===================================================== */
+
+#typingMirror {
+    display: none !important;
+}
+
+#typingArea {
+    display: block !important;
+    width: 100% !important;
+    min-height: 400px !important;
+    box-sizing: border-box !important;
+}
+
+.answer-correct-word {
+    color: #198754;
+    font-weight: 600;
+    margin-right: 5px;
+}
+
+.answer-wrong-word {
+    color: #dc3545;
+    background: #ffd6d6;
+    font-weight: 700;
+    padding: 2px 5px;
+    border-radius: 4px;
+    margin-right: 5px;
+}
+
+.answer-extra-word {
+    color: #dc3545;
+    background: #ffd6d6;
+    font-weight: 700;
+    padding: 2px 5px;
+    border-radius: 4px;
+    margin-right: 5px;
+}
+
+.comparison-word-result {
+    font-size: 20px;
+    line-height: 2;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+/* =========================================
+   FINAL TYPING RESULT - WRONG WORD COLORS
+   ========================================= */
+
+.comparison-word-result {
+    line-height: 1.8;
+    font-size: 20px;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+
+/* CORRECT WORD */
+
+.answer-correct-word {
+    color: #16803c;
+    font-weight: 500;
+}
+
+
+/* WRONG WORD */
+
+.answer-wrong-word {
+    color: #e00000 !important;
+    background: #ffe0e0;
+    font-weight: 700;
+    padding: 2px 5px;
+    border-radius: 4px;
+}
+
+
+/* EXTRA WORD */
+
+.answer-extra-word {
+    color: #e00000 !important;
+    background: #ffe0e0;
+    font-weight: 700;
+    padding: 2px 5px;
+    border-radius: 4px;
+}
+
+
+/* RESULT LEFT/RIGHT */
+
+.comparison-question,
+.comparison-answer {
+    width: 50%;
+    max-width: 50%;
+    box-sizing: border-box;
+}
+
+
+/* TEXT */
+
+.comparison-text {
+    font-size: 20px;
+    line-height: 1.8;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+.comparison-word-result {
+    white-space: normal !important;
+    word-spacing: normal !important;
+    letter-spacing: normal !important;
+    line-height: 1.8;
+    font-size: 20px;
+}
+
+.comparison-word-result span {
+    display: inline;
+    margin-right: 5px;
+}
+
+/* Hide Saved Passages List */
+#passagesList,
+#savedPassages,
+.saved-passages,
+.passages-list {
+    display: none !important;
+}
+
+#searchPassage,
+#passageList {
+    display: none !important;
+}

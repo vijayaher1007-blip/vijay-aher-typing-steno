@@ -498,9 +498,32 @@ submitBtn.addEventListener(
 );
 
 
+function normalizeTypingWord(word) {
+
+    return String(word || "")
+        .trim()
+        .replace(/\s+/g, " ")
+        .toLowerCase();
+
+}
+
+
+function escapeHTML(text) {
+
+    return String(text || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+
+}
+
+
 function submitMainTyping() {
 
     if (!currentPassage) return;
+
 
     clearInterval(timerInterval);
 
@@ -511,34 +534,207 @@ function submitMainTyping() {
     startBtn.disabled = false;
     submitBtn.disabled = true;
 
-    updateMainStats();
 
     const typed =
-        typingArea.value;
+        typingArea.value || "";
 
     const target =
-        currentPassage.content;
-
-    const stats =
-        getCharacterStats(
-            typed,
-            target
-        );
-
-    const total =
-        typed.length;
-
-    const accuracy =
-        total === 0
-            ? 0
-            : Math.round(
-                stats.correct /
-                total * 100
-            );
+        currentPassage.content || "";
 
 
     /* =================================================
-       RESULT
+       WORDS
+       ================================================= */
+
+    const targetWords =
+        target.trim()
+            ? target.trim().split(/\s+/)
+            : [];
+
+    const typedWords =
+        typed.trim()
+            ? typed.trim().split(/\s+/)
+            : [];
+
+
+    let correctWords = 0;
+    let wrongWords = 0;
+
+    let comparisonHTML = "";
+
+
+    const maxWords =
+        Math.max(
+            targetWords.length,
+            typedWords.length
+        );
+
+
+    /* =================================================
+       WORD COMPARISON
+       ================================================= */
+
+    for (
+        let i = 0;
+        i < maxWords;
+        i++
+    ) {
+
+        const correctWord =
+            targetWords[i];
+
+        const typedWord =
+            typedWords[i];
+
+
+        /* CORRECT */
+
+        if (
+            correctWord !== undefined &&
+            typedWord !== undefined &&
+            normalizeTypingWord(correctWord) ===
+            normalizeTypingWord(typedWord)
+        ) {
+
+            correctWords++;
+
+
+            comparisonHTML += `
+                <span class="typing-word correct-word">
+                    ${escapeHTML(typedWord)}
+                </span>
+            `;
+
+        }
+
+
+        /* WRONG */
+
+        else if (
+            correctWord !== undefined &&
+            typedWord !== undefined
+        ) {
+
+            wrongWords++;
+
+
+            comparisonHTML += `
+                <span
+                    class="typing-word wrong-word"
+                    title="Correct: ${escapeHTML(correctWord)}">
+
+                    ${escapeHTML(typedWord)}
+
+                </span>
+            `;
+
+        }
+
+
+        /* MISSING */
+
+        else if (
+            correctWord !== undefined &&
+            typedWord === undefined
+        ) {
+
+            wrongWords++;
+
+
+            comparisonHTML += `
+                <span
+                    class="typing-word missing-word"
+                    title="Missing: ${escapeHTML(correctWord)}">
+
+                    [${escapeHTML(correctWord)}]
+
+                </span>
+            `;
+
+        }
+
+
+        /* EXTRA */
+
+        else if (
+            correctWord === undefined &&
+            typedWord !== undefined
+        ) {
+
+            wrongWords++;
+
+
+            comparisonHTML += `
+                <span
+                    class="typing-word extra-word"
+                    title="Extra word">
+
+                    ${escapeHTML(typedWord)}
+
+                </span>
+            `;
+
+        }
+
+    }
+
+
+    /* =================================================
+       TOTAL WORDS
+       ================================================= */
+
+    const totalWords =
+        targetWords.length;
+
+
+    /* =================================================
+       ACCURACY
+       ================================================= */
+
+    const accuracy =
+        totalWords > 0
+            ? (
+                correctWords /
+                totalWords
+            ) * 100
+            : 0;
+
+
+    /* =================================================
+       MARKS
+       FULL MARKS = 20
+       EVERY 4 WRONG = 1 MARK DEDUCTION
+       ================================================= */
+
+    const fullMarks = 20;
+
+
+    const deduction =
+        Math.floor(
+            wrongWords / 4
+        );
+
+
+    const obtainedMarks =
+        Math.max(
+            0,
+            fullMarks - deduction
+        );
+
+
+    /* =================================================
+       PASS / FAIL
+       10 MARKS = PASS
+       ================================================= */
+
+    const result =
+        obtainedMarks >= 10
+            ? "PASS"
+            : "FAIL";
+
+
+    /* =================================================
+       RESULT BOX
        ================================================= */
 
     const resultBox =
@@ -546,171 +742,314 @@ function submitMainTyping() {
             "resultBox"
         );
 
-    resultBox.classList.remove(
-        "hidden"
-    );
 
-    document.getElementById(
-        "rTotal"
-    ).textContent =
-        total;
+    if (resultBox) {
 
-    document.getElementById(
-        "rCorrect"
-    ).textContent =
-        stats.correct;
-
-    document.getElementById(
-        "rErrors"
-    ).textContent =
-        stats.errors;
-
-    document.getElementById(
-        "rAccuracy"
-    ).textContent =
-        accuracy + "%";
-
-    document.getElementById(
-        "rGross"
-    ).textContent =
-        grossWpm.textContent;
-
-    document.getElementById(
-        "rNet"
-    ).textContent =
-        netWpm.textContent;
-
-
-    /* =================================================
-       QUESTION PAPER + ANSWER KEY
-       ================================================= */
-
-    const answerSection =
-        document.getElementById(
-            "answerSection"
-        );
-
-    const answerKey =
-        document.getElementById(
-            "answerKey"
-        );
-
-    if (answerSection && answerKey) {
-
-        answerSection.classList.remove(
+        resultBox.classList.remove(
             "hidden"
         );
 
-        answerKey.innerHTML = `
-
-            <div class="answer-comparison">
-
-                <h3>📄 Question Paper</h3>
-
-                <div class="answer-question">
-                    ${escapeHTML(target)}
-                </div>
-
-
-                <h3>
-                    🔍 Answer Key / Mistake Comparison
-                </h3>
-
-                <div class="answer-instruction">
-
-                    <span class="answer-correct">
-                        Correct
-                    </span>
-
-                    <span class="answer-wrong">
-                        Wrong
-                    </span>
-
-                </div>
-
-
-                <div class="answer-key-text">
-
-                    ${createAnswerKey(
-                        typed,
-                        target
-                    )}
-
-                </div>
-
-            </div>
-
-        `;
     }
 
-}
+
+    /* =================================================
+       RESULT VALUES
+       ================================================= */
+
+    const rTotal =
+        document.getElementById(
+            "rTotal"
+        );
+
+    const rCorrect =
+        document.getElementById(
+            "rCorrect"
+        );
+
+    const rErrors =
+        document.getElementById(
+            "rErrors"
+        );
+
+    const rAccuracy =
+        document.getElementById(
+            "rAccuracy"
+        );
+
+    const rGross =
+        document.getElementById(
+            "rGross"
+        );
+
+    const rNet =
+        document.getElementById(
+            "rNet"
+        );
+
+    const rFullMarks =
+        document.getElementById(
+            "rFullMarks"
+        );
+
+    const rObtainedMarks =
+        document.getElementById(
+            "rObtainedMarks"
+        );
+
+    const passFail =
+        document.getElementById(
+            "typingPassFail"
+        );
 
 
-/* =====================================================
-   ANSWER KEY
-   ===================================================== */
+    if (rTotal)
+        rTotal.textContent =
+            totalWords;
 
-function createAnswerKey(typed, target) {
-    const answerSection = document.getElementById("answerSection");
-    const answerKey = document.getElementById("answerKey");
 
-    if (!answerSection || !answerKey) return;
+    if (rCorrect)
+        rCorrect.textContent =
+            correctWords;
 
-    let correctHTML = "";
-    let typedHTML = "";
 
-    const maxLength = Math.max(target.length, typed.length);
+    if (rErrors)
+        rErrors.textContent =
+            wrongWords;
 
-    for (let i = 0; i < maxLength; i++) {
-        const correctChar = target[i] ?? "";
-        const typedChar = typed[i] ?? "";
 
-        // LEFT SIDE - Correct Answer
-        if (correctChar) {
-            correctHTML += escapeHTML(correctChar);
+    if (rAccuracy)
+        rAccuracy.textContent =
+            accuracy.toFixed(2) + "%";
+
+
+    if (rGross)
+        rGross.textContent =
+            grossWpm.textContent;
+
+
+    if (rNet)
+        rNet.textContent =
+            netWpm.textContent;
+
+
+    if (rFullMarks)
+        rFullMarks.textContent =
+            fullMarks;
+
+
+    if (rObtainedMarks)
+        rObtainedMarks.textContent =
+            obtainedMarks +
+            " / " +
+            fullMarks;
+
+
+    /* =================================================
+       PASS / FAIL DISPLAY
+       ================================================= */
+
+    if (passFail) {
+
+        passFail.textContent =
+            result === "PASS"
+                ? "🟢 PASS"
+                : "🔴 FAIL";
+
+
+        passFail.className =
+            result === "PASS"
+                ? "typing-pass"
+                : "typing-fail";
+
+    }
+
+
+  /* =================================================
+   FINAL QUESTION + ANSWER
+   ================================================= */
+
+const finalComparison =
+    document.getElementById(
+        "typingFinalComparison"
+    );
+
+if (finalComparison) {
+
+    let answerKeyHTML = "";
+
+    const maxWords =
+        Math.max(
+            targetWords.length,
+            typedWords.length
+        );
+
+
+    for (
+        let i = 0;
+        i < maxWords;
+        i++
+    ) {
+
+        const correctWord =
+            targetWords[i] || "";
+
+        const typedWord =
+            typedWords[i] || "";
+
+
+        /* ================================
+           CORRECT WORD
+           ================================ */
+
+        if (
+            correctWord &&
+            typedWord &&
+            normalizeTypingWord(correctWord) ===
+            normalizeTypingWord(typedWord)
+        ) {
+
+            answerKeyHTML += `
+                <span class="answer-correct-word">
+                    ${escapeHTML(correctWord)}
+                </span>
+            `;
+
         }
-    }
 
-    // RIGHT SIDE - Typed Answer
-    for (let i = 0; i < maxLength; i++) {
-        const correctChar = target[i] ?? "";
-        const typedChar = typed[i] ?? "";
 
-        if (typedChar === correctChar) {
-            typedHTML += escapeHTML(typedChar);
-        } else {
-            typedHTML += `<span class="answer-wrong">${escapeHTML(typedChar || "␠")}</span>`;
+        /* ================================
+           WRONG WORD
+           ================================ */
+
+        else if (
+            correctWord &&
+            typedWord
+        ) {
+
+            answerKeyHTML += `
+                <span
+                    class="answer-wrong-word"
+                    title="You typed: ${escapeHTML(typedWord)}">
+
+                    ${escapeHTML(typedWord)}
+
+                </span>
+            `;
+
         }
+
+
+        /* ================================
+           MISSING WORD
+           ================================ */
+
+        else if (
+            correctWord &&
+            !typedWord
+        ) {
+
+            answerKeyHTML += `
+                <span
+                    class="answer-wrong-word"
+                    title="Missing word">
+
+                    ${escapeHTML(correctWord)}
+
+                </span>
+            `;
+
+        }
+
+
+        /* ================================
+           EXTRA WORD
+           ================================ */
+
+        else if (
+            !correctWord &&
+            typedWord
+        ) {
+
+            answerKeyHTML += `
+                <span
+                    class="answer-extra-word"
+                    title="Extra typed word">
+
+                    ${escapeHTML(typedWord)}
+
+                </span>
+            `;
+
+        }
+
+
+        answerKeyHTML += " ";
+
     }
 
-    answerKey.innerHTML = `
-        <div class="answer-compare">
 
-            <div class="answer-column">
-                <div class="answer-column-title">
-                    ✅ Correct Answer
-                </div>
+    finalComparison.innerHTML = `
 
-                <div class="answer-content">
-                    ${correctHTML}
-                </div>
-            </div>
+        <div class="comparison-header">
 
-            <div class="answer-column">
-                <div class="answer-column-title">
-                    ⌨️ Typed Answer
-                </div>
+            <h3>📄 Question Paper</h3>
 
-                <div class="answer-content">
-                    ${typedHTML}
-                </div>
-            </div>
+            <h3>⌨ Answer Key</h3>
 
         </div>
+
+
+        <div class="comparison-columns">
+
+
+            <!-- LEFT SIDE : FULL QUESTION PAPER -->
+
+            <div class="comparison-question">
+
+                <div class="comparison-text">
+
+                    ${escapeHTML(target)}
+
+                </div>
+
+            </div>
+
+
+            <!-- RIGHT SIDE : SAME QUESTION PAPER
+                 WITH WRONG WORDS RED -->
+
+            <div class="comparison-answer">
+
+                <div class="comparison-word-result">
+
+                    ${answerKeyHTML}
+
+                </div>
+
+            </div>
+
+
+        </div>
+
+
+        <div class="comparison-legend">
+
+            <span class="legend-correct">
+                🟢 Correct
+            </span>
+
+            <span class="legend-wrong">
+                🔴 Wrong
+            </span>
+
+        </div>
+
     `;
 
-    answerSection.classList.remove("hidden");
 }
+
+}
+
 /* =====================================================
    BACKSPACE / ARROW CONTROL
    ===================================================== */
@@ -2556,13 +2895,7 @@ function compareSteno(reference, typed) {
    MAIN STENO
    ===================================================== */
 
-let stenoPassages =
-    JSON.parse(
-        localStorage.getItem(
-            "gccStenoPassages"
-        ) || "[]"
-    );
-
+let stenoPassages = [];
 let currentSteno = null;
 let stenoTimer = null;
 let stenoRemaining = 55 * 60;
@@ -2577,81 +2910,151 @@ const stenoPassageSelect =
         "stenoPassageSelect"
     );
 
-function loadStenoPassages() {
+async function loadStenoPassages() {
 
-    stenoPassages =
-        JSON.parse(
-            localStorage.getItem(
-                "gccStenoPassages"
-            ) || "[]"
-        );
+    try {
 
-    stenoPassageSelect.innerHTML =
-        '<option value="">Select Passage</option>';
-
-    stenoPassages.forEach(p => {
-
-        const option =
-            document.createElement(
-                "option"
+        const response =
+            await fetch(
+                "/api/steno-passages"
             );
 
-        option.value =
-            p.id;
+        const responseText =
+            await response.text();
 
-        option.textContent =
-            `${p.title} (${p.speed} WPM)`;
+        let data = {};
 
-        stenoPassageSelect.appendChild(
-            option
-        );
+        try {
 
-    });
-
-    displayStenoPassages();
-}
-
-
-stenoPassageSelect.addEventListener(
-    "change",
-    function() {
-
-        currentSteno =
-            stenoPassages.find(
-                p =>
-                String(p.id) ===
-                String(this.value)
-            );
-
-        if (!currentSteno) return;
-
-        const audio =
-            document.getElementById(
-                "stenoAudio"
-            );
-
-        audio.src =
-            currentSteno.audio;
-
-        document.getElementById(
-            "audioStatus"
-        ).textContent =
-            "Audio loaded. Audio पूर्ण झाल्यावर transcription automatically सुरू होईल.";
-
-        audio.onended =
-            () => {
-
-                document.getElementById(
-                    "transcriptionSection"
-                ).classList.remove(
-                    "hidden"
+            data =
+                JSON.parse(
+                    responseText
                 );
 
-                startMainSteno();
-            };
-    }
-);
+        } catch (jsonError) {
 
+            console.error(
+                "MAIN STENO LOAD RESPONSE:",
+                responseText
+            );
+
+            throw new Error(
+                "Server returned invalid response."
+            );
+
+        }
+
+
+        if (
+            !response.ok ||
+            !data.success
+        ) {
+
+            throw new Error(
+                data.message ||
+                "Main Steno passages load failed."
+            );
+
+        }
+
+
+        // =====================================
+        // CLOUD DATA → FRONTEND FORMAT
+        // =====================================
+
+        stenoPassages =
+            (data.passages || []).map(
+                p => ({
+
+                    id:
+                        p.id,
+
+                    title:
+                        p.title,
+
+                    speed:
+                        Number(
+                            p.speed
+                        ),
+
+                    audio:
+                        p.audio,
+
+                    reference:
+                        p.reference_text
+
+                })
+            );
+
+
+        // =====================================
+        // PASSAGE DROPDOWN
+        // =====================================
+
+        stenoPassageSelect.innerHTML =
+            '<option value="">Select Passage</option>';
+
+
+        stenoPassages.forEach(
+            p => {
+
+                const option =
+                    document.createElement(
+                        "option"
+                    );
+
+                option.value =
+                    p.id;
+
+                option.textContent =
+                    `${p.title} (${p.speed} WPM)`;
+
+                stenoPassageSelect.appendChild(
+                    option
+                );
+
+            }
+        );
+
+
+        // =====================================
+        // DISPLAY PASSAGES
+        // =====================================
+
+        // displayStenoPassages();
+
+
+        console.log(
+            "MAIN STENO CLOUD PASSAGES LOADED:",
+            stenoPassages
+        );
+
+
+    } catch (error) {
+
+        console.error(
+            "MAIN STENO LOAD ERROR:",
+            error
+        );
+
+
+        stenoPassages = [];
+
+
+        stenoPassageSelect.innerHTML =
+            '<option value="">Select Passage</option>';
+
+
+        // Do not show an alert during
+        // initial page loading.
+
+        console.warn(
+            "Main Steno passages could not be loaded."
+        );
+
+    }
+
+}
 
 /* =====================================================
    START MAIN STENO
@@ -2827,7 +3230,7 @@ document.getElementById(
     saveStenoPassage
 );
 
-function saveStenoPassage() {
+async function saveStenoPassage() {
 
     const title =
         document.getElementById(
@@ -2835,9 +3238,11 @@ function saveStenoPassage() {
         ).value.trim();
 
     const speed =
-        document.getElementById(
-            "stenoAdminSpeed"
-        ).value;
+        Number(
+            document.getElementById(
+                "stenoAdminSpeed"
+            ).value
+        );
 
     const reference =
         document.getElementById(
@@ -2849,11 +3254,12 @@ function saveStenoPassage() {
             "stenoAudioFile"
         ).files[0];
 
-    if (
-        !title ||
-        !reference ||
-        !file
-    ) {
+
+    // ==============================
+    // VALIDATION
+    // ==============================
+
+    if (!title || !reference || !file) {
 
         alert(
             "Title, Audio आणि Reference Text भरा."
@@ -2862,59 +3268,185 @@ function saveStenoPassage() {
         return;
     }
 
-    const reader =
-        new FileReader();
 
-    reader.onload =
-        function () {
+    if (
+        ![60, 80, 100, 120].includes(speed)
+    ) {
 
-            stenoPassages.push({
+        alert(
+            "Invalid Steno speed."
+        );
 
-                id: Date.now(),
+        return;
+    }
 
-                title: title,
 
-                speed: speed,
+    // ==============================
+    // AUTH TOKEN
+    // ==============================
 
-                audio: reader.result,
+    const authToken =
+        localStorage.getItem(
+            "authToken"
+        );
 
-                reference: reference
 
-            });
+    if (!authToken) {
 
-            localStorage.setItem(
-                "gccStenoPassages",
-                JSON.stringify(
-                    stenoPassages
+        alert(
+            "Login session सापडले नाही. कृपया पुन्हा Login करा."
+        );
+
+        return;
+    }
+
+
+    // ==============================
+    // FORM DATA
+    // ==============================
+
+    const formData =
+        new FormData();
+
+    formData.append(
+        "title",
+        title
+    );
+
+    formData.append(
+        "speed",
+        speed
+    );
+
+    formData.append(
+        "referenceText",
+        reference
+    );
+
+    formData.append(
+        "audio",
+        file
+    );
+
+
+    // ==============================
+    // UPLOAD TO SERVER
+    // ==============================
+
+    try {
+
+        const response =
+            await fetch(
+                "/api/steno-passages",
+                {
+                    method: "POST",
+
+                    headers: {
+                        "Authorization":
+                            "Bearer " +
+                            authToken
+                    },
+
+                    body:
+                        formData
+                }
+            );
+
+
+        const responseText =
+            await response.text();
+
+        let data = {};
+
+        try {
+
+            data =
+                JSON.parse(
+                    responseText
+                );
+
+        } catch (jsonError) {
+
+            console.error(
+                "SERVER RESPONSE:",
+                responseText
+            );
+
+        }
+
+
+        if (
+            !response.ok ||
+            !data.success
+        ) {
+
+            alert(
+                "❌ Main Steno passage save झाला नाही.\n\n" +
+                (
+                    data.message ||
+                    "Server error."
                 )
             );
 
-            document.getElementById(
-                "stenoTitle"
-            ).value = "";
+            return;
+        }
 
-            document.getElementById(
-                "stenoReferenceText"
-            ).value = "";
 
-            document.getElementById(
-                "stenoAudioFile"
-            ).value = "";
+        // ==============================
+        // CLEAR FORM
+        // ==============================
 
-            loadStenoPassages();
+        document.getElementById(
+            "stenoTitle"
+        ).value = "";
 
-            alert(
-                "✅ Steno passage saved."
-            );
+        document.getElementById(
+            "stenoReferenceText"
+        ).value = "";
 
-        };
+        document.getElementById(
+            "stenoAudioFile"
+        ).value = "";
 
-    reader.readAsDataURL(file);
+
+        // ==============================
+        // RELOAD PASSAGES
+        // ==============================
+
+        if (
+            typeof loadStenoPassages ===
+            "function"
+        ) {
+
+            await loadStenoPassages();
+
+        }
+
+
+        alert(
+            "✅ Main Steno passage successfully saved."
+        );
+
+
+    } catch (error) {
+
+        console.error(
+            "MAIN STENO SAVE ERROR:",
+            error
+        );
+
+        alert(
+            "❌ Steno passage save करताना error आला.\n\n" +
+            error.message
+        );
+
+    }
+
 }
 
-
 // ==========================================
-// SAVE / EDIT DISTRICT COURT STENO PASSAGE - MYSQL
+// SAVE / EDIT DISTRICT COURT STENO PASSAGE
+// MYSQL + ADMIN AUTHENTICATION
 // ==========================================
 
 async function saveCourtStenoPassage(court) {
@@ -2923,7 +3455,6 @@ async function saveCourtStenoPassage(court) {
     court = "district";
 
     const prefix = "districtSteno";
-
 
     const titleElement =
         document.getElementById(
@@ -3019,6 +3550,32 @@ async function saveCourtStenoPassage(court) {
 
 
     // ==========================================
+    // AUTH TOKEN
+    // ==========================================
+
+    const authToken =
+        localStorage.getItem(
+            "authToken"
+        );
+
+
+    if (!authToken) {
+
+        alert(
+            "❌ Login session सापडले नाही. कृपया पुन्हा Login करा."
+        );
+
+        return;
+    }
+
+
+    const authHeaders = {
+        "Authorization":
+            "Bearer " + authToken
+    };
+
+
+    // ==========================================
     // CHECK EDIT MODE
     // ==========================================
 
@@ -3027,7 +3584,7 @@ async function saveCourtStenoPassage(court) {
 
 
     // ==========================================
-    // EDIT EXISTING DISTRICT PASSAGE
+    // EDIT EXISTING PASSAGE
     // ==========================================
 
     if (
@@ -3099,6 +3656,10 @@ async function saveCourtStenoPassage(court) {
                         "/api/court-steno/upload",
                         {
                             method: "POST",
+
+                            headers:
+                                authHeaders,
+
                             body: formData
                         }
                     );
@@ -3134,7 +3695,10 @@ async function saveCourtStenoPassage(court) {
                         "/api/court-steno/passages/" +
                         passageId,
                         {
-                            method: "DELETE"
+                            method: "DELETE",
+
+                            headers:
+                                authHeaders
                         }
                     );
 
@@ -3172,7 +3736,7 @@ async function saveCourtStenoPassage(court) {
 
 
                 // ==========================================
-                // REFRESH DATA
+                // REFRESH
                 // ==========================================
 
                 await loadCourtStenoLists();
@@ -3181,7 +3745,7 @@ async function saveCourtStenoPassage(court) {
 
 
                 alert(
-                    "✅ District Court Steno Passage आणि नवीन Audio Successfully Updated!"
+                    "✅ District Court Steno Passage Successfully Updated!"
                 );
 
 
@@ -3202,7 +3766,11 @@ async function saveCourtStenoPassage(court) {
 
                         headers: {
                             "Content-Type":
-                                "application/json"
+                                "application/json",
+
+                            "Authorization":
+                                "Bearer " +
+                                authToken
                         },
 
                         body:
@@ -3259,7 +3827,7 @@ async function saveCourtStenoPassage(court) {
 
 
             // ==========================================
-            // REFRESH DATA
+            // REFRESH
             // ==========================================
 
             await loadCourtStenoLists();
@@ -3293,7 +3861,7 @@ async function saveCourtStenoPassage(court) {
 
 
     // ==========================================
-    // ADD NEW DISTRICT PASSAGE
+    // ADD NEW PASSAGE
     // ==========================================
 
     if (!file) {
@@ -3343,11 +3911,19 @@ async function saveCourtStenoPassage(court) {
         );
 
 
+        // ==========================================
+        // UPLOAD AUDIO
+        // ==========================================
+
         const response =
             await fetch(
                 "/api/court-steno/upload",
                 {
                     method: "POST",
+
+                    headers:
+                        authHeaders,
+
                     body: formData
                 }
             );
@@ -3386,7 +3962,7 @@ async function saveCourtStenoPassage(court) {
 
 
         // ==========================================
-        // REFRESH MYSQL DATA
+        // REFRESH LIST
         // ==========================================
 
         await loadCourtStenoLists();
@@ -3395,24 +3971,26 @@ async function saveCourtStenoPassage(court) {
 
 
         alert(
-            "✅ District Court Steno Passage आणि Audio Successfully Saved in MySQL!"
+            "✅ District Court Steno Passage Successfully Saved!"
         );
 
 
     } catch (error) {
 
         console.error(
-            "District Court Steno Save Error:",
+            "District Court Steno Upload Error:",
             error
         );
 
 
         alert(
-            "❌ Server connection failed."
+            "❌ Server connection failed.\n\n" +
+            error.message
         );
     }
 }
 
+        
 /* =====================================================
    UTILITY
    ===================================================== */
@@ -4027,7 +4605,8 @@ document.addEventListener(
    BACKEND LOGIN
    ===================================================== */
 
-async function loginUser() {
+window.loginUser = async function loginUser() {
+
 
     const email =
         document.getElementById("loginEmail").value.trim();
@@ -6318,4 +6897,93 @@ function filterStenoHistory() {
         }
 
     });
+}
+
+// ==========================================
+// MAIN STENO DICTATION - PASSAGE SELECT
+// ==========================================
+
+const mainStenoSelect =
+    document.getElementById("stenoPassageSelect");
+
+if (mainStenoSelect) {
+
+    mainStenoSelect.addEventListener(
+        "change",
+        function () {
+
+            currentSteno =
+                stenoPassages.find(
+                    p =>
+                        String(p.id) ===
+                        String(this.value)
+                );
+
+            if (!currentSteno) {
+                console.warn(
+                    "MAIN STENO: Passage not selected."
+                );
+                return;
+            }
+
+            console.log(
+                "MAIN STENO SELECTED:",
+                currentSteno
+            );
+
+            const audio =
+                document.getElementById(
+                    "stenoAudio"
+                );
+
+            if (!audio) {
+                console.error(
+                    "MAIN STENO AUDIO ELEMENT NOT FOUND."
+                );
+                return;
+            }
+
+            audio.src =
+                currentSteno.audio;
+
+            audio.load();
+
+            document.getElementById(
+                "audioStatus"
+            ).textContent =
+                "Audio loaded. Dictation सुरू करा.";
+
+            console.log(
+                "MAIN STENO AUDIO URL:",
+                audio.src
+            );
+
+            audio.onended =
+                function () {
+
+                    const transcriptionSection =
+                        document.getElementById(
+                            "transcriptionSection"
+                        );
+
+                    if (transcriptionSection) {
+
+                        transcriptionSection.classList.remove(
+                            "hidden"
+                        );
+
+                    }
+
+                    if (
+                        typeof startMainSteno ===
+                        "function"
+                    ) {
+                        startMainSteno();
+                    }
+
+                };
+
+        }
+    );
+
 }
