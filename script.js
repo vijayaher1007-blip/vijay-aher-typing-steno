@@ -2891,6 +2891,144 @@ function compareSteno(reference, typed) {
     };
 }
 
+function compareMainSteno(reference, typed) {
+
+    const referenceWords =
+        normalizeWords(reference);
+
+    const typedWords =
+        normalizeWords(typed);
+
+    const total =
+        referenceWords.length;
+
+    let correct = 0;
+
+    let referenceHTML = "";
+    let typedHTML = "";
+
+    const max =
+        Math.max(
+            referenceWords.length,
+            typedWords.length
+        );
+
+
+    for (let i = 0; i < max; i++) {
+
+        const expected =
+            referenceWords[i] || "";
+
+        const actual =
+            typedWords[i] || "";
+
+
+        /* =========================
+           LEFT - REFERENCE TEXT
+        ========================= */
+
+        if (expected) {
+
+            referenceHTML += `
+                <span class="steno-reference-word">
+                    ${escapeHTML(expected)}
+                </span>
+            `;
+
+        }
+
+
+        /* =========================
+           RIGHT - TYPED ANSWER
+        ========================= */
+
+        if (
+            expected &&
+            actual &&
+            expected.toLowerCase() ===
+            actual.toLowerCase()
+        ) {
+
+            correct++;
+
+            typedHTML += `
+                <span class="steno-correct">
+                    ${escapeHTML(actual)}
+                </span>
+            `;
+
+        }
+
+        else if (
+            expected &&
+            actual
+        ) {
+
+            typedHTML += `
+                <span class="steno-wrong"
+                      title="Correct Word: ${escapeHTML(expected)}">
+                    ${escapeHTML(actual)}
+                </span>
+            `;
+
+        }
+
+        else if (
+            expected &&
+            !actual
+        ) {
+
+            typedHTML += `
+                <span class="steno-missing"
+                      title="Missing Word: ${escapeHTML(expected)}">
+                    [Missing]
+                </span>
+            `;
+
+        }
+
+        else if (
+            !expected &&
+            actual
+        ) {
+
+            typedHTML += `
+                <span class="steno-extra"
+                      title="Extra Word">
+                    ${escapeHTML(actual)}
+                </span>
+            `;
+
+        }
+
+    }
+
+
+    const errors =
+        Math.max(
+            total - correct,
+            0
+        );
+
+
+    const accuracy =
+        total
+            ? Math.round(
+                (correct / total) * 100
+            )
+            : 0;
+
+
+    return {
+        total,
+        correct,
+        errors,
+        accuracy,
+        referenceHTML,
+        typedHTML
+    };
+}
+
 /* =====================================================
    MAIN STENO
    ===================================================== */
@@ -2900,6 +3038,465 @@ let currentSteno = null;
 let stenoTimer = null;
 let stenoRemaining = 55 * 60;
 
+/* =====================================================
+   DISPLAY MAIN STENO PASSAGES - ADMIN
+   ===================================================== */
+
+window.displayStenoPassages = function () {
+
+    const list =
+        document.getElementById("stenoPassageList");
+
+    if (!list) return;
+
+    list.innerHTML = "";
+
+    if (!stenoPassages || stenoPassages.length === 0) {
+
+        list.innerHTML =
+            "<p>No Steno Passages Found.</p>";
+
+        return;
+    }
+
+    stenoPassages.forEach(function (passage) {
+
+        const item =
+            document.createElement("div");
+
+        item.className =
+            "steno-passage-item";
+
+        const isHidden =
+            passage.hidden === true ||
+            passage.visible === false;
+
+        item.innerHTML = `
+
+            <div class="steno-passage-info">
+
+                <strong>
+                    ${escapeHTML(
+                        passage.title || ""
+                    )}
+                </strong>
+
+                <span>
+                    ${passage.speed || 0} WPM
+                </span>
+
+                <span class="steno-visibility-status
+                    ${isHidden ? "hidden-status" : "visible-status"}">
+
+                    ${
+                        isHidden
+                        ? "🔒 Hidden"
+                        : "🟢 Visible"
+                    }
+
+                </span>
+
+            </div>
+
+            <div class="steno-passage-actions">
+
+                <button
+                    type="button"
+                    class="edit-steno-btn"
+                    onclick="editStenoPassage(${passage.id})">
+
+                    ✏️ Edit
+
+                </button>
+
+                <button
+                    type="button"
+                    class="delete-steno-btn"
+                    onclick="deleteStenoPassage(${passage.id})">
+
+                    🗑️ Delete
+
+                </button>
+
+                <button
+                    type="button"
+                    class="toggle-steno-btn"
+                    onclick="toggleStenoVisibility(${passage.id}, ${isHidden})">
+
+                    ${
+                        isHidden
+                        ? "👁️ Unhide"
+                        : "🙈 Hide"
+                    }
+
+                </button>
+
+            </div>
+        `;
+
+        list.appendChild(item);
+
+    });
+};
+
+/* =====================================================
+   STENO EDIT / DELETE - PLACEHOLDER
+   ===================================================== */
+
+
+
+/* =====================================================
+   MAIN STENO EDIT
+   ===================================================== */
+
+function editStenoPassage(id) {
+
+    const passage =
+        stenoPassages.find(
+            p => Number(p.id) === Number(id)
+        );
+
+    if (!passage) {
+
+        alert("❌ Steno passage सापडला नाही.");
+
+        return;
+    }
+
+    // Save edit ID
+    window.editingMainSteno =
+        passage.id;
+
+    // Load data into form
+    document.getElementById(
+        "stenoTitle"
+    ).value =
+        passage.title || "";
+
+    document.getElementById(
+        "stenoAdminSpeed"
+    ).value =
+        passage.speed || "";
+
+    document.getElementById(
+        "stenoReferenceText"
+    ).value =
+        passage.reference || "";
+
+    // Audio file cannot be filled automatically
+    document.getElementById(
+        "stenoAudioFile"
+    ).value = "";
+
+    // Change save button text
+    const saveBtn =
+        document.getElementById(
+            "saveStenoPassageBtn"
+        );
+
+    if (saveBtn) {
+
+        saveBtn.textContent =
+            "✏️ Update Steno Passage";
+
+    }
+
+    // Scroll to form
+    const form =
+        document.getElementById(
+            "stenoTitle"
+        );
+
+    if (form) {
+
+        form.scrollIntoView({
+            behavior: "smooth",
+            block: "center"
+        });
+
+        form.focus();
+
+    }
+
+    console.log(
+        "MAIN STENO EDIT MODE:",
+        passage
+    );
+}
+
+/* =====================================================
+   MAIN STENO DELETE
+   ===================================================== */
+
+async function deleteStenoPassage(id) {
+
+    const passage =
+        stenoPassages.find(
+            p => Number(p.id) === Number(id)
+        );
+
+    if (!passage) {
+        alert("❌ Steno passage सापडला नाही.");
+        return;
+    }
+
+    const confirmDelete =
+        confirm(
+            `तुम्हाला "${passage.title}" हा Steno Passage delete करायचा आहे का?`
+        );
+
+    if (!confirmDelete) {
+        return;
+    }
+
+    const authToken =
+        localStorage.getItem("authToken");
+
+    if (!authToken) {
+        alert(
+            "❌ Login session सापडले नाही. कृपया पुन्हा Login करा."
+        );
+        return;
+    }
+
+    try {
+
+        const response =
+            await fetch(
+                "/api/steno-passages/" + passage.id,
+                {
+                    method: "DELETE",
+                    headers: {
+                        "Authorization":
+                            "Bearer " + authToken
+                    }
+                }
+            );
+
+        const responseText =
+            await response.text();
+
+        let data = {};
+
+        try {
+            data =
+                JSON.parse(responseText);
+        } catch (error) {
+            console.error(
+                "DELETE SERVER RESPONSE:",
+                responseText
+            );
+        }
+
+        if (
+            !response.ok ||
+            !data.success
+        ) {
+            alert(
+                "❌ Steno passage delete झाला नाही.\n\n" +
+                (
+                    data.message ||
+                    "Server error."
+                )
+            );
+            return;
+        }
+
+        await loadStenoPassages();
+
+        alert(
+            "✅ Steno passage successfully deleted."
+        );
+
+    } catch (error) {
+
+        console.error(
+            "MAIN STENO DELETE ERROR:",
+            error
+        );
+
+        alert(
+            "❌ Delete करताना error आला.\n\n" +
+            error.message
+        );
+    }
+}
+
+/* =====================================================
+   MAIN STENO HIDE / UNHIDE
+   ===================================================== */
+
+async function toggleStenoVisibility(id, currentlyHidden) {
+
+    const passage =
+        stenoPassages.find(
+            p => Number(p.id) === Number(id)
+        );
+
+    if (!passage) {
+        alert("❌ Steno passage सापडला नाही.");
+        return;
+    }
+
+    const authToken =
+        localStorage.getItem("authToken");
+
+    if (!authToken) {
+        alert(
+            "❌ Login session सापडले नाही. कृपया पुन्हा Login करा."
+        );
+        return;
+    }
+
+    try {
+
+        const response =
+            await fetch(
+                "/api/steno-passages/" + passage.id + "/visibility",
+                {
+                    method: "PUT",
+
+                    headers: {
+                        "Content-Type":
+                            "application/json",
+
+                        "Authorization":
+                            "Bearer " + authToken
+                    },
+
+                    body:
+                        JSON.stringify({
+                            hidden: !currentlyHidden
+                        })
+                }
+            );
+
+        const responseText =
+            await response.text();
+
+        let data = {};
+
+        try {
+
+            data =
+                JSON.parse(responseText);
+
+        } catch (error) {
+
+            console.error(
+                "VISIBILITY SERVER RESPONSE:",
+                responseText
+            );
+
+        }
+
+        if (
+            !response.ok ||
+            !data.success
+        ) {
+
+            alert(
+                "❌ Steno visibility change झाला नाही.\n\n" +
+                (
+                    data.message ||
+                    "Server error."
+                )
+            );
+
+            return;
+        }
+
+        await loadStenoPassages();
+
+    } catch (error) {
+
+        console.error(
+            "MAIN STENO VISIBILITY ERROR:",
+            error
+        );
+
+        alert(
+            "❌ Hide/Unhide करताना error आला.\n\n" +
+            error.message
+        );
+
+    }
+}
+
+/* =====================================================
+   MAIN STENO DELETE
+   ===================================================== */
+
+function deleteStenoPassage(id) {
+
+    const passage =
+        stenoPassages.find(
+            p => Number(p.id) === Number(id)
+        );
+
+    if (!passage) {
+
+        alert("❌ Steno passage सापडला नाही.");
+
+        return;
+    }
+
+    const confirmDelete =
+        confirm(
+            "⚠️ हा Steno passage delete करायचा आहे का?\n\n" +
+            passage.title
+        );
+
+    if (!confirmDelete) return;
+
+    /*
+       IMPORTANT:
+       सध्या database delete API जोडलेली नाही.
+       त्यामुळे येथे actual DELETE request
+       अजून पाठवलेली नाही.
+    */
+
+    console.log(
+        "MAIN STENO DELETE REQUEST:",
+        id
+    );
+
+    alert(
+        "⚠️ Delete API अजून connect केलेली नाही.\n\n" +
+        "Passage सुरक्षित आहे."
+    );
+}
+
+
+/* =====================================================
+   MAIN STENO HIDE / UNHIDE
+   ===================================================== */
+
+function toggleStenoVisibility(id, currentlyHidden) {
+
+    const passage =
+        stenoPassages.find(
+            p => Number(p.id) === Number(id)
+        );
+
+    if (!passage) {
+
+        alert("❌ Steno passage सापडला नाही.");
+
+        return;
+    }
+
+    console.log(
+        "MAIN STENO VISIBILITY:",
+        id,
+        currentlyHidden
+    );
+
+    alert(
+        "⚠️ Hide / Unhide API अजून connect केलेली नाही.\n\n" +
+        "Passage सुरक्षित आहे."
+    );
+}
 
 /* =====================================================
    STENO SELECT
@@ -2963,28 +3560,21 @@ async function loadStenoPassages() {
         // =====================================
 
         stenoPassages =
-            (data.passages || []).map(
-                p => ({
+    (data.passages || []).map(
+        p => ({
+            id: p.id,
+            title: p.title,
+            speed: Number(p.speed),
+            audio: p.audio,
+            reference: p.reference_text,
 
-                    id:
-                        p.id,
+            hidden:
+                Number(p.hidden) === 1,
 
-                    title:
-                        p.title,
-
-                    speed:
-                        Number(
-                            p.speed
-                        ),
-
-                    audio:
-                        p.audio,
-
-                    reference:
-                        p.reference_text
-
-                })
-            );
+            visible:
+                Number(p.hidden) !== 1
+        })
+    );
 
 
         // =====================================
@@ -2995,8 +3585,10 @@ async function loadStenoPassages() {
             '<option value="">Select Passage</option>';
 
 
-        stenoPassages.forEach(
-            p => {
+        stenoPassages
+    .filter(p => !p.hidden && p.visible !== false)
+    .forEach(
+        p => {
 
                 const option =
                     document.createElement(
@@ -3021,7 +3613,7 @@ async function loadStenoPassages() {
         // DISPLAY PASSAGES
         // =====================================
 
-        // displayStenoPassages();
+        displayStenoPassages();
 
 
         console.log(
@@ -3174,10 +3766,10 @@ function submitMainSteno() {
         ).value;
 
     const result =
-        compareSteno(
-            currentSteno.reference,
-            typed
-        );
+    compareMainSteno(
+        currentSteno.reference,
+        typed
+    );
 
     document.getElementById(
         "stenoTranscription"
@@ -3214,9 +3806,51 @@ function submitMainSteno() {
         result.accuracy + "%";
 
     document.getElementById(
-        "stenoErrorDisplay"
-    ).innerHTML =
-        result.html;
+    "stenoErrorDisplay"
+).innerHTML = `
+
+    <div class="comparison-header">
+
+        <h3>📄 Reference Text</h3>
+
+        <h3>⌨ Typed Answer</h3>
+
+    </div>
+
+    <div class="comparison-columns">
+
+        <div class="comparison-question">
+
+            <div class="comparison-text">
+                ${escapeHTML(currentSteno.reference)}
+            </div>
+
+        </div>
+
+        <div class="comparison-answer">
+
+            <div class="comparison-word-result">
+
+                ${result.typedHTML}
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="comparison-legend">
+
+        <span class="legend-correct">
+            🟢 Correct
+        </span>
+
+        <span class="legend-wrong">
+            🔴 Wrong
+        </span>
+
+    </div>
+`;
 }
 
 
@@ -3232,6 +3866,8 @@ document.getElementById(
 
 async function saveStenoPassage() {
 
+const editingId =
+    window.editingMainSteno || null;
     const title =
         document.getElementById(
             "stenoTitle"
@@ -3259,14 +3895,19 @@ async function saveStenoPassage() {
     // VALIDATION
     // ==============================
 
-    if (!title || !reference || !file) {
+   if (!title || !reference) {
+    alert(
+        "Title आणि Reference Text भरा."
+    );
+    return;
+}
 
-        alert(
-            "Title, Audio आणि Reference Text भरा."
-        );
-
-        return;
-    }
+if (!editingId && !file) {
+    alert(
+        "नवीन Steno Passage साठी Audio file आवश्यक आहे."
+    );
+    return;
+}
 
 
     if (
@@ -3302,32 +3943,240 @@ async function saveStenoPassage() {
 
 
     // ==============================
-    // FORM DATA
-    // ==============================
+// EDIT MODE
+// ==============================
 
-    const formData =
-        new FormData();
+if (editingId) {
 
-    formData.append(
-        "title",
-        title
+    try {
+
+        const response =
+            await fetch(
+                "/api/steno-passages/" + editingId,
+                {
+                    method: "PUT",
+
+                    headers: {
+                        "Content-Type":
+                            "application/json",
+
+                        "Authorization":
+                            "Bearer " + authToken
+                    },
+
+                    body:
+                        JSON.stringify({
+                            title: title,
+                            speed: speed,
+                            referenceText: reference
+                        })
+                }
+            );
+
+        const responseText =
+            await response.text();
+
+        let data = {};
+
+        try {
+
+            data =
+                JSON.parse(responseText);
+
+        } catch (error) {
+
+            console.error(
+                "UPDATE SERVER RESPONSE:",
+                responseText
+            );
+
+        }
+
+        if (
+            !response.ok ||
+            !data.success
+        ) {
+
+            alert(
+                "❌ Steno passage update झाला नाही.\n\n" +
+                (
+                    data.message ||
+                    "Server error."
+                )
+            );
+
+            return;
+        }
+
+        window.editingMainSteno = null;
+
+        document.getElementById(
+            "stenoTitle"
+        ).value = "";
+
+document.getElementById(
+    "stenoAdminSpeed"
+).value = "";
+
+        document.getElementById(
+            "stenoReferenceText"
+        ).value = "";
+
+        document.getElementById(
+            "stenoAudioFile"
+        ).value = "";
+
+        const saveBtn =
+            document.getElementById(
+                "saveStenoPassageBtn"
+            );
+
+        if (saveBtn) {
+
+            saveBtn.textContent =
+                "Save Steno Passage";
+
+        }
+
+        await loadStenoPassages();
+
+        alert(
+            "✅ Main Steno passage successfully updated."
+        );
+
+        return;
+
+    } catch (error) {
+
+        console.error(
+            "MAIN STENO UPDATE ERROR:",
+            error
+        );
+
+        alert(
+            "❌ Steno passage update करताना error आला.\n\n" +
+            error.message
+        );
+
+        return;
+    }
+}
+
+
+// ==============================
+// FORM DATA - NEW PASSAGE
+// ==============================
+
+const formData =
+    new FormData();
+
+formData.append(
+    "title",
+    title
+);
+
+formData.append(
+    "speed",
+    speed
+);
+
+formData.append(
+    "referenceText",
+    reference
+);
+
+formData.append(
+    "audio",
+    file
+);
+
+if (editingId) {
+
+    const response =
+        await fetch(
+            "/api/steno-passages/" + editingId,
+            {
+                method: "PUT",
+
+                headers: {
+                    "Content-Type":
+                        "application/json",
+
+                    "Authorization":
+                        "Bearer " + authToken
+                },
+
+                body:
+                    JSON.stringify({
+                        title: title,
+                        speed: speed,
+                        referenceText: reference
+                    })
+            }
+        );
+
+    const responseText =
+        await response.text();
+
+    let data = {};
+
+    try {
+        data =
+            JSON.parse(responseText);
+    } catch (error) {
+        console.error(
+            "UPDATE SERVER RESPONSE:",
+            responseText
+        );
+    }
+
+    if (
+        !response.ok ||
+        !data.success
+    ) {
+        alert(
+            "❌ Steno passage update झाला नाही.\n\n" +
+            (
+                data.message ||
+                "Server error."
+            )
+        );
+
+        return;
+    }
+
+    window.editingMainSteno = null;
+
+    document.getElementById(
+        "stenoTitle"
+    ).value = "";
+
+    document.getElementById(
+        "stenoReferenceText"
+    ).value = "";
+
+    document.getElementById(
+        "stenoAudioFile"
+    ).value = "";
+
+    const saveBtn =
+        document.getElementById(
+            "saveStenoPassageBtn"
+        );
+
+    if (saveBtn) {
+        saveBtn.textContent =
+            "Save Steno Passage";
+    }
+
+    await loadStenoPassages();
+
+    alert(
+        "✅ Main Steno passage successfully updated."
     );
 
-    formData.append(
-        "speed",
-        speed
-    );
-
-    formData.append(
-        "referenceText",
-        reference
-    );
-
-    formData.append(
-        "audio",
-        file
-    );
-
+    return;
+}
 
     // ==============================
     // UPLOAD TO SERVER

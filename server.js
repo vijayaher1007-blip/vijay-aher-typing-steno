@@ -755,14 +755,15 @@ app.get(
 
         const sql = `
             SELECT
-                id,
-                title,
-                speed,
-                audio,
-                reference_text,
-                created_at,
-                updated_at
-            FROM steno_passages
+    id,
+    title,
+    speed,
+    audio,
+    reference_text,
+    hidden,
+    created_at,
+    updated_at
+FROM steno_passages
             ORDER BY id DESC
         `;
 
@@ -1021,6 +1022,212 @@ app.post(
             });
 
         }
+
+    }
+);
+
+// =====================================================
+// UPDATE MAIN STENO PASSAGE
+// =====================================================
+
+app.put(
+    "/api/steno-passages/:id",
+    verifyAuthToken,
+    requireAdmin,
+    (req, res) => {
+
+        const id =
+            Number(req.params.id);
+
+        const title =
+            (req.body.title || "").trim();
+
+        const speed =
+            Number(req.body.speed || 0);
+
+        const referenceText =
+            (req.body.referenceText || "").trim();
+
+
+        if (!id) {
+
+            return res.status(400).json({
+                success: false,
+                message:
+                    "Invalid Steno passage ID."
+            });
+
+        }
+
+
+        if (
+            !title ||
+            ![60, 80, 100, 120].includes(speed) ||
+            !referenceText
+        ) {
+
+            return res.status(400).json({
+                success: false,
+                message:
+                    "Title, valid speed and reference text are required."
+            });
+
+        }
+
+
+        const sql = `
+            UPDATE steno_passages
+            SET
+                title = ?,
+                speed = ?,
+                reference_text = ?
+            WHERE id = ?
+        `;
+
+
+        db.query(
+            sql,
+            [
+                title,
+                speed,
+                referenceText,
+                id
+            ],
+            (err, result) => {
+
+                if (err) {
+
+                    console.error(
+                        "MAIN STENO UPDATE ERROR:",
+                        err
+                    );
+
+                    return res.status(500).json({
+                        success: false,
+                        message:
+                            "Main Steno passage update failed.",
+                        error:
+                            err.message
+                    });
+
+                }
+
+
+                if (
+                    result.affectedRows === 0
+                ) {
+
+                    return res.status(404).json({
+                        success: false,
+                        message:
+                            "Main Steno passage not found."
+                    });
+
+                }
+
+
+                return res.json({
+                    success: true,
+                    message:
+                        "Main Steno passage updated successfully."
+                });
+
+            }
+        );
+
+    }
+);
+
+// =====================================================
+// HIDE / UNHIDE MAIN STENO PASSAGE
+// =====================================================
+
+app.put(
+    "/api/steno-passages/:id/visibility",
+    verifyAuthToken,
+    requireAdmin,
+    (req, res) => {
+
+        const id =
+            Number(req.params.id);
+
+        const hidden =
+            req.body.hidden === true ||
+            req.body.hidden === 1;
+
+
+        if (!id) {
+
+            return res.status(400).json({
+                success: false,
+                message:
+                    "Invalid Steno passage ID."
+            });
+
+        }
+
+
+        const sql = `
+            UPDATE steno_passages
+            SET
+                hidden = ?
+            WHERE id = ?
+        `;
+
+
+        db.query(
+            sql,
+            [
+                hidden ? 1 : 0,
+                id
+            ],
+            (err, result) => {
+
+                if (err) {
+
+                    console.error(
+                        "MAIN STENO VISIBILITY ERROR:",
+                        err
+                    );
+
+                    return res.status(500).json({
+                        success: false,
+                        message:
+                            "Main Steno visibility update failed.",
+                        error:
+                            err.message
+                    });
+
+                }
+
+
+                if (
+                    result.affectedRows === 0
+                ) {
+
+                    return res.status(404).json({
+                        success: false,
+                        message:
+                            "Main Steno passage not found."
+                    });
+
+                }
+
+
+                return res.json({
+                    success: true,
+
+                    message:
+                        hidden
+                        ? "Main Steno passage hidden successfully."
+                        : "Main Steno passage visible successfully.",
+
+                    hidden:
+                        hidden
+                });
+
+            }
+        );
 
     }
 );
