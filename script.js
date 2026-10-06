@@ -3020,7 +3020,7 @@ async function loadStenoPassages() {
         // =====================================
         // DISPLAY PASSAGES
         // =====================================
-
+       
         // displayStenoPassages();
 
 
