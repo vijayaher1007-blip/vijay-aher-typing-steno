@@ -3015,7 +3015,7 @@ async function loadStenoPassages() {
 
             }
         );
-
+       
 
         // =====================================
         // DISPLAY PASSAGES
