@@ -760,12 +760,13 @@ app.get(
                 speed,
                 audio,
                 reference_text,
+                hidden,
                 created_at,
                 updated_at
             FROM steno_passages
             ORDER BY id DESC
         `;
-
+        
         db.query(
             sql,
             (err, results) => {
