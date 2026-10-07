@@ -2357,9 +2357,6 @@ body.typing-test-active {
 }
 
 /* Hide everything except typing workspace */
-body.typing-test-active > *:not(#typingSection) {
-    display: none !important;
-}
 
 body.typing-test-active #typingSection {
     position: fixed;
