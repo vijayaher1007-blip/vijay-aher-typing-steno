@@ -403,6 +403,7 @@ function startTypingAfterCountdown() {
 document.body.classList.add(
     "typing-test-active"
 );
+}
 
 /* =====================================================
    MAIN TIMER
@@ -7960,7 +7961,5 @@ if (mainStenoSelect) {
 
         }
     );
-
-}
 
 }
