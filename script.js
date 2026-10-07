@@ -411,6 +411,62 @@ function startTypingAfterCountdown() {
 document.body.classList.add(
     "typing-test-active"
 );
+const typingWorkspace =
+    document.getElementById(
+        "typingWorkspace"
+    );
+
+if (typingWorkspace) {
+
+    typingWorkspace.style.setProperty(
+        "display",
+        "grid",
+        "important"
+    );
+
+    typingWorkspace.style.setProperty(
+        "grid-template-columns",
+        "1fr 1fr",
+        "important"
+    );
+
+    typingWorkspace.style.setProperty(
+        "grid-template-rows",
+        "1fr",
+        "important"
+    );
+
+    const panels =
+        typingWorkspace.querySelectorAll(
+            ":scope > .test-panel"
+        );
+
+    if (panels.length >= 2) {
+
+        panels[0].style.setProperty(
+            "grid-column",
+            "1",
+            "important"
+        );
+
+        panels[0].style.setProperty(
+            "grid-row",
+            "1",
+            "important"
+        );
+
+        panels[1].style.setProperty(
+            "grid-column",
+            "2",
+            "important"
+        );
+
+        panels[1].style.setProperty(
+            "grid-row",
+            "1",
+            "important"
+        );
+    }
 }
 
 /* =====================================================
