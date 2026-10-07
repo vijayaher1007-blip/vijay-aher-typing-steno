@@ -668,26 +668,7 @@ function submitMainTyping() {
     const target =
         currentPassage.content || "";
 
-    if (!currentPassage) return;
-
-
-    clearInterval(timerInterval);
-
-    testStarted = false;
-
-    typingArea.disabled = true;
-
-    startBtn.disabled = false;
-    submitBtn.disabled = true;
-
-
-    const typed =
-        typingArea.value || "";
-
-    const target =
-        currentPassage.content || "";
-
-
+    
     /* =================================================
        WORDS
        ================================================= */
