@@ -2451,3 +2451,11 @@ body.typing-test-active #typingArea {
 
     box-sizing: border-box;
 }
+
+/* =====================================================
+   FORCE TWO COLUMNS IN FULLSCREEN TYPING MODE
+   ===================================================== */
+
+body.typing-test-active #typingWorkspace {
+    grid-template-columns: 1fr 1fr !important;
+}
