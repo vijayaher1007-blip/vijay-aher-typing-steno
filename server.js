@@ -576,7 +576,7 @@ app.post(
                     court,
                     title,
                     speed,
-                    audioUrl,
+                    githubAudioUrl
                     referenceText
                 ],
 
@@ -809,7 +809,7 @@ app.post(
     verifyAuthToken,
     requireAdmin,
     uploadMainSteno.single("audio"),
-    (req, res) => {
+    async (req, res) => {
 
         try {
 
@@ -893,7 +893,87 @@ app.post(
             const audioUrl =
                 "/uploads/steno/" +
                 req.file.filename;
+// ==========================================
+// UPLOAD MAIN STENO AUDIO TO GITHUB
+// ==========================================
 
+const githubToken =
+    process.env.GITHUB_TOKEN;
+
+if (!githubToken) {
+
+    throw new Error(
+        "GITHUB_TOKEN is not configured."
+    );
+
+}
+
+const audioBuffer =
+    fs.readFileSync(
+        req.file.path
+    );
+
+const githubPath =
+    "uploads/steno/" +
+    req.file.filename;
+
+const githubResponse =
+    await fetch(
+        "https://api.github.com/repos/vijayaher1007-blip/vijay-aher-typing-steno/contents/" +
+        githubPath,
+        {
+            method: "PUT",
+
+            headers: {
+                "Authorization":
+                    "Bearer " + githubToken,
+
+                "Accept":
+                    "application/vnd.github+json",
+
+                "X-GitHub-Api-Version":
+                    "2022-11-28",
+
+                "Content-Type":
+                    "application/json"
+            },
+
+            body:
+                JSON.stringify({
+                    message:
+                        "Upload Main Steno audio",
+
+                    content:
+                        audioBuffer.toString(
+                            "base64"
+                        )
+                })
+        }
+    );
+
+if (!githubResponse.ok) {
+
+    const githubError =
+        await githubResponse.text();
+
+    throw new Error(
+        "GitHub audio upload failed: " +
+        githubError
+    );
+
+}
+
+const githubAudioUrl =
+    "https://raw.githubusercontent.com/" +
+    "vijayaher1007-blip/" +
+    "vijay-aher-typing-steno/" +
+    "refs/heads/main/" +
+    githubPath;
+
+console.log(
+    "MAIN STENO GITHUB AUDIO:",
+    githubAudioUrl
+);
 
             // ==========================================
             // SAVE MYSQL
