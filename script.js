@@ -233,15 +233,6 @@ passageSelect.addEventListener(
 );
 
 
-/* =====================================================
-   START MAIN TYPING
-   ===================================================== */
-
-startBtn.addEventListener(
-    "click",
-    startMainTyping
-);
-
 function startMainTyping() {
 
     if (!currentPassage) {
@@ -259,16 +250,13 @@ function startMainTyping() {
     remainingSeconds =
         minutes * 60;
 
-    testStarted = true;
+    testStarted = false;
 
     typingArea.value = "";
-
-    typingArea.disabled = false;
-
-    typingArea.focus();
+    typingArea.disabled = true;
 
     startBtn.disabled = true;
-    submitBtn.disabled = false;
+    submitBtn.disabled = true;
 
     document.getElementById(
         "resultBox"
@@ -276,14 +264,145 @@ function startMainTyping() {
 
     updateTimerDisplay();
 
-    timerInterval = setInterval(
-        mainTimerTick,
-        1000
-    );
-
-    updateMainStats();
+    startTypingCountdown();
 }
 
+/* =====================================================
+   15 SECOND TYPING COUNTDOWN
+   ===================================================== */
+
+let typingCountdownTimer = null;
+let typingCountdownSeconds = 15;
+
+function startTypingCountdown() {
+
+    const countdown =
+        document.getElementById(
+            "typingCountdown"
+        );
+
+    const number =
+        document.getElementById(
+            "countdownNumber"
+        );
+
+    const skipBtn =
+        document.getElementById(
+            "skipCountdownBtn"
+        );
+
+    if (!countdown || !number) {
+
+        startTypingAfterCountdown();
+
+        return;
+    }
+
+    clearInterval(
+        typingCountdownTimer
+    );
+
+    typingCountdownSeconds = 15;
+
+    number.textContent =
+        typingCountdownSeconds;
+
+    countdown.classList.remove(
+        "hidden"
+    );
+
+    if (skipBtn) {
+
+        skipBtn.onclick =
+            skipTypingCountdown;
+
+    }
+
+    typingCountdownTimer =
+        setInterval(
+            function () {
+
+                typingCountdownSeconds--;
+
+                number.textContent =
+                    typingCountdownSeconds;
+
+                if (
+                    typingCountdownSeconds <= 0
+                ) {
+
+                    clearInterval(
+                        typingCountdownTimer
+                    );
+
+                    startTypingAfterCountdown();
+
+                }
+
+            },
+            1000
+        );
+}
+
+
+/* =====================================================
+   SKIP COUNTDOWN
+   ===================================================== */
+
+function skipTypingCountdown() {
+
+    clearInterval(
+        typingCountdownTimer
+    );
+
+    startTypingAfterCountdown();
+}
+
+
+/* =====================================================
+   START TYPING AFTER COUNTDOWN
+   ===================================================== */
+
+function startTypingAfterCountdown() {
+
+    const countdown =
+        document.getElementById(
+            "typingCountdown"
+        );
+
+    if (countdown) {
+
+        countdown.classList.add(
+            "hidden"
+        );
+
+    }
+
+    testStarted = true;
+
+    typingArea.disabled = false;
+
+    typingArea.focus();
+
+    submitBtn.disabled = false;
+
+    updateTimerDisplay();
+
+    timerInterval =
+        setInterval(
+            mainTimerTick,
+            1000
+        );
+
+    updateMainStats();
+
+    /* =====================================================
+   ACTIVATE FULL SCREEN TYPING MODE
+   ===================================================== */
+
+document.body.classList.add(
+    "typing-test-active"
+);
 
 /* =====================================================
    MAIN TIMER
@@ -521,6 +640,33 @@ function escapeHTML(text) {
 
 
 function submitMainTyping() {
+
+    /* =====================================================
+       EXIT FULL SCREEN TYPING MODE
+       ===================================================== */
+
+    document.body.classList.remove(
+        "typing-test-active"
+    );
+
+    if (!currentPassage) return;
+
+
+    clearInterval(timerInterval);
+
+    testStarted = false;
+
+    typingArea.disabled = true;
+
+    startBtn.disabled = false;
+    submitBtn.disabled = true;
+
+
+    const typed =
+        typingArea.value || "";
+
+    const target =
+        currentPassage.content || "";
 
     if (!currentPassage) return;
 
@@ -3607,13 +3753,12 @@ async function loadStenoPassages() {
 
             }
         );
-
+       
 
         // =====================================
         // DISPLAY PASSAGES
         // =====================================
-
-        displayStenoPassages();
+displayStenoPassages();
 
 
         console.log(

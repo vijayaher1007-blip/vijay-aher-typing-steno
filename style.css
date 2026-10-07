@@ -2291,3 +2291,166 @@ textarea {
 #passageList {
     display: none !important;
 }
+
+/* =====================================================
+   TYPING START COUNTDOWN
+   ===================================================== */
+
+.typing-countdown {
+    position: fixed;
+    inset: 0;
+    z-index: 99999;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: rgba(0, 0, 0, 0.92);
+}
+
+.typing-countdown.hidden {
+    display: none;
+}
+
+.countdown-box {
+    text-align: center;
+    padding: 45px 60px;
+    border-radius: 20px;
+    background: #ffffff;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    min-width: 320px;
+}
+
+.countdown-title {
+    font-size: 26px;
+    font-weight: 700;
+    margin-bottom: 20px;
+}
+
+#countdownNumber {
+    font-size: 90px;
+    font-weight: 800;
+    line-height: 1;
+    margin: 15px 0;
+}
+
+.countdown-text {
+    font-size: 20px;
+    margin-bottom: 25px;
+}
+
+#skipCountdownBtn {
+    border: none;
+    padding: 12px 28px;
+    border-radius: 10px;
+    font-size: 17px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+/* =====================================================
+   FULL SCREEN TYPING ACTIVE MODE
+   ===================================================== */
+
+body.typing-test-active {
+    overflow: hidden;
+}
+
+/* Hide everything except typing workspace */
+body.typing-test-active > *:not(#typingSection) {
+    display: none !important;
+}
+
+body.typing-test-active #typingSection {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+
+    width: 100vw;
+    height: 100vh;
+
+    margin: 0;
+    padding: 0;
+
+    background: #ffffff;
+}
+
+/* Hide heading, controls and status */
+body.typing-test-active .section-heading,
+body.typing-test-active .controls,
+body.typing-test-active .status,
+body.typing-test-active .typing-fullscreen-control,
+body.typing-test-active #resultBox,
+body.typing-test-active .admin {
+    display: none !important;
+}
+
+/* Two equal panels */
+body.typing-test-active #typingWorkspace {
+    display: grid;
+
+    grid-template-columns: 1fr 1fr;
+
+    width: 100vw;
+    height: 100vh;
+
+    margin: 0;
+    padding: 0;
+
+    gap: 0;
+}
+
+/* Individual panels */
+body.typing-test-active #typingWorkspace > .test-panel {
+    display: flex;
+    flex-direction: column;
+
+    min-width: 0;
+    min-height: 0;
+
+    height: 100vh;
+
+    overflow: hidden;
+}
+
+/* Panel heading */
+body.typing-test-active #typingWorkspace .panel-title {
+    flex: 0 0 auto;
+}
+
+/* Question paper scrolling */
+body.typing-test-active #questionText {
+    flex: 1;
+
+    min-height: 0;
+
+    overflow-x: auto;
+    overflow-y: auto;
+
+    white-space: pre-wrap;
+
+    line-height: 1.6;
+}
+
+/* Typing area scrolling */
+body.typing-test-active .typing-container {
+    flex: 1;
+
+    min-height: 0;
+
+    overflow-x: auto;
+    overflow-y: auto;
+}
+
+/* Textarea */
+body.typing-test-active #typingArea {
+    width: 100%;
+    min-height: 100%;
+
+    overflow-x: auto;
+    overflow-y: auto;
+
+    resize: none;
+
+    box-sizing: border-box;
+}
