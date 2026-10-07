@@ -267,6 +267,14 @@ function startMainTyping() {
     startTypingCountdown();
 }
 
+
+/* START BUTTON */
+document.getElementById("startBtn").addEventListener(
+    "click",
+    startMainTyping
+);
+
+
 /* =====================================================
    15 SECOND TYPING COUNTDOWN
    ===================================================== */
