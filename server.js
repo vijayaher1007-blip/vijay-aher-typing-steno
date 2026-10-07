@@ -576,7 +576,7 @@ app.post(
                     court,
                     title,
                     speed,
-                    githubAudioUrl
+                    githubAudioUrl,
                     referenceText
                 ],
 
