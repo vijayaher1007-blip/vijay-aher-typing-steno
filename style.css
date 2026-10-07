@@ -2492,3 +2492,21 @@ body.typing-test-active #fullscreenSubmitBtn {
 
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
 }
+
+/* =====================================================
+   FULLSCREEN TYPING PANEL ORDER
+   QUESTION PAPER = LEFT
+   TYPING SECTION = RIGHT
+   ===================================================== */
+
+body.typing-test-active #typingWorkspace {
+    grid-template-columns: 1fr 1fr !important;
+}
+
+body.typing-test-active #typingWorkspace > .test-panel:first-child {
+    order: 1 !important;
+}
+
+body.typing-test-active #typingWorkspace > .test-panel:nth-child(2) {
+    order: 2 !important;
+}
