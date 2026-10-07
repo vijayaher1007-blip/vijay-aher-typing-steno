@@ -2529,3 +2529,25 @@ body.typing-test-active #typingWorkspace > .test-panel:nth-child(2) {
     grid-column: 2 !important;
     grid-row: 1 !important;
 }
+
+/* =====================================================
+   FINAL FULLSCREEN PANEL POSITION
+   QUESTION PAPER = LEFT
+   TYPING SPACE = RIGHT
+   ===================================================== */
+
+body.typing-test-active #typingWorkspace {
+    display: grid !important;
+    grid-template-columns: 50% 50% !important;
+    direction: ltr !important;
+}
+
+body.typing-test-active #typingWorkspace .typing-panel:nth-child(1) {
+    grid-column: 1 !important;
+    grid-row: 1 !important;
+}
+
+body.typing-test-active #typingWorkspace .typing-panel:nth-child(2) {
+    grid-column: 2 !important;
+    grid-row: 1 !important;
+}
