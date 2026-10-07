@@ -403,6 +403,36 @@ function startTypingAfterCountdown() {
         );
 
     updateMainStats();
+const panels = document.querySelectorAll(
+    "#typingWorkspace > .test-panel"
+);
+
+if (panels.length >= 2) {
+
+    panels[0].style.setProperty(
+        "grid-column",
+        "1",
+        "important"
+    );
+
+    panels[0].style.setProperty(
+        "grid-row",
+        "1",
+        "important"
+    );
+
+    panels[1].style.setProperty(
+        "grid-column",
+        "2",
+        "important"
+    );
+
+    panels[1].style.setProperty(
+        "grid-row",
+        "1",
+        "important"
+    );
+}
 
     /* =====================================================
    ACTIVATE FULL SCREEN TYPING MODE
