@@ -2551,3 +2551,24 @@ body.typing-test-active #typingWorkspace .typing-panel:nth-child(2) {
     grid-column: 2 !important;
     grid-row: 1 !important;
 }
+
+/* =====================================================
+   FINAL FIX - FULLSCREEN TYPING TWO COLUMNS
+   QUESTION PAPER LEFT / TYPING RIGHT
+   ===================================================== */
+
+body.typing-test-active #typingWorkspace {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    grid-template-rows: 1fr !important;
+}
+
+body.typing-test-active #typingWorkspace > .test-panel:nth-child(1) {
+    grid-column: 1 !important;
+    grid-row: 1 !important;
+}
+
+body.typing-test-active #typingWorkspace > .test-panel:nth-child(2) {
+    grid-column: 2 !important;
+    grid-row: 1 !important;
+}
