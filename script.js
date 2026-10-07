@@ -7899,3 +7899,82 @@ if (mainStenoSelect) {
     );
 
 }
+
+// ==========================================
+// MAIN STENO - SPEED FILTER
+// ==========================================
+
+const mainStenoSpeed =
+    document.getElementById("stenoSpeed");
+
+if (mainStenoSpeed) {
+
+    mainStenoSpeed.addEventListener(
+        "change",
+        function () {
+
+            const selectedSpeed =
+                Number(this.value);
+
+            stenoPassageSelect.innerHTML =
+                '<option value="">Select Passage</option>';
+
+            stenoPassages
+                .filter(
+                    p =>
+                        !p.hidden &&
+                        p.visible !== false &&
+                        Number(p.speed) === selectedSpeed
+                )
+                .forEach(
+                    p => {
+
+                        const option =
+                            document.createElement(
+                                "option"
+                            );
+
+                        option.value =
+                            p.id;
+
+                        option.textContent =
+                            `${p.title} (${p.speed} WPM)`;
+
+                        stenoPassageSelect.appendChild(
+                            option
+                        );
+
+                    }
+                );
+
+            // Reset current passage
+            currentSteno = null;
+
+            // Reset audio
+            const audio =
+                document.getElementById(
+                    "stenoAudio"
+                );
+
+            if (audio) {
+
+                audio.pause();
+                audio.removeAttribute("src");
+                audio.load();
+
+            }
+
+            document.getElementById(
+                "audioStatus"
+            ).textContent =
+                "Select a steno passage.";
+
+            console.log(
+                "MAIN STENO SPEED FILTER:",
+                selectedSpeed
+            );
+
+        }
+    );
+
+}
