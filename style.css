@@ -2572,3 +2572,53 @@ body.typing-test-active #typingWorkspace > .test-panel:nth-child(2) {
     grid-column: 2 !important;
     grid-row: 1 !important;
 }
+
+/* =====================================================
+   FULLSCREEN TYPING - SCROLLABLE QUESTION & ANSWER
+   ===================================================== */
+
+body.typing-test-active #typingWorkspace {
+    overflow: hidden !important;
+}
+
+body.typing-test-active #typingWorkspace > .test-panel {
+    min-width: 0 !important;
+    min-height: 0 !important;
+    overflow: hidden !important;
+}
+
+/* Question Paper scrolling */
+body.typing-test-active #questionText {
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+
+    overflow-x: auto !important;
+    overflow-y: auto !important;
+
+    white-space: pre-wrap !important;
+    word-break: normal !important;
+}
+
+/* Answer Key / Typing area scrolling */
+body.typing-test-active .typing-container {
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+
+    overflow-x: auto !important;
+    overflow-y: auto !important;
+}
+
+/* Text typing area */
+body.typing-test-active #typingArea {
+    width: 100% !important;
+    min-width: 100% !important;
+    min-height: 100% !important;
+
+    overflow-x: auto !important;
+    overflow-y: auto !important;
+
+    resize: none !important;
+    box-sizing: border-box !important;
+}

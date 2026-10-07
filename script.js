@@ -386,6 +386,7 @@ function startTypingAfterCountdown() {
 
     }
 
+document.body.classList.add("typing-test-active");
     testStarted = true;
 
     typingArea.disabled = false;
