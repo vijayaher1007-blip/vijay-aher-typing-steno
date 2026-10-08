@@ -2687,7 +2687,7 @@ body.typing-test-active #fullscreenSubmitBtn {
     display: flex;
     align-items: center;
     justify-content: flex-end;
-    gap: 10px;
+    gap: 25px;
     width: 100%;
 }
 
@@ -2697,3 +2697,4 @@ body.typing-test-active .fullscreen-submit-row {
     right: 20px;
     z-index: 99999;
 }
+
