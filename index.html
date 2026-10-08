@@ -294,6 +294,72 @@
 
     </div>
 
+<!-- =====================================================
+     STENO PASSAGE MANAGEMENT
+===================================================== -->
+
+<div class="steno-management">
+
+    <h3>📚 Add Steno Dictation</h3>
+
+    <div class="steno-form">
+
+        <label>
+            Passage Title
+
+            <input
+                id="stenoTitle"
+                placeholder="Example: Steno Passage 1">
+        </label>
+
+        <label>
+            Speed
+
+            <select id="stenoAdminSpeed">
+
+                <option value="60">60 WPM</option>
+                <option value="80">80 WPM</option>
+                <option value="100">100 WPM</option>
+                <option value="120">120 WPM</option>
+
+            </select>
+
+        </label>
+
+        <label>
+            Dictation Audio
+
+            <input
+                type="file"
+                id="stenoAudioFile"
+                accept="audio/*">
+
+        </label>
+
+        <label>
+            Correct / Reference Transcription
+
+            <textarea
+                id="stenoReferenceText"
+                placeholder="Correct transcription येथे टाका...">
+            </textarea>
+
+        </label>
+
+        <button
+            id="saveStenoPassageBtn">
+            💾 Save Steno Passage
+        </button>
+
+    </div>
+
+
+    <h4>Saved Steno Passages</h4>
+
+    <div id="stenoPassageList"></div>
+
+</div>
+
 </section>
 <!-- =====================================================
      NAVIGATION

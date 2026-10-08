@@ -2834,3 +2834,88 @@ body.typing-test-active #fullscreenSubmitBtn {
     width: 100%;
     margin-top: 30px;
 }
+
+/* =====================================================
+   MAIN STENO ADMIN PASSAGE ACTIONS
+   ===================================================== */
+
+.steno-passage-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    padding: 15px;
+    background: #f8fafc;
+    border: 1px solid #d1d5db;
+    border-radius: 10px;
+}
+
+.steno-passage-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.steno-passage-info strong {
+    font-size: 17px;
+    color: #172554;
+}
+
+.steno-passage-info span {
+    font-weight: 600;
+}
+
+.steno-passage-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.steno-passage-actions button {
+    padding: 8px 12px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.edit-steno-btn {
+    background: #2563eb;
+    color: white;
+}
+
+.delete-steno-btn {
+    background: #dc2626;
+    color: white;
+}
+
+.toggle-steno-btn {
+    background: #f59e0b;
+    color: white;
+}
+
+.hidden-status {
+    color: #dc2626;
+}
+
+.visible-status {
+    color: #15803d;
+}
+
+@media (max-width: 700px) {
+
+    .steno-passage-item {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .steno-passage-actions {
+        width: 100%;
+    }
+
+    .steno-passage-actions button {
+        flex: 1;
+    }
+
+}
