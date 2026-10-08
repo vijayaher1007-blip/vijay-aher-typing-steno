@@ -482,17 +482,21 @@
      FULL SCREEN SUBMIT BUTTON
      ===================================================== -->
 
-<div id="fullscreenTypingTimer">
-    ⏱ Time Remaining: <strong id="fullscreenTimeRemaining">00:00</strong>
+<div class="fullscreen-submit-row">
+
+    <div id="fullscreenTypingTimer">
+        ⏱ Time Remaining:
+        <strong id="fullscreenTimeRemaining">00:00</strong>
+    </div>
+
+    <button
+        type="button"
+        id="fullscreenSubmitBtn"
+        onclick="submitMainTyping()">
+        ✓ Submit Test
+    </button>
+
 </div>
-
-<button
-    type="button"
-    id="fullscreenSubmitBtn"
-    onclick="submitMainTyping()">
-    ✓ Submit Test
-</button>
-
     <!-- QUESTION PAPER -->
     <section class="test-panel typing-panel">
 

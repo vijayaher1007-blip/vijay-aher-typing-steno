@@ -2678,3 +2678,22 @@ body.typing-test-active #fullscreenSubmitBtn {
     align-items: center;
     justify-content: center;
 }
+
+/* =====================================================
+   FULLSCREEN SUBMIT + TIMER ROW
+   ===================================================== */
+
+.fullscreen-submit-row {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+    width: 100%;
+}
+
+body.typing-test-active .fullscreen-submit-row {
+    position: fixed;
+    top: 15px;
+    right: 20px;
+    z-index: 99999;
+}
