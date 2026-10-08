@@ -801,95 +801,91 @@
     </div>
 
 
-    <div id="stenoResult"
-         class="steno-result hidden">
+   <div id="stenoResult"
+     class="steno-result hidden">
 
-        <h3>📊 Steno Result</h3>
+    <h3>📊 Steno Result</h3>
 
-        <div class="steno-result-grid">
+    <div class="steno-result-grid">
 
-            <div>
-                <span>Total Words</span>
-                <b id="stenoTotalWords">0</b>
-            </div>
-
-            <div>
-                <span>Correct Words</span>
-                <b id="stenoCorrectWords">0</b>
-            </div>
-
-            <div>
-                <span>Errors</span>
-                <b id="stenoErrors">0</b>
-            </div>
-
-            <div>
-                <span>Accuracy</span>
-                <b id="stenoAccuracy">0%</b>
-            </div>
-
+        <div>
+            <span>Total Words</span>
+            <b id="stenoTotalWords">0</b>
         </div>
 
-        <h4>🔍 Error Checking</h4>
+        <div>
+            <span>Correct Words</span>
+            <b id="stenoCorrectWords">0</b>
+        </div>
 
-        <div id="stenoErrorDisplay"
-             class="steno-error-display">
+        <div>
+            <span>Full Mistakes</span>
+            <b id="stenoFullMistakes">0</b>
+        </div>
+
+        <div>
+            <span>Half Mistakes</span>
+            <b id="stenoHalfMistakes">0</b>
+        </div>
+
+        <div>
+            <span>Deducted Marks</span>
+            <b id="stenoDeductedMarks">0</b>
+        </div>
+
+        <div>
+            <span>Total Marks</span>
+            <b id="stenoTotalMarks">80</b>
+        </div>
+
+        <div>
+            <span>Obtained Marks</span>
+            <b id="stenoObtainedMarks">80</b>
+        </div>
+
+        <div>
+            <span>Accuracy</span>
+            <b id="stenoAccuracy">0%</b>
         </div>
 
     </div>
 
 
-    <div class="steno-management">
+    <!-- PASS / FAIL -->
+    <div id="stenoPassFail"
+         class="steno-pass-fail">
 
-        <h3>📚 Add Steno Dictation</h3>
-
-        <div class="steno-form">
-
-            <label>
-                Passage Title
-
-                <input id="stenoTitle"
-                       placeholder="Example: Steno Passage 1">
-            </label>
-
-            <label>
-                Speed
-
-                <select id="stenoAdminSpeed">
-                    <option value="60">60 WPM</option>
-                    <option value="80">80 WPM</option>
-                    <option value="100">100 WPM</option>
-                    <option value="120">120 WPM</option>
-                </select>
-            </label>
-
-            <label>
-                Dictation Audio
-
-                <input type="file"
-                       id="stenoAudioFile"
-                       accept="audio/*">
-            </label>
-
-            <label>
-                Correct / Reference Transcription
-
-                <textarea id="stenoReferenceText"
-                          placeholder="Correct transcription येथे टाका...">
-                </textarea>
-            </label>
-
-            <button id="saveStenoPassageBtn">
-                💾 Save Steno Passage
-            </button>
-
-        </div>
-
-        <h4>Saved Steno Passages</h4>
-
-        <div id="stenoPassageList"></div>
+        PASS / FAIL
 
     </div>
+
+
+    <div class="steno-pass-rule">
+
+        <strong>Passing Marks: 40 / 80</strong>
+
+        <span>
+            1 Full Mistake = −1 Mark
+        </span>
+
+        <span>
+            1 Half Mistake = −0.5 Mark
+        </span>
+
+        <span>
+            2 Half Mistakes = 1 Full Mistake
+        </span>
+
+    </div>
+
+
+    <h4>🔍 Error Checking</h4>
+
+    <div id="stenoErrorDisplay"
+         class="steno-error-display">
+    </div>
+
+</div>
 
 </section>
 
