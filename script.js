@@ -4165,12 +4165,19 @@ function updateMainStenoTimer() {
    MAIN STENO SUBMIT
    ===================================================== */
 
-document.getElementById(
-    "submitTranscriptionBtn"
-).addEventListener(
-    "click",
-    submitMainSteno
-);
+const submitTranscriptionBtn =
+    document.getElementById(
+        "submitTranscriptionBtn"
+    );
+
+if (submitTranscriptionBtn) {
+
+    submitTranscriptionBtn.addEventListener(
+        "click",
+        submitMainSteno
+    );
+
+}
 
 
 function submitMainSteno() {
