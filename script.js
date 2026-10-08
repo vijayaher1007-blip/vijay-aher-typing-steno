@@ -212,7 +212,13 @@ function setTypingFont() {
     } else {
 
         questionText.classList.add("kruti-font");
-        typingArea.classList.add("kruti-font");
+typingArea.classList.add("kruti-font");
+
+questionText.style.fontFamily =
+    '"KrutiDev055", sans-serif';
+
+typingArea.style.fontFamily =
+    '"KrutiDev055", sans-serif';
 
     }
 }
