@@ -2687,14 +2687,37 @@ body.typing-test-active #fullscreenSubmitBtn {
     display: flex;
     align-items: center;
     justify-content: flex-end;
-    gap: 25px;
-    width: 100%;
-}
+    gap: 18px;
 
-body.typing-test-active .fullscreen-submit-row {
     position: fixed;
+
     top: 15px;
-    right: 20px;
+    right: 25px;
+
     z-index: 99999;
 }
 
+#fullscreenTypingTimer {
+    display: none;
+
+    align-items: center;
+    justify-content: center;
+
+    padding: 8px 14px;
+
+    min-width: 190px;
+
+    white-space: nowrap;
+
+    box-sizing: border-box;
+}
+
+body.typing-test-active #fullscreenTypingTimer {
+    display: inline-flex !important;
+}
+
+body.typing-test-active #fullscreenSubmitBtn {
+    display: inline-flex !important;
+
+    margin-left: 8px;
+}
