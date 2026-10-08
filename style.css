@@ -1,3 +1,10 @@
+@font-face {
+    font-family: "KrutiDev055";
+    src: url("Kruti Dev 055 Regular.ttf") format("truetype");
+    font-weight: normal;
+    font-style: normal;
+}
+
 * {
     box-sizing: border-box;
 }

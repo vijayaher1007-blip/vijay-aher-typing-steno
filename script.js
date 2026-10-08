@@ -217,6 +217,20 @@ function setTypingFont() {
     }
 }
 
+/* =====================================================
+   UNICODE → KRUTI DEV 055
+   TEST FUNCTION
+   ===================================================== */
+
+function unicodeToKrutiDev(text) {
+
+    if (!text) return "";
+
+    // Temporary test
+    // Actual Kruti Dev mapping आपण पुढच्या step मध्ये लावू.
+
+    return text;
+}
 
 /* =====================================================
    CHANGE EVENTS

@@ -6,6 +6,7 @@
     "express": "^5.2.1",
     "multer": "^2.4.0",
     "mysql2": "^3.24.5",
+    "opentype.js": "^2.0.0",
     "razorpay": "^2.9.8"
   }
 }
