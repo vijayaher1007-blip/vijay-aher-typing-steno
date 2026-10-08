@@ -4313,13 +4313,19 @@ passFail.textContent =
 /* =====================================================
    SAVE MAIN STENO
    ===================================================== */
-document.getElementById(
-    "saveStenoPassageBtn"
-).addEventListener(
-    "click",
-    saveStenoPassage
-);
+const saveStenoPassageBtn =
+    document.getElementById(
+        "saveStenoPassageBtn"
+    );
 
+if (saveStenoPassageBtn) {
+
+    saveStenoPassageBtn.addEventListener(
+        "click",
+        saveStenoPassage
+    );
+
+}
 async function saveStenoPassage() {
 
 const editingId =
