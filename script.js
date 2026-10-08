@@ -3187,12 +3187,6 @@ function compareMainSteno(reference, typed) {
     let referenceHTML = "";
     let typedHTML = "";
 
-    const max =
-        Math.max(
-            referenceWords.length,
-            typedWords.length
-        );
-
 
     /* =====================================================
        WORD + PUNCTUATION SEPARATION
@@ -3222,208 +3216,125 @@ function compareMainSteno(reference, typed) {
 
 
     /* =====================================================
-       COMPARE EACH WORD
+       PREPARE WORD DATA
        ===================================================== */
 
-    for (let i = 0; i < max; i++) {
+    const referenceParts =
+        referenceWords.map(
+            token =>
+                splitWordAndPunctuation(token)
+        );
 
-        const expected =
-            referenceWords[i] || "";
-
-        const actual =
-            typedWords[i] || "";
-
-
-        const expectedParts =
-            splitWordAndPunctuation(expected);
-
-        const actualParts =
-            splitWordAndPunctuation(actual);
+    const typedParts =
+        typedWords.map(
+            token =>
+                splitWordAndPunctuation(token)
+        );
 
 
-        const expectedWord =
-            expectedParts.word;
+    /* =====================================================
+       SEQUENCE ALIGNMENT - DP TABLE
+       ===================================================== */
 
-        const actualWord =
-            actualParts.word;
+    const n =
+        referenceParts.length;
 
-        const expectedPunctuation =
-            expectedParts.punctuation;
+    const m =
+        typedParts.length;
 
-        const actualPunctuation =
-            actualParts.punctuation;
-
-
-        /* =================================================
-           LEFT - REFERENCE TEXT
-           ================================================= */
-
-        if (expected) {
-
-            referenceHTML += `
-                <span class="steno-reference-word">
-                    ${escapeHTML(expected)}
-                </span>
-            `;
-
-        }
+    const dp =
+        Array.from(
+            {
+                length: n + 1
+            },
+            () =>
+                Array(m + 1).fill(0)
+        );
 
 
-        /* =================================================
-           WORD CHECK
-        ================================================= */
+    /*
+     * Initial missing words
+     */
 
-        if (
-            expectedWord &&
-            actualWord &&
-            expectedWord.toLowerCase() ===
-            actualWord.toLowerCase()
+    for (
+        let i = 0;
+        i <= n;
+        i++
+    ) {
+
+        dp[i][0] = i;
+
+    }
+
+
+    /*
+     * Initial extra words
+     */
+
+    for (
+        let j = 0;
+        j <= m;
+        j++
+    ) {
+
+        dp[0][j] = j;
+
+    }
+
+
+    /*
+     * Build DP table
+     */
+
+    for (
+        let i = 1;
+        i <= n;
+        i++
+    ) {
+
+        for (
+            let j = 1;
+            j <= m;
+            j++
         ) {
 
-            correct++;
+            const expected =
+                referenceParts[
+                    i - 1
+                ].word.toLowerCase();
 
-            typedHTML += `
-                <span class="steno-correct">
-                    ${escapeHTML(actualWord)}
-                </span>
-            `;
-
-        }
-
-        else if (
-            expectedWord &&
-            actualWord
-        ) {
-
-            /* =============================================
-               MISSPELT / WRONG / CHANGED WORD
-               = FULL MISTAKE
-               ============================================= */
-
-            fullMistakes++;
-
-            typedHTML += `
-                <span class="steno-wrong"
-                      title="Correct Word: ${escapeHTML(expectedWord)}">
-                    ${escapeHTML(actualWord)}
-                </span>
-            `;
-
-        }
-
-        else if (
-            expectedWord &&
-            !actualWord
-        ) {
-
-            /* =============================================
-               SKIPPED WORD
-               = FULL MISTAKE
-               ============================================= */
-
-            fullMistakes++;
-
-            typedHTML += `
-                <span class="steno-missing"
-                      title="Missing Word: ${escapeHTML(expectedWord)}">
-                    [Missing]
-                </span>
-            `;
-
-        }
-
-        else if (
-            !expectedWord &&
-            actualWord
-        ) {
-
-            /* =============================================
-               EXTRA / ADDED WORD
-               = FULL MISTAKE
-               ============================================= */
-
-            fullMistakes++;
-
-            typedHTML += `
-                <span class="steno-extra"
-                      title="Extra Word">
-                    ${escapeHTML(actualWord)}
-                </span>
-            `;
-
-        }
+            const actual =
+                typedParts[
+                    j - 1
+                ].word.toLowerCase();
 
 
-        /* =================================================
-           PUNCTUATION CHECK
-           ================================================= */
+            const replaceCost =
+                expected === actual
+                    ? 0
+                    : 1;
 
-        if (
-            expectedPunctuation !==
-            actualPunctuation
-        ) {
 
-            /*
-             * Each punctuation error
-             * = HALF MISTAKE
-             */
+            dp[i][j] =
+                Math.min(
 
-            const punctuationCount =
-                Math.max(
-                    expectedPunctuation.length,
-                    actualPunctuation.length,
-                    1
+                    /*
+                     * Correct / wrong word
+                     */
+                    dp[i - 1][j - 1] +
+                    replaceCost,
+
+                    /*
+                     * Missing reference word
+                     */
+                    dp[i - 1][j] + 1,
+
+                    /*
+                     * Extra typed word
+                     */
+                    dp[i][j - 1] + 1
+
                 );
-
-            halfMistakes +=
-                punctuationCount;
-
-
-            if (
-                actualPunctuation
-            ) {
-
-                typedHTML += `
-                    <span class="steno-punctuation-wrong"
-                          title="Correct punctuation: ${escapeHTML(expectedPunctuation)}">
-                        ${escapeHTML(actualPunctuation)}
-                    </span>
-                `;
-
-            }
-            else if (
-                expectedPunctuation
-            ) {
-
-                typedHTML += `
-                    <span class="steno-punctuation-missing"
-                          title="Missing punctuation: ${escapeHTML(expectedPunctuation)}">
-                        [${escapeHTML(expectedPunctuation)}]
-                    </span>
-                `;
-
-            }
-
-        }
-        else if (
-            expectedPunctuation
-        ) {
-
-            /*
-             * Correct punctuation display
-             */
-
-            if (
-                actualPunctuation
-            ) {
-
-                typedHTML += `
-                    <span class="steno-punctuation-correct">
-                        ${escapeHTML(actualPunctuation)}
-                    </span>
-                `;
-
-            }
 
         }
 
@@ -3431,18 +3342,431 @@ function compareMainSteno(reference, typed) {
 
 
     /* =====================================================
-       MARKS CALCULATION
+       BACKTRACE
+       ===================================================== */
+
+    const operations = [];
+
+    let i = n;
+    let j = m;
+
+
+    while (
+        i > 0 ||
+        j > 0
+    ) {
+
+
+        /*
+         * Correct / Wrong
+         */
+
+        if (
+            i > 0 &&
+            j > 0
+        ) {
+
+            const expected =
+                referenceParts[
+                    i - 1
+                ].word.toLowerCase();
+
+            const actual =
+                typedParts[
+                    j - 1
+                ].word.toLowerCase();
+
+            const replaceCost =
+                expected === actual
+                    ? 0
+                    : 1;
+
+
+            if (
+                dp[i][j] ===
+                dp[i - 1][j - 1] +
+                replaceCost
+            ) {
+
+                operations.unshift({
+
+                    type:
+                        expected === actual
+                            ? "correct"
+                            : "wrong",
+
+                    expected:
+                        referenceParts[
+                            i - 1
+                        ],
+
+                    actual:
+                        typedParts[
+                            j - 1
+                        ]
+
+                });
+
+                i--;
+                j--;
+
+                continue;
+
+            }
+
+        }
+
+
+        /*
+         * Missing word
+         */
+
+        if (
+            i > 0 &&
+            dp[i][j] ===
+            dp[i - 1][j] + 1
+        ) {
+
+            operations.unshift({
+
+                type: "missing",
+
+                expected:
+                    referenceParts[
+                        i - 1
+                    ],
+
+                actual: null
+
+            });
+
+            i--;
+
+            continue;
+
+        }
+
+
+        /*
+         * Extra word
+         */
+
+        if (
+            j > 0
+        ) {
+
+            operations.unshift({
+
+                type: "extra",
+
+                expected: null,
+
+                actual:
+                    typedParts[
+                        j - 1
+                    ]
+
+            });
+
+            j--;
+
+            continue;
+
+        }
+
+    }
+
+
+    /* =====================================================
+       BUILD REFERENCE + TYPED RESULT
+       ===================================================== */
+
+    operations.forEach(
+        operation => {
+
+            const expected =
+                operation.expected;
+
+            const actual =
+                operation.actual;
+
+
+            /* =============================================
+               REFERENCE SIDE
+               ============================================= */
+
+            if (expected) {
+
+                referenceHTML += `
+                    <span class="steno-reference-word">
+                        ${escapeHTML(
+                            expected.word
+                        )}${escapeHTML(
+                            expected.punctuation
+                        )}
+                    </span>
+                `;
+
+            }
+
+            else {
+
+                /*
+                 * Extra typed word साठी
+                 * reference side मध्ये blank
+                 */
+
+                referenceHTML += `
+                    <span class="steno-reference-empty">
+                        &nbsp;
+                    </span>
+                `;
+
+            }
+
+
+            /* =============================================
+               CORRECT WORD
+               ============================================= */
+
+            if (
+                operation.type ===
+                "correct"
+            ) {
+
+                correct++;
+
+                typedHTML += `
+                    <span class="steno-correct">
+                        ${escapeHTML(
+                            actual.word
+                        )}
+                    </span>
+                `;
+
+            }
+
+
+            /* =============================================
+               WRONG / MISSPELT / CHANGED WORD
+               ============================================= */
+
+            else if (
+                operation.type ===
+                "wrong"
+            ) {
+
+                fullMistakes++;
+
+                typedHTML += `
+                    <span class="steno-wrong"
+                          title="Correct Word: ${escapeHTML(
+                              expected.word
+                          )}">
+                        ${escapeHTML(
+                            actual.word
+                        )}
+                    </span>
+                `;
+
+            }
+
+
+            /* =============================================
+               MISSING / SKIPPED WORD
+               ============================================= */
+
+            else if (
+                operation.type ===
+                "missing"
+            ) {
+
+                fullMistakes++;
+
+                typedHTML += `
+                    <span class="steno-missing"
+                          title="Missing Word: ${escapeHTML(
+                              expected.word
+                          )}">
+                        [Missing: ${escapeHTML(
+                            expected.word
+                        )}]
+                    </span>
+                `;
+
+            }
+
+
+            /* =============================================
+               EXTRA WORD
+               ============================================= */
+
+            else if (
+                operation.type ===
+                "extra"
+            ) {
+
+                fullMistakes++;
+
+                typedHTML += `
+                    <span class="steno-extra"
+                          title="Extra Word">
+                        ${escapeHTML(
+                            actual.word
+                        )}
+                    </span>
+                `;
+
+            }
+
+
+            /* =============================================
+               PUNCTUATION
+               ============================================= */
+
+            if (
+                expected &&
+                operation.type !==
+                "extra"
+            ) {
+
+                const expectedPunctuation =
+                    expected.punctuation;
+
+                const actualPunctuation =
+                    actual
+                        ? actual.punctuation
+                        : "";
+
+
+                /*
+                 * Compare punctuation character-by-character
+                 */
+
+                const punctuationMax =
+                    Math.max(
+                        expectedPunctuation.length,
+                        actualPunctuation.length
+                    );
+
+
+                for (
+                    let p = 0;
+                    p < punctuationMax;
+                    p++
+                ) {
+
+                    const expectedChar =
+                        expectedPunctuation[p] ||
+                        "";
+
+                    const actualChar =
+                        actualPunctuation[p] ||
+                        "";
+
+
+                    if (
+                        expectedChar !==
+                        actualChar
+                    ) {
+
+                        /*
+                         * Every punctuation error
+                         * = 1 Half Mistake
+                         */
+
+                        halfMistakes++;
+
+
+                        if (
+                            actualChar
+                        ) {
+
+                            typedHTML += `
+                                <span
+                                    class="steno-punctuation-wrong"
+                                    title="Correct punctuation: ${escapeHTML(
+                                        expectedChar
+                                    )}">
+                                    ${escapeHTML(
+                                        actualChar
+                                    )}
+                                </span>
+                            `;
+
+                        }
+
+                        else if (
+                            expectedChar
+                        ) {
+
+                            typedHTML += `
+                                <span
+                                    class="steno-punctuation-missing"
+                                    title="Missing punctuation: ${escapeHTML(
+                                        expectedChar
+                                    )}">
+                                    [${escapeHTML(
+                                        expectedChar
+                                    )}]
+                                </span>
+                            `;
+
+                        }
+
+                    }
+
+                    else if (
+                        expectedChar
+                    ) {
+
+                        typedHTML += `
+                            <span
+                                class="steno-punctuation-correct">
+                                ${escapeHTML(
+                                    actualChar
+                                )}
+                            </span>
+                        `;
+
+                    }
+
+                }
+
+            }
+
+        }
+    );
+
+
+    /* =====================================================
+       EXTRA TYPED WORDS
+       ===================================================== */
+
+    /*
+     * Extra words आधीच operations मध्ये
+     * full mistake म्हणून मोजले आहेत.
+     */
+
+
+    /* =====================================================
+       MARK CALCULATION
        ===================================================== */
 
     const totalMarks = 80;
 
+
     const deductedMarks =
         fullMistakes +
-        (halfMistakes * 0.5);
+        (
+            halfMistakes * 0.5
+        );
+
 
     let obtainedMarks =
         totalMarks -
         deductedMarks;
+
 
     if (
         obtainedMarks < 0
@@ -3463,12 +3787,8 @@ function compareMainSteno(reference, typed) {
        PASS / FAIL
        ===================================================== */
 
-    const pass =
-        obtainedMarks >= 40;
-
-
     const resultStatus =
-        pass
+        obtainedMarks >= 40
             ? "PASS"
             : "FAIL";
 
@@ -3480,19 +3800,26 @@ function compareMainSteno(reference, typed) {
     const accuracy =
         total
             ? Math.round(
-                (correct / total) * 100
+                (
+                    correct /
+                    total
+                ) * 100
             )
             : 0;
 
 
     /* =====================================================
-       TOTAL ERROR COUNT
+       TOTAL ERRORS
        ===================================================== */
 
     const errors =
         fullMistakes +
         halfMistakes;
 
+
+    /* =====================================================
+       RETURN
+       ===================================================== */
 
     return {
 
@@ -3521,6 +3848,7 @@ function compareMainSteno(reference, typed) {
         typedHTML
 
     };
+
 }
 
 /* =====================================================
