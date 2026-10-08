@@ -77,30 +77,46 @@
     </div>
 
 <div id="dashboardSection" class="auth-section" style="display:none;">
+<div class="dashboard-top-row">   
+ 
+    <div class="dashboard-user-card">
+
     <h2>👤 User Dashboard</h2>
 
-    <p><strong>Name:</strong> <span id="dashboardName"></span></p>
-    <p><strong>Email:</strong> <span id="dashboardEmail"></span></p>
-    <p><strong>Plan:</strong> <span id="dashboardPlan"></span></p>
+    <p>
+        <strong>Name:</strong>
+        <span id="dashboardName"></span>
+    </p>
 
-<div class="dashboard-actions">
+    <p>
+        <strong>Email:</strong>
+        <span id="dashboardEmail"></span>
+    </p>
 
-    <button
-        id="adminPanelButton"
-        class="admin-panel-btn hidden"
-        onclick="openAdminDashboard()">
-        👑 Admin Panel
-    </button>
+    <p>
+        <strong>Plan:</strong>
+        <span id="dashboardPlan"></span>
+    </p>
 
-    <button
-        class="logout-btn"
-        onclick="logoutUser()">
-        🚪 Logout
-    </button>
+    <div class="dashboard-actions">
+
+        <button
+            id="adminPanelButton"
+            class="admin-panel-btn hidden"
+            onclick="openAdminDashboard()">
+            👑 Admin Panel
+        </button>
+
+        <button
+            class="logout-btn"
+            onclick="logoutUser()">
+            🚪 Logout
+        </button>
+
+    </div>
 
 </div>
 
-<div id="subscriptionDetails" class="subscription-details">
 
     <div id="subscriptionDetails" class="subscription-details">
 
@@ -133,20 +149,6 @@
 
 </div>
 
-
-<!-- Payment History -->
-
-<div id="paymentHistoryBox" class="payment-history-box">
-
-    <h3>💳 Payment History</h3>
-
-    <div id="paymentHistoryContent">
-        <p>Loading payment history...</p>
-    </div>
-
-</div>
-
-
 <div class="subscription-plans">
 
     <h3>Choose Your Plan</h3>
@@ -175,52 +177,9 @@
 
 </div>
 
-<!-- =====================================================
-     STENO TEST HISTORY
-     ===================================================== -->
+</div>  <!-- dashboard-top-row -->
 
-<div class="dashboard-card steno-history-card">
-
-    <h3>📜 Steno Test History</h3>
-
-    <p class="history-subtitle">
-        <h3>📜 Steno Test History</h3>
-
-<p class="history-subtitle">
-    तुमच्या मागील Steno Test चे Results
-</p>
-
-<div class="steno-history-filter">
-
-    <label for="stenoWpmFilter">
-        Filter by WPM:
-    </label>
-
-    <select id="stenoWpmFilter"
-            onchange="filterStenoHistory()">
-
-        <option value="all">All WPM</option>
-        <option value="60">60 WPM</option>
-        <option value="80">80 WPM</option>
-        <option value="100">100 WPM</option>
-        <option value="120">120 WPM</option>
-
-    </select>
-
-</div>
-
-    <div
-        id="stenoHistoryContainer"
-        class="steno-history-container"
-    >
-
-        <p>
-            ⏳ Steno history loading...
-        </p>
-
-    </div>
-
-</div>   
+   
         
 <!-- =====================================================
      ADMIN DASHBOARD
@@ -650,6 +609,62 @@
     </button>
 
 </section>
+
+
+<!-- Payment History -->
+
+<div id="paymentHistoryBox" class="payment-history-box">
+    <h3>💳 Payment History</h3>
+
+    <div id="paymentHistoryContent">
+        <p>Loading payment history...</p>
+    </div>
+
+</div>
+
+<!-- =====================================================
+     STENO TEST HISTORY
+     ===================================================== -->
+
+<div class="dashboard-card steno-history-card">
+
+    <h3>📜 Steno Test History</h3>
+
+    <p class="history-subtitle">
+    तुमच्या मागील Steno Test चे Results
+</p>
+
+<div class="steno-history-filter">
+
+    <label for="stenoWpmFilter">
+        Filter by WPM:
+    </label>
+
+    <select id="stenoWpmFilter"
+            onchange="filterStenoHistory()">
+
+        <option value="all">All WPM</option>
+        <option value="60">60 WPM</option>
+        <option value="80">80 WPM</option>
+        <option value="100">100 WPM</option>
+        <option value="120">120 WPM</option>
+
+    </select>
+
+</div>
+
+    <div
+        id="stenoHistoryContainer"
+        class="steno-history-container"
+    >
+
+        <p>
+            ⏳ Steno history loading...
+        </p>
+
+    </div>
+
+</div>
 
     <!-- MAIN PASSAGE MANAGEMENT -->
 

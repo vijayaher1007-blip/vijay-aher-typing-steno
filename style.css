@@ -2722,3 +2722,115 @@ body.typing-test-active #fullscreenSubmitBtn {
 
     margin-left: 8px;
 }
+
+.dashboard-top-row {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 20px;
+    width: 100%;
+    margin-bottom: 20px;
+}
+
+.dashboard-user-card,
+.subscription-details,
+.subscription-plans {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.payment-history-box {
+    width: 100%;
+    box-sizing: border-box;
+    margin-top: 20px;
+}
+
+@media (max-width: 900px) {
+
+    .dashboard-top-row {
+        grid-template-columns: 1fr;
+    }
+
+}
+
+.subscription-plans {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.subscription-plans > h3 {
+    text-align: center;
+    margin-bottom: 15px;
+}
+
+.subscription-plans .plan-box {
+    display: inline-flex;
+}
+
+.subscription-plans {
+    gap: 10px;
+}
+
+.subscription-plans .plan-box {
+    flex: 1;
+    min-width: 0;
+}
+
+/* तीन plans एका horizontal line मध्ये */
+.subscription-plans {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px;
+}
+
+.subscription-plans > h3 {
+    grid-column: 1 / -1;
+}
+
+/* Mobile */
+@media (max-width: 600px) {
+
+    .subscription-plans {
+        grid-template-columns: 1fr;
+    }
+
+    .subscription-plans > h3 {
+        grid-column: auto;
+    }
+
+}
+
+.subscription-plans .plan-box {
+    padding: 12px;
+    min-height: 130px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    text-align: center;
+    box-sizing: border-box;
+}
+
+.subscription-plans .plan-box h4 {
+    margin: 0 0 6px;
+    font-size: 16px;
+}
+
+.subscription-plans .plan-box p {
+    margin: 4px 0;
+    font-size: 14px;
+}
+
+.subscription-plans .plan-box button {
+    width: 100%;
+    padding: 8px 6px;
+    font-size: 13px;
+}
+
+#paymentHistoryBox {
+    width: 100%;
+    margin-top: 30px;
+}
+
+.steno-history-card {
+    width: 100%;
+    margin-top: 30px;
+}
