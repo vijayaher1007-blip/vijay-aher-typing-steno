@@ -2622,3 +2622,59 @@ body.typing-test-active #typingArea {
     resize: none !important;
     box-sizing: border-box !important;
 }
+
+/* =====================================================
+   FULLSCREEN TYPING TIMER
+   ===================================================== */
+
+#fullscreenTypingTimer {
+    display: none;
+    align-items: center;
+    justify-content: center;
+
+    padding: 8px 16px;
+    margin-right: 10px;
+
+    font-size: 18px;
+    font-weight: 700;
+
+    border-radius: 8px;
+
+    background: linear-gradient(
+        135deg,
+        #667eea,
+        #764ba2
+    );
+
+    color: #ffffff;
+
+    box-shadow:
+        0 4px 12px rgba(0, 0, 0, 0.20);
+
+    white-space: nowrap;
+}
+
+#fullscreenTypingTimer strong {
+    margin-left: 5px;
+    font-size: 20px;
+}
+
+/* =====================================================
+   FULLSCREEN TIMER + SUBMIT BUTTON
+   ===================================================== */
+
+#fullscreenTypingTimer {
+    display: none;
+    align-items: center;
+    justify-content: center;
+}
+
+body.typing-test-active #fullscreenTypingTimer {
+    display: inline-flex !important;
+}
+
+body.typing-test-active #fullscreenSubmitBtn {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+}

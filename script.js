@@ -371,6 +371,20 @@ function skipTypingCountdown() {
    START TYPING AFTER COUNTDOWN
    ===================================================== */
 
+function formatTypingTime(totalSeconds) {
+
+    const minutes =
+        Math.floor(totalSeconds / 60);
+
+    const seconds =
+        totalSeconds % 60;
+
+    return (
+        String(minutes).padStart(2, "0") +
+        ":" +
+        String(seconds).padStart(2, "0")
+    );
+}
 function startTypingAfterCountdown() {
 
     const countdown =
@@ -396,7 +410,33 @@ document.body.classList.add("typing-test-active");
     submitBtn.disabled = false;
 
     updateTimerDisplay();
+// ==========================================
+// SHOW FULLSCREEN TYPING TIMER
+// ==========================================
 
+const fullscreenTimer =
+    document.getElementById(
+        "fullscreenTypingTimer"
+    );
+
+const fullscreenTime =
+    document.getElementById(
+        "fullscreenTimeRemaining"
+    );
+
+if (
+    fullscreenTimer &&
+    fullscreenTime
+) {
+
+    fullscreenTimer.style.display =
+        "inline-flex";
+
+    fullscreenTime.textContent =
+        formatTypingTime(
+            remainingSeconds
+        );
+}
     timerInterval =
         setInterval(
             mainTimerTick,
@@ -511,6 +551,19 @@ function mainTimerTick() {
     remainingSeconds--;
 
     updateTimerDisplay();
+
+const fullscreenTime =
+    document.getElementById(
+        "fullscreenTimeRemaining"
+    );
+
+if (fullscreenTime) {
+
+    fullscreenTime.textContent =
+        formatTypingTime(
+            remainingSeconds
+        );
+}
 
     updateMainStats();
 
