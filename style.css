@@ -2469,11 +2469,12 @@ body.typing-test-active #typingWorkspace {
 }
 
 body.typing-test-active #fullscreenSubmitBtn {
-    display: block !important;
+    display: inline-flex !important;
 
-    position: fixed;
-    top: 15px;
-    right: 15px;
+    align-items: center;
+    justify-content: center;
+
+    position: static !important;
 
     z-index: 100000;
 
