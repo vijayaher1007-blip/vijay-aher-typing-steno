@@ -2286,17 +2286,33 @@ textarea {
     margin-right: 5px;
 }
 
-/* Hide Saved Passages List */
-#passagesList,
-#savedPassages,
-.saved-passages,
-.passages-list {
-    display: none !important;
-}
 
+/* Show Saved Typing Passages in Admin Panel */
 #searchPassage,
 #passageList {
-    display: none !important;
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+#passageList {
+    display: grid !important;
+    gap: 10px;
+}
+
+.passage-item {
+    display: block !important;
+    padding: 14px;
+    margin-bottom: 10px;
+    background: #f8fafc;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+}
+
+.passage-item button {
+    display: inline-block !important;
+    visibility: visible !important;
+    margin: 5px 5px 0 0;
 }
 
 /* =====================================================
