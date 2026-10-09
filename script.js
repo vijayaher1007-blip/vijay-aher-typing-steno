@@ -1390,7 +1390,7 @@ if (finalComparison) {
         </div>
     `;
 }
-
+}
 
 /* =====================================================
    BACKSPACE / ARROW CONTROL
@@ -4194,7 +4194,7 @@ async function deleteStenoPassage(id) {
             "✅ Steno passage successfully deleted."
         );
 
-    } catch (error) {
+        } catch (error) {
 
         console.error(
             "MAIN STENO DELETE ERROR:",
@@ -6221,89 +6221,81 @@ document.addEventListener(
    BACKEND LOGIN
    ===================================================== */
 
+
+/* =====================================================
+   BACKEND LOGIN
+   ===================================================== */
+
 window.loginUser = async function loginUser() {
-
-
     const email =
-        document.getElementById("loginEmail").value.trim();
+        document.getElementById("loginEmail")?.value.trim();
 
     const password =
-        document.getElementById("loginPassword").value;
+        document.getElementById("loginPassword")?.value;
 
     const message =
         document.getElementById("loginMessage");
 
-
     if (!email || !password) {
-
-        message.textContent =
-            "⚠️ Email आणि Password भरा.";
-
+        if (message) {
+            message.textContent = "⚠️ Email आणि Password भरा.";
+        }
         return;
     }
 
-
-    message.textContent =
-        "⏳ Login होत आहे...";
-
+    if (message) {
+        message.textContent = "⏳ Login होत आहे...";
+    }
 
     try {
+        const response = await fetch("/api/login", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                email: email,
+                password: password
+            })
+        });
 
-        const response =
-    await fetch("/api/login", {
-        method: "POST",
-
-        headers: {
-            "Content-Type": "application/json"
-        },
-
-        body: JSON.stringify({
-            email: email,
-            password: password
-        })
-    });
-
-
-        const data =
-            await response.json();
-
+        const data = await response.json();
 
         if (!response.ok) {
-
-            message.textContent =
-                "❌ " + data.message;
-
+            if (message) {
+                message.textContent =
+                    "❌ " + (data.message || "Login अयशस्वी.");
+            }
             return;
         }
 
-
         localStorage.setItem(
-    "loggedInUser",
-    JSON.stringify(data.user)
-);
+            "loggedInUser",
+            JSON.stringify(data.user)
+        );
 
-localStorage.setItem(
-    "authToken",
-    data.token
-);
+        if (data.token) {
+            localStorage.setItem("authToken", data.token);
+        }
 
-        message.textContent =
-            "✅ Login Successful!";
+        if (message) {
+            message.textContent = "✅ Login Successful!";
+        }
 
-
-        showDashboard();
-
+        if (typeof window.showDashboard === "function") {
+            window.showDashboard();
+        } else {
+            console.error("showDashboard function उपलब्ध नाही.");
+        }
 
     } catch (error) {
+        console.error("Login error:", error);
 
-        console.error(error);
-
-        message.textContent =
-            "❌ Server connection failed.";
-
+        if (message) {
+            message.textContent = "❌ Server connection failed.";
+        }
     }
-
-}
+};
 
 
 /* =====================================================
@@ -8604,81 +8596,86 @@ if (mainStenoSelect) {
 
 }
 
-// ==========================================
-// MAIN STENO - SPEED FILTER
-// ==========================================
+
+/* ==========================================
+   MAIN STENO - SPEED FILTER
+   ========================================== */
 
 const mainStenoSpeed =
     document.getElementById("stenoSpeed");
 
-if (mainStenoSpeed) {
+const mainStenoPassageSelect =
+    document.getElementById("stenoPassageSelect");
 
-    mainStenoSpeed.addEventListener(
-        "change",
-        function () {
+if (mainStenoSpeed && mainStenoPassageSelect) {
 
-            const selectedSpeed =
-                Number(this.value);
+    mainStenoSpeed.addEventListener("change", function () {
 
-            stenoPassageSelect.innerHTML =
-                '<option value="">Select Passage</option>';
+        const selectedSpeed = Number(this.value);
 
-            stenoPassages
-                .filter(
-                    p =>
+        // Reset passage dropdown
+        mainStenoPassageSelect.innerHTML =
+            '<option value="">Select Passage</option>';
+
+        // Get passages for selected speed
+        const filteredPassages =
+            Array.isArray(stenoPassages)
+                ? stenoPassages.filter(function (p) {
+                    return (
                         !p.hidden &&
                         p.visible !== false &&
                         Number(p.speed) === selectedSpeed
-                )
-                .forEach(
-                    p => {
+                    );
+                })
+                : [];
 
-                        const option =
-                            document.createElement(
-                                "option"
-                            );
+        // Add matching passages
+        filteredPassages.forEach(function (p) {
 
-                        option.value =
-                            p.id;
+            const option = document.createElement("option");
 
-                        option.textContent =
-                            `${p.title} (${p.speed} WPM)`;
+            option.value = p.id;
 
-                        stenoPassageSelect.appendChild(
-                            option
-                        );
+            option.textContent =
+                `${p.title} (${p.speed} WPM)`;
 
-                    }
-                );
+            mainStenoPassageSelect.appendChild(option);
 
-            // Reset current passage
-            currentSteno = null;
+        });
 
-            // Reset audio
-            const audio =
-                document.getElementById(
-                    "stenoAudio"
-                );
+        // Reset selected passage
+        currentSteno = null;
 
-            if (audio) {
+        // Reset audio player
+        const audio =
+            document.getElementById("stenoAudio");
 
-                audio.pause();
-                audio.removeAttribute("src");
-                audio.load();
-
-            }
-
-            document.getElementById(
-                "audioStatus"
-            ).textContent =
-                "Select a steno passage.";
-
-            console.log(
-                "MAIN STENO SPEED FILTER:",
-                selectedSpeed
-            );
-
+        if (audio) {
+            audio.pause();
+            audio.removeAttribute("src");
+            audio.load();
         }
-    );
+
+        // Update audio status safely
+        const audioStatus =
+            document.getElementById("audioStatus");
+
+        if (audioStatus) {
+            audioStatus.textContent =
+                "Select a steno passage.";
+        }
+
+        // Debug information
+        console.log(
+            "MAIN STENO SPEED FILTER:",
+            selectedSpeed
+        );
+
+        console.log(
+            "FILTERED STENO PASSAGES:",
+            filteredPassages.length
+        );
+
+    });
 
 }
