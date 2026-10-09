@@ -181,8 +181,12 @@ function loadSelectedPassage() {
         return;
     }
 
-    questionText.textContent =
-        currentPassage.content;
+    
+questionText.textContent =
+    language.value === "English"
+        ? currentPassage.content
+        : unicodeToKrutiDev(currentPassage.content);
+
 
     setTypingFont();
 }
@@ -840,141 +844,179 @@ function submitMainTyping() {
         currentPassage.content || "";
 
     
-    /* =================================================
-       WORDS
-       ================================================= */
+    
+/* =================================================
+   WORDS
+   ================================================= */
 
-    const targetWords =
-        target.trim()
-            ? target.trim().split(/\s+/)
-            : [];
+const targetWords = target.trim()
+    ? target.trim().split(/\s+/)
+    : [];
 
-    const typedWords =
-        typed.trim()
-            ? typed.trim().split(/\s+/)
-            : [];
+const typedWords = typed.trim()
+    ? typed.trim().split(/\s+/)
+    : [];
 
+let correctWords = 0;
+let wrongWords = 0;
+let comparisonHTML = "";
+let spaceErrors = 0;
 
-    let correctWords = 0;
-    let wrongWords = 0;
+/* =================================================
+   ALIGN WORDS
+   ================================================= */
 
-    let comparisonHTML = "";
+let i = 0;
+let j = 0;
 
+while (i < targetWords.length || j < typedWords.length) {
 
-    const maxWords =
-        Math.max(
-            targetWords.length,
-            typedWords.length
-        );
+    const correctWord = targetWords[i];
+    const typedWord = typedWords[j];
 
-
-    /* =================================================
-       WORD COMPARISON
-       ================================================= */
-
-    for (
-        let i = 0;
-        i < maxWords;
-        i++
+    // Both words match
+    if (
+        correctWord !== undefined &&
+        typedWord !== undefined &&
+        normalizeTypingWord(correctWord) ===
+        normalizeTypingWord(typedWord)
     ) {
+        correctWords++;
 
-        const correctWord =
-            targetWords[i];
+        comparisonHTML += `
+            <span class="typing-word correct-word">
+                ${escapeHTML(typedWord)}
+            </span> `;
 
-        const typedWord =
-            typedWords[i];
-
-
-        /* CORRECT */
-
-        if (
-            correctWord !== undefined &&
-            typedWord !== undefined &&
-            normalizeTypingWord(correctWord) ===
-            normalizeTypingWord(typedWord)
-        ) {
-
-            correctWords++;
-
-
-            comparisonHTML += `
-                <span class="typing-word correct-word">
-                    ${escapeHTML(typedWord)}
-                </span>
-            `;
-
-        }
-
-
-        /* WRONG */
-
-        else if (
-            correctWord !== undefined &&
-            typedWord !== undefined
-        ) {
-
-            wrongWords++;
-
-
-            comparisonHTML += `
-                <span
-                    class="typing-word wrong-word"
-                    title="Correct: ${escapeHTML(correctWord)}">
-
-                    ${escapeHTML(typedWord)}
-
-                </span>
-            `;
-
-        }
-
-
-        /* MISSING */
-
-        else if (
-            correctWord !== undefined &&
-            typedWord === undefined
-        ) {
-
-            wrongWords++;
-
-
-            comparisonHTML += `
-                <span
-                    class="typing-word missing-word"
-                    title="Missing: ${escapeHTML(correctWord)}">
-
-                    [${escapeHTML(correctWord)}]
-
-                </span>
-            `;
-
-        }
-
-
-        /* EXTRA */
-
-        else if (
-            correctWord === undefined &&
-            typedWord !== undefined
-        ) {
-
-            wrongWords++;
-
-
-            comparisonHTML += `
-                <span
-                    class="typing-word extra-word"
-                    title="Extra word">
-
-                    ${escapeHTML(typedWord)}
-
-                </span>
-            `;
-
-        }
-
+        i++;
+        j++;
     }
+
+    // Extra typed word: next typed word matches target
+    else if (
+        correctWord !== undefined &&
+        typedWords[j + 1] !== undefined &&
+        normalizeTypingWord(correctWord) ===
+        normalizeTypingWord(typedWords[j + 1])
+    ) {
+        wrongWords++;
+
+        comparisonHTML += `
+            <span class="typing-word extra-word"
+                  title="Extra word">
+                ${escapeHTML(typedWord)}
+            </span> `;
+
+        j++;
+    }
+
+    // Missing target word: next target word matches typed
+    else if (
+        typedWord !== undefined &&
+        targetWords[i + 1] !== undefined &&
+        normalizeTypingWord(targetWords[i + 1]) ===
+        normalizeTypingWord(typedWord)
+    ) {
+        wrongWords++;
+
+        comparisonHTML += `
+            <span class="typing-word missing-word"
+                  title="Missing: ${escapeHTML(correctWord)}">
+                [${escapeHTML(correctWord)}]
+            </span> `;
+
+        i++;
+    }
+
+    // Incorrect word
+    else if (
+        correctWord !== undefined &&
+        typedWord !== undefined
+    ) {
+        wrongWords++;
+
+        comparisonHTML += `
+            <span class="typing-word wrong-word"
+                  title="Correct: ${escapeHTML(correctWord)}">
+                ${escapeHTML(typedWord)}
+            </span> `;
+
+        i++;
+        j++;
+    }
+
+    // Missing words at the end
+    else if (correctWord !== undefined) {
+        wrongWords++;
+
+        comparisonHTML += `
+            <span class="typing-word missing-word"
+                  title="Missing: ${escapeHTML(correctWord)}">
+                [${escapeHTML(correctWord)}]
+            </span> `;
+
+        i++;
+    }
+
+    // Extra words at the end
+    else {
+        wrongWords++;
+
+        comparisonHTML += `
+            <span class="typing-word extra-word"
+                  title="Extra word">
+                ${escapeHTML(typedWord)}
+            </span> `;
+
+        j++;
+    }
+}
+
+/* =================================================
+   EXTRA SPACE CHECK
+   ================================================= */
+
+
+/* EXTRA SPACE CHECK */
+
+const targetGaps = target.match(/\s+/g) || [];
+const typedGaps = typed.match(/\s+/g) || [];
+
+const targetGapWords = target.trim()
+    ? target.trim().split(/\s+/)
+    : [];
+
+const typedGapWords = typed.trim()
+    ? typed.trim().split(/\s+/)
+    : [];
+
+spaceErrors = 0;
+
+for (
+    let k = 0;
+    k < Math.min(targetGapWords.length - 1, typedGapWords.length - 1);
+    k++
+) {
+    const leftMatches =
+        normalizeTypingWord(targetGapWords[k]) ===
+        normalizeTypingWord(typedGapWords[k]);
+
+    const rightMatches =
+        normalizeTypingWord(targetGapWords[k + 1]) ===
+        normalizeTypingWord(typedGapWords[k + 1]);
+
+    if (leftMatches && rightMatches) {
+        const expected = targetGaps[k] || "";
+        const entered = typedGaps[k] || "";
+
+        spaceErrors += Math.abs(
+            entered.length - expected.length
+        );
+    }
+}
+
+wrongWords += spaceErrors;
+
 
 
     /* =================================================
@@ -1162,191 +1204,193 @@ function submitMainTyping() {
     }
 
 
-  /* =================================================
-   FINAL QUESTION + ANSWER
-   ================================================= */
+  
+
+/* =====================================================
+   FINAL QUESTION + ANSWER — FULL WORD COMPARISON
+   ===================================================== */
 
 const finalComparison =
-    document.getElementById(
-        "typingFinalComparison"
-    );
+    document.getElementById("typingFinalComparison");
 
 if (finalComparison) {
+    const n = targetWords.length;
+    const m = typedWords.length;
 
-    let answerKeyHTML = "";
+    // Build edit-distance table
+    const dp = Array.from(
+        { length: n + 1 },
+        () => Array(m + 1).fill(0)
+    );
 
-    const maxWords =
-        Math.max(
-            targetWords.length,
-            typedWords.length
-        );
+    for (let i = 0; i <= n; i++) dp[i][0] = i;
+    for (let j = 0; j <= m; j++) dp[0][j] = j;
 
+    for (let i = 1; i <= n; i++) {
+        for (let j = 1; j <= m; j++) {
+            const same =
+                normalizeTypingWord(targetWords[i - 1]) ===
+                normalizeTypingWord(typedWords[j - 1]);
 
-    for (
-        let i = 0;
-        i < maxWords;
-        i++
-    ) {
-
-        const correctWord =
-            targetWords[i] || "";
-
-        const typedWord =
-            typedWords[i] || "";
-
-
-        /* ================================
-           CORRECT WORD
-           ================================ */
-
-        if (
-            correctWord &&
-            typedWord &&
-            normalizeTypingWord(correctWord) ===
-            normalizeTypingWord(typedWord)
-        ) {
-
-            answerKeyHTML += `
-                <span class="answer-correct-word">
-                    ${escapeHTML(correctWord)}
-                </span>
-            `;
-
+            dp[i][j] = Math.min(
+                dp[i - 1][j] + 1,
+                dp[i][j - 1] + 1,
+                dp[i - 1][j - 1] + (same ? 0 : 1)
+            );
         }
-
-
-        /* ================================
-           WRONG WORD
-           ================================ */
-
-        else if (
-            correctWord &&
-            typedWord
-        ) {
-
-            answerKeyHTML += `
-                <span
-                    class="answer-wrong-word"
-                    title="You typed: ${escapeHTML(typedWord)}">
-
-                    ${escapeHTML(typedWord)}
-
-                </span>
-            `;
-
-        }
-
-
-        /* ================================
-           MISSING WORD
-           ================================ */
-
-        else if (
-            correctWord &&
-            !typedWord
-        ) {
-
-            answerKeyHTML += `
-                <span
-                    class="answer-wrong-word"
-                    title="Missing word">
-
-                    ${escapeHTML(correctWord)}
-
-                </span>
-            `;
-
-        }
-
-
-        /* ================================
-           EXTRA WORD
-           ================================ */
-
-        else if (
-            !correctWord &&
-            typedWord
-        ) {
-
-            answerKeyHTML += `
-                <span
-                    class="answer-extra-word"
-                    title="Extra typed word">
-
-                    ${escapeHTML(typedWord)}
-
-                </span>
-            `;
-
-        }
-
-
-        answerKeyHTML += " ";
-
     }
 
+    // Backtrack to align every word
+    const aligned = [];
+    let i = n;
+    let j = m;
+
+    while (i > 0 || j > 0) {
+        if (
+            i > 0 && j > 0 &&
+            normalizeTypingWord(targetWords[i - 1]) ===
+            normalizeTypingWord(typedWords[j - 1]) &&
+            dp[i][j] === dp[i - 1][j - 1]
+        ) {
+            aligned.unshift({
+                type: "correct",
+                word: typedWords[j - 1],
+                ti: i - 1,
+                tj: j - 1
+            });
+            i--;
+            j--;
+        } else if (
+            i > 0 && j > 0 &&
+            dp[i][j] === dp[i - 1][j - 1] + 1
+        ) {
+            aligned.unshift({
+                type: "wrong",
+                word: typedWords[j - 1],
+                expected: targetWords[i - 1],
+                ti: i - 1,
+                tj: j - 1
+            });
+            i--;
+            j--;
+        } else if (
+            i > 0 &&
+            dp[i][j] === dp[i - 1][j] + 1
+        ) {
+            aligned.unshift({
+                type: "missing",
+                word: targetWords[i - 1],
+                ti: i - 1,
+                tj: null
+            });
+            i--;
+        } else {
+            aligned.unshift({
+                type: "extra",
+                word: typedWords[j - 1],
+                ti: null,
+                tj: j - 1
+            });
+            j--;
+        }
+    }
+
+    // Compare whitespace between adjacent aligned words
+    const targetGaps = target.match(/\s+/g) || [];
+    const typedGaps = typed.match(/\s+/g) || [];
+
+    let answerKeyHTML = "";
+    let previous = null;
+
+    for (const item of aligned) {
+
+        if (
+            item.type === "correct" &&
+            previous &&
+            previous.type === "correct" &&
+            item.ti === previous.ti + 1 &&
+            item.tj === previous.tj + 1
+        ) {
+            const expectedGap = targetGaps[item.ti - 1] || "";
+            const enteredGap = typedGaps[item.tj - 1] || "";
+
+            const extraSpaces = Math.max(
+                0,
+                enteredGap.length - expectedGap.length
+            );
+
+            for (let s = 0; s < extraSpaces; s++) {
+                answerKeyHTML += `
+                    <span
+                        title="Extra space"
+                        style="background:#fff176;color:#7a4b00;
+                               border:1px solid #e0b400;
+                               padding:1px 3px;border-radius:3px;">
+                        ␣
+                    </span>`;
+            }
+        }
+
+        if (item.type === "correct") {
+            answerKeyHTML += `
+                <span class="answer-correct-word">
+                    ${escapeHTML(item.word)}
+                </span> `;
+        } else if (item.type === "wrong") {
+            answerKeyHTML += `
+                <span class="answer-wrong-word"
+                      title="Correct: ${escapeHTML(item.expected)}">
+                    ${escapeHTML(item.word)}
+                </span> `;
+        } else if (item.type === "missing") {
+            answerKeyHTML += `
+                <span
+                    title="Omission: missing word"
+                    style="background:#fff176;color:#7a4b00;
+                           border:1px solid #e0b400;
+                           padding:2px 4px;border-radius:3px;">
+                    [Omission: ${escapeHTML(item.word)}]
+                </span> `;
+        } else if (item.type === "extra") {
+            answerKeyHTML += `
+                <span class="answer-extra-word"
+                      title="Extra typed word">
+                    ${escapeHTML(item.word)}
+                </span> `;
+        }
+
+        previous = item;
+    }
 
     finalComparison.innerHTML = `
-
         <div class="comparison-header">
-
             <h3>📄 Question Paper</h3>
-
             <h3>⌨ Answer Key</h3>
-
         </div>
-
 
         <div class="comparison-columns">
-
-
-            <!-- LEFT SIDE : FULL QUESTION PAPER -->
-
             <div class="comparison-question">
-
                 <div class="comparison-text">
-
                     ${escapeHTML(target)}
-
                 </div>
-
             </div>
-
-
-            <!-- RIGHT SIDE : SAME QUESTION PAPER
-                 WITH WRONG WORDS RED -->
 
             <div class="comparison-answer">
-
                 <div class="comparison-word-result">
-
                     ${answerKeyHTML}
-
                 </div>
-
             </div>
-
-
         </div>
-
 
         <div class="comparison-legend">
-
-            <span class="legend-correct">
-                🟢 Correct
-            </span>
-
-            <span class="legend-wrong">
-                🔴 Wrong
-            </span>
-
+            <span class="legend-correct">🟢 Correct</span>
+            <span class="legend-wrong">🔴 Wrong</span>
+            <span style="color:#9a7200">🟡 Omission / Extra space</span>
+            <span style="color:#c76b00">🟠 Extra typed word</span>
         </div>
-
     `;
-
 }
 
-}
 
 /* =====================================================
    BACKSPACE / ARROW CONTROL
