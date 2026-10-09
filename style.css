@@ -2926,3 +2926,256 @@ body.typing-test-active #fullscreenSubmitBtn {
     }
 
 }
+
+
+/* =====================================================
+   VIJAY AHER PREMIUM HEADER
+   ===================================================== */
+
+.main-header {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 24px;
+    min-height: 190px;
+    padding: 28px 240px 28px 180px;
+    overflow: hidden;
+    box-sizing: border-box;
+    color: #ffffff;
+    text-align: center;
+    background:
+        radial-gradient(ellipse at 80% 20%, rgba(31, 105, 205, 0.35), transparent 45%),
+        linear-gradient(125deg, #07152e, #102d59 55%, #061225);
+    border-bottom: 3px solid #d9ad50;
+    border-radius: 0 0 18px 18px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.22);
+}
+
+.main-header::before,
+.main-header::after {
+    content: "";
+    position: absolute;
+    height: 1px;
+    width: 35%;
+    bottom: 14px;
+    background: linear-gradient(90deg, transparent, #e8c36e, transparent);
+}
+
+.main-header::before {
+    left: 4%;
+}
+
+.main-header::after {
+    right: 4%;
+}
+
+.header-title {
+    position: relative;
+    z-index: 2;
+}
+
+.header-title h1 {
+    margin: 0;
+    font-size: clamp(28px, 4vw, 46px);
+    font-weight: 900;
+    letter-spacing: 5px;
+    color: #f8d77b;
+    text-shadow: 0 0 18px rgba(248, 215, 123, 0.22);
+}
+
+.header-title p {
+    margin: 10px 0 0;
+    font-size: clamp(14px, 2vw, 20px);
+    font-weight: 600;
+    letter-spacing: 1px;
+    color: #ffffff;
+}
+
+.header-badge {
+    margin-top: 13px;
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: #f2d18a;
+}
+
+.header-decoration {
+    position: absolute;
+    top: 50%;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    transform: translateY(-50%);
+    opacity: 0.95;
+}
+
+.header-decoration-left {
+    left: 22px;
+}
+
+.header-decoration-right {
+    right: 215px;
+}
+
+.gold-line {
+    display: block;
+    width: 45px;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #f5d47b);
+}
+
+.short-line {
+    width: 22px;
+}
+
+.keyboard-icon {
+    color: #f5d47b;
+    font-size: 25px;
+}
+
+.header-pc {
+    position: absolute;
+    right: 22px;
+    bottom: 23px;
+    width: 165px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    filter: drop-shadow(0 5px 8px rgba(0, 0, 0, 0.3));
+}
+
+.pc-monitor {
+    width: 118px;
+    height: 78px;
+    padding: 5px;
+    box-sizing: border-box;
+    border: 3px solid #a9bad1;
+    border-radius: 7px;
+    background: #172338;
+}
+
+.pc-screen {
+    position: relative;
+    height: 100%;
+    padding: 6px;
+    box-sizing: border-box;
+    overflow: hidden;
+    border-radius: 2px;
+    background: linear-gradient(135deg, #06142a, #164b83);
+}
+
+.screen-dot {
+    display: inline-block;
+    width: 4px;
+    height: 4px;
+    margin-right: 3px;
+    border-radius: 50%;
+    background: #f3cc70;
+}
+
+.screen-text-lines {
+    margin-top: 7px;
+}
+
+.screen-text-lines i {
+    display: block;
+    height: 2px;
+    margin: 4px 0;
+    border-radius: 2px;
+    background: #8cc7ff;
+}
+
+.screen-text-lines i:nth-child(2) {
+    width: 75%;
+}
+
+.screen-text-lines i:nth-child(3) {
+    width: 55%;
+}
+
+.screen-text-lines i:nth-child(4) {
+    width: 85%;
+}
+
+.screen-keys {
+    margin-top: 5px;
+    font-size: 7px;
+    letter-spacing: 2px;
+    color: #f8d77b;
+}
+
+.monitor-stand {
+    width: 18px;
+    height: 9px;
+    margin: auto;
+    background: #a9bad1;
+}
+
+.monitor-base {
+    width: 42px;
+    height: 4px;
+    margin: auto;
+    border-radius: 4px;
+    background: #d5dfeb;
+}
+
+.pc-keyboard {
+    width: 100px;
+    margin-top: 5px;
+    padding: 4px;
+    border: 1px solid #b6c4d8;
+    border-radius: 4px;
+    background: #dce5f0;
+    color: #18365d;
+    font-size: 9px;
+    line-height: 10px;
+    text-align: center;
+}
+
+/* Mobile responsive */
+@media (max-width: 650px) {
+    .main-header {
+        min-height: 165px;
+        padding: 24px 12px 80px;
+    }
+
+    .header-title h1 {
+        font-size: 27px;
+        letter-spacing: 3px;
+    }
+
+    .header-title p {
+        font-size: 13px;
+    }
+
+    .header-badge {
+        font-size: 8px;
+        letter-spacing: 1px;
+    }
+
+    .header-decoration-left {
+        left: 8px;
+        top: 22px;
+    }
+
+    .header-decoration-right {
+        right: 8px;
+        top: 22px;
+    }
+
+    .header-decoration .gold-line {
+        width: 12px;
+    }
+
+    .header-decoration .keyboard-icon {
+        font-size: 16px;
+    }
+
+    .header-pc {
+        right: 50%;
+        bottom: 16px;
+        width: 100px;
+        transform: translateX(50%) scale(0.65);
+        transform-origin: bottom center;
+    }
+}
