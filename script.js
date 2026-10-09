@@ -4,25 +4,43 @@
    ===================================================== */
 
 
+
 /* =====================================================
    GENERAL NAVIGATION
    ===================================================== */
 
-function showSection(id) {
+window.showSection = function showSection(id) {
 
+    // सर्व main sections hide करा
     document.querySelectorAll(".main-section")
-        .forEach(section => section.classList.add("hidden"));
+        .forEach(section => {
+            section.classList.add("hidden");
+        });
 
+    // निवडलेला section दाखवा
     const section = document.getElementById(id);
 
     if (section) {
         section.classList.remove("hidden");
+
+        // Typing Test सुरू झालेला नसेल तर fullscreen बंद ठेवा
+        if (id !== "typingSection") {
+            document.body.classList.remove("typing-test-active");
+
+            if (document.fullscreenElement) {
+                document.exitFullscreen().catch(error => {
+                    console.warn("Fullscreen exit:", error);
+                });
+            }
+        }
+
         window.scrollTo({
             top: 0,
             behavior: "smooth"
         });
     }
-}
+};
+
 
 
 /* =====================================================
@@ -6323,8 +6341,27 @@ async function showDashboard() {
         .getElementById("registerBox")
         ?.classList.add("hidden");
 
+
+    // Login नंतर Typing Fullscreen बंद करा
+    document.body.classList.remove("typing-test-active");
+
+    if (document.fullscreenElement) {
+        document.exitFullscreen().catch(function(error) {
+            console.warn("Fullscreen exit:", error);
+        });
+    }
+
     const dashboard =
         document.getElementById("dashboardSection");
+
+// Login नंतर Typing / Steno Full Screen बंद करा
+document.body.classList.remove("typing-test-active");
+
+if (document.fullscreenElement) {
+    document.exitFullscreen().catch(function (error) {
+        console.warn("Fullscreen exit:", error);
+    });
+}
 
     if (dashboard) {
         dashboard.style.display = "block";
